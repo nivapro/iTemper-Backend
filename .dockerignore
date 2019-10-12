@@ -1,0 +1,18 @@
+#ignore the files
+/.git/
+/.vscode/
+/.snyk/
+/.travis.yml/
+/node_modules/
+/src/
+/views/
+/coverage/
+.editorconfig
+.gitignore
+.prettierrc
+gulpfile.js
+package-lock.json
+tsconfig.json
+tslint.json
+**/*.d.ts
+**/*.ts
