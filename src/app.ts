@@ -67,9 +67,10 @@ app.use(lusca.xssProtection(true));
 app.use(lusca.nosniff());
 app.set("trust proxy", "loopback, uniquelocal");
 
-app.use(
-  express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
-);
+app.use("/uploads", express.static(path.join(__dirname, "uploads"), { maxAge: 31557600000 }));
+
+app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
+
 
 // Create a locations from form
 app.get("/locations/", LocationMiddleWare, locationController.getAllLocations);
@@ -103,15 +104,13 @@ app.use((req, res, next) => {
 
 });
 
-app.get("/", sensorController.notImplemented);
-app.get("/", homeController.getHome);
+
 app.post("/signup", userController.postSignup);
 app.post("/login", userController.postLogin);
 
 // Requires JWT Token //
 // Tenant methods
 app.post("/users/add", authorizeJWT, userController.postSignup);
-
 
 // Create a device, returns a shared API key (the key is not saved, so remember)
 app.post("/devices/", DeviceMiddleWare, deviceController.NameFieldValidator, deviceController.postRegisterDevice);
@@ -151,7 +150,8 @@ app.get("/sensors/:sn", SensorUserMiddleWare, sensorController.getValidatorSN,  
 app.post("/sensors/:sn/delete",  SensorUserMiddleWare, sensorController.deleteValidator, sensorController.postDeleteSensors);
 
 
-
+app.get("/", sensorController.notImplemented);
+app.get("/", homeController.getHome);
 
 
 

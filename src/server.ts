@@ -12,7 +12,7 @@ const httpServer: http.Server = http.createServer(app);
 
 const iTemperServer = httpServer.listen(app.get("port"), () => {
   log.info(
-    "iTemper back-end app is running at port" + app.get("port") +
+    "iTemper back-end app is running at port " + app.get("port") +
     " in " + app.get("env") + " mode");
   log.info("Press CTRL-C to stop\n");
 });
