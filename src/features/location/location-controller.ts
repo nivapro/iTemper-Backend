@@ -43,21 +43,22 @@ export let postCreateLocation = (req: Request, res: Response): void => {
       if (location === null) {
         log.debug(label(m) + "Creating location " + name);
             const color = req.body.color;
-            const file: Express.Multer.File = req.body.file;
+            const file: Express.Multer.File = req.file;
+            log.debug(label(m) + "file=" + JSON.stringify(req.file));
+            log.debug(label(m) + "files=" + JSON.stringify(req.files));
             const newLocation = new Location();
             newLocation.set("name", name);
             newLocation.set("color", color);
             if (file) {
               const locationImageFolder = path.join(file.destination, res.locals.tenantID, "locations");
-              const finalDestination = path.join(file.destination, locationImageFolder);
-              const finalPath = path.join(finalDestination, file.filename);
+              const finalPath = path.join(locationImageFolder, file.originalname);
               newLocation.set("path", finalPath);
               move(file.path, finalPath, (err) => {
                 if (err) {
-                  log.error(label(m) +  "Cannot move location image " + file.path +
-                                        " to final destination " + finalPath + ", err=" + JSON.stringify(err));
+                  log.error(label(m) +  "Cannot move " + file.path +
+                                        " to destination " + finalPath + ", err=" + JSON.stringify(err));
                 } else {
-                  log.info(label(m) + "Stored location image " + file.originalname + " here: " + finalPath);
+                  log.info(label(m) + "Stored location image " + file.originalname + " here: " + locationImageFolder);
                 }
               });
             }

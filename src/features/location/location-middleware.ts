@@ -41,6 +41,22 @@ function useLocationModel(req: Request, res: Response, next: NextFunction) {
 
     next();
 }
+const uploadLocationImage = uploads.single("locationImage");
+
+function useUpload (req: Request, res: Response, next: NextFunction)  {
+  const m = "useUpload, tenantID=" + res.locals.tenantModel;
+  log.debug(label(m));
+  uploadLocationImage(req, res, (err) => {
+    const m = "uploadLocationImage, tenantID=" + res.locals.tenantModel;
+    if (err) {
+      log.error(label(m) + "res.locals.Sensor=" + util.stringify(res.locals.Sensor));
+      next(err);
+    } else {
+      log.debug(label(m) + "upload file=" + JSON.stringify(req.file));
+      next();
+    }
+  });
+}
 
 export const LocationMiddleWare = [authorizeJWT,
                                   useTenantDB,
@@ -51,4 +67,5 @@ export const CreateLocationMiddleWare = [authorizeJWT,
                                   useTenantDB,
                                   useLocationModel,
                                   useSensorModel,
-                                  uploads.single("locationImage")];
+                                  useUpload,
+                                  ];
