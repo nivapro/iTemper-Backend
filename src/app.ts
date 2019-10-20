@@ -24,6 +24,7 @@ import * as homeController from "./features/home/home-controller";
 import * as userController from "./features/user/user-controller";
 import * as sensorController from "./features/sensor/sensor-controller";
 import * as deviceController from "./features/device/device-controller";
+import * as locationController from "./features/location/location-controller";
 
 
 import log from "./services/logger";
@@ -34,6 +35,7 @@ import errorHandler from "errorhandler";
 import { authorizeJWT } from "./features/auth/auth-middleware";
 import { SensorDeviceMiddleWare, SensorUserMiddleWare } from  "./features/sensor/sensor-middleware";
 import { DeviceMiddleWare } from  "./features/device/device-middleware";
+import { LocationMiddleWare } from "./features/location/location-middleware";
 
 
 
@@ -69,7 +71,10 @@ app.use(
   express.static(path.join(__dirname, "public"), { maxAge: 31557600000 })
 );
 
+// Create a locations from form
+app.get("/locations/", LocationMiddleWare, locationController.getAllLocations);
 
+// application/json after this
 app.use((req, res, next) => {
     log.debug("App: received request " + req.method + " " + req.path);
     // res.setHeader("Content-Type", "application/json");
@@ -98,10 +103,6 @@ app.use((req, res, next) => {
 
 });
 
-/**
- * Proof of Concept web sockets
- */
-
 app.get("/", sensorController.notImplemented);
 app.get("/", homeController.getHome);
 app.post("/signup", userController.postSignup);
@@ -110,6 +111,7 @@ app.post("/login", userController.postLogin);
 // Requires JWT Token //
 // Tenant methods
 app.post("/users/add", authorizeJWT, userController.postSignup);
+
 
 // Create a device, returns a shared API key (the key is not saved, so remember)
 app.post("/devices/", DeviceMiddleWare, deviceController.NameFieldValidator, deviceController.postRegisterDevice);

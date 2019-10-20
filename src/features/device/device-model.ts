@@ -4,7 +4,7 @@ import log from "../../services/logger";
 
 import * as crypto from "../../services/crypto";
 
-const moduleName = "device-controller.";
+const moduleName = "device-model.";
 function label(name: string): string {
   return moduleName + name + ": ";
 }

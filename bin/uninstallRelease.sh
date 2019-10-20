@@ -6,6 +6,5 @@ rm /home/tova/docker-compose.yml
 rm /home/tova/LICENSE
 rm /home/tova/package.json
 rm /home/tova/README.md
-initRelease.sh $1
-dockerBuild.sh $1
-runiTemper.sh $1
+docker rmi itemper-node:v$1
+

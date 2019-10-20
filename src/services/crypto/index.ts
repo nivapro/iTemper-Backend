@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt-nodejs";
+import bcrypt from "bcrypt";
 import uuidv4 from "uuid/v4";
 import log  from "./../logger";
 
@@ -14,7 +14,7 @@ function saltAndHash(no: number, password: string, callback: (err: Error, hash: 
   //      log.debug(label(m) + "salt");
         if (err) { log.debug("crypto.saltSndHash err"); callback(err, undefined); log.debug("crypto.saltSndHash undefined"); }
   //      log.debug(label(m) + "salted");
-        bcrypt.hash(password, salt, () => { } , (err, hash) => {
+        bcrypt.hash(password, salt, (err, hash) => {
   //      log.debug(label(m) + "hashed");
             callback(err, hash);
         });
