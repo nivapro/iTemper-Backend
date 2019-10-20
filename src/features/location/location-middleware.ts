@@ -18,29 +18,12 @@ function label(name: string): string {
   return moduleName + name + ": ";
 }
 
-const storage = multer.diskStorage({
-  destination: locationDir,
-  filename: filename
-});
 
 const limits =  {
-    /** For multipart forms, the max file size (in bytes)(Default: Infinity) */
     fileSize: 5_000_000,
-    /** For multipart forms, the max number of file fields (Default: Infinity) */
     files: 1,
 };
-const uploadFile = multer({ storage, limits });
-
-function locationDir (req: Express.Request, file: Express.Multer.File,
-  setFolder: (error: Error | null, destination: string) => void): void {
-    setFolder(undefined, "files");
-}
-
-function filename (req: Express.Request, file: Express.Multer.File,
-  callback: (error: Error | null, filename: string) => void): void {
-
-    callback(undefined, + Date.now() + "_" + file.fieldname);
-}
+const uploads = multer({ dest: "uploads/", limits });
 
 function useLocationModel(req: Request, res: Response, next: NextFunction) {
     const m = "useLocationModel, " + res.locals.tenantID;
@@ -59,11 +42,13 @@ function useLocationModel(req: Request, res: Response, next: NextFunction) {
     next();
 }
 
-function upload (req: Request, res: Response, next: NextFunction) {
-
-}
-
 export const LocationMiddleWare = [authorizeJWT,
                                   useTenantDB,
                                   useLocationModel,
                                   useSensorModel];
+
+export const CreateLocationMiddleWare = [authorizeJWT,
+                                  useTenantDB,
+                                  useLocationModel,
+                                  useSensorModel,
+                                  uploads.single("locationImage")];

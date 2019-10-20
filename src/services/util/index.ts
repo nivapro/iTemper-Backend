@@ -1,3 +1,5 @@
+import * as fs from "fs";
+
 export function stringify(o: object) {
     let cache: object[] = [];
 
@@ -15,4 +17,32 @@ export function stringify(o: object) {
         return value;
     });
     cache = undefined;
+  }
+
+  export function move(oldPath: string, newPath: string, callback: (err?: any) => void) {
+
+      fs.rename(oldPath, newPath, function (err) {
+          if (err) {
+              if (err.code === "EXDEV") {
+                  copy();
+              } else {
+                  callback(err);
+              }
+              return;
+          }
+          callback();
+      });
+
+      function copy() {
+          const readStream = fs.createReadStream(oldPath);
+          const writeStream = fs.createWriteStream(newPath);
+
+          readStream.on("error", callback);
+          writeStream.on("error", callback);
+
+          readStream.on("close", function () {
+              fs.unlink(oldPath, callback);
+          });
+          readStream.pipe(writeStream);
+      }
   }

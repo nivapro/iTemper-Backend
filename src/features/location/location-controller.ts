@@ -1,11 +1,15 @@
 "use strict";
 import log from "../../services/logger";
-
+import { move } from "../../services/util";
 import { Response, Request } from "express";
 import { body, param, validationResult, ValidationChain } from "express-validator/check";
 import { Model } from "mongoose";
 import { LocationDocument } from "./location-model";
 import { ISensor, Descriptor } from "../sensor/sensor-model";
+import path from "path";
+
+
+import multer from "multer";
 
 const moduleName = "location-controller.";
 function label(name: string): string {
@@ -34,20 +38,33 @@ export let postCreateLocation = (req: Request, res: Response): void => {
     }
 
     const name = req.body.name;
-    const color = req.body.color;
 
     Location.findOne({name: name}).then(location => {
       if (location === null) {
-        log.debug(label(m) + "Register device " + name);
-        // Device does not exist, let's create one
+        log.debug(label(m) + "Creating location " + name);
+            const color = req.body.color;
+            const file: Express.Multer.File = req.body.file;
             const newLocation = new Location();
             newLocation.set("name", name);
-            newLocation.set("color", color); // will be hashed again when the device is saved below.
-
-            const body = {name: newLocation.name, color: newLocation.color};
+            newLocation.set("color", color);
+            if (file) {
+              const locationImageFolder = path.join(file.destination, res.locals.tenantID, "locations");
+              const finalDestination = path.join(file.destination, locationImageFolder);
+              const finalPath = path.join(finalDestination, file.filename);
+              newLocation.set("path", finalPath);
+              move(file.path, finalPath, (err) => {
+                if (err) {
+                  log.error(label(m) +  "Cannot move location image " + file.path +
+                                        " to final destination " + finalPath + ", err=" + JSON.stringify(err));
+                } else {
+                  log.info(label(m) + "Stored location image " + file.originalname + " here: " + finalPath);
+                }
+              });
+            }
+            const body = {name: newLocation.name, color: newLocation.color, path: newLocation.path };
             newLocation.save()
             .then(() => {
-              log.info(label(m) + "Created new location=" + JSON.stringify(body));
+              log.info(label(m) + "Saved new location=" + JSON.stringify(body));
               res.status(200).send(body);
             })
             .catch(() => {
@@ -94,19 +111,19 @@ function someLocations(Sensor: Model<ISensor>,
     const locations: LocationDocument[] = [];
 
     Sensor.find({}, "desc, attr", (err, sensors) => {
-      if (sensors && sensors.length > 0)
 
-      for (const sensor of sensors) {
-        const location = new Location();
-        const locationName = sensor.desc.SN + "-" + sensor.desc.port.toString();
-        location.set("name", locationName);
-        location.set("color", "");
-        location.set("path", "/uploads/" + tenantID + "locations/" + locationName + ".jpg" );
-        location.set("sensors", [sensor.desc]);
-        locations.push(location);
+      if (sensors && sensors.length > 0) {
+        for (const sensor of sensors) {
+          const location = new Location();
+          const locationName = sensor.desc.SN + "-" + sensor.desc.port.toString();
+          location.set("name", locationName);
+          location.set("color", "");
+          location.set("path", "/uploads/" + tenantID + "locations/" + locationName + ".jpg" );
+          location.set("sensors", [sensor.desc]);
+          locations.push(location);
+        }
       }
-      });
       resolve(locations);
+    });
   });
-
 }

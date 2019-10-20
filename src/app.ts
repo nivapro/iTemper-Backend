@@ -35,7 +35,7 @@ import errorHandler from "errorhandler";
 import { authorizeJWT } from "./features/auth/auth-middleware";
 import { SensorDeviceMiddleWare, SensorUserMiddleWare } from  "./features/sensor/sensor-middleware";
 import { DeviceMiddleWare } from  "./features/device/device-middleware";
-import { LocationMiddleWare } from "./features/location/location-middleware";
+import { LocationMiddleWare, CreateLocationMiddleWare } from "./features/location/location-middleware";
 
 
 
@@ -73,6 +73,8 @@ app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }))
 
 
 // Create a locations from form
+app.post("/locations/", CreateLocationMiddleWare, locationController.postCreateLocation);
+
 app.get("/locations/", LocationMiddleWare, locationController.getAllLocations);
 
 // application/json after this
