@@ -44,12 +44,12 @@ function useLocationModel(req: Request, res: Response, next: NextFunction) {
 const uploadLocationImage = uploads.single("locationImage");
 
 function useUpload (req: Request, res: Response, next: NextFunction)  {
-  const m = "useUpload, tenantID=" + res.locals.tenantModel;
+  const m = "useUpload, tenantID=" + res.locals.tenantID;
   log.debug(label(m));
   uploadLocationImage(req, res, (err) => {
-    const m = "uploadLocationImage, tenantID=" + res.locals.tenantModel;
+    const m = "uploadLocationImage, tenantID=" + res.locals.tenantID;
     if (err) {
-      log.error(label(m) + "res.locals.Sensor=" + util.stringify(res.locals.Sensor));
+      log.error(label(m) + "error=" + util.stringify(err));
       next(err);
     } else {
       log.debug(label(m) + "upload file=" + JSON.stringify(req.file));

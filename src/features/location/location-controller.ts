@@ -50,15 +50,16 @@ export let postCreateLocation = (req: Request, res: Response): void => {
             newLocation.set("name", name);
             newLocation.set("color", color);
             if (file) {
-              const locationImageFolder = path.join(file.destination, res.locals.tenantID, "locations");
-              const finalPath = path.join(locationImageFolder, file.originalname);
+              const locationImageFolder = file.destination + res.locals.tenantID + "/locations/";
+              const filename = file.filename + path.extname(file.originalname);
+              const finalPath = locationImageFolder + filename;
               newLocation.set("path", finalPath);
               move(file.path, finalPath, (err) => {
                 if (err) {
                   log.error(label(m) +  "Cannot move " + file.path +
                                         " to destination " + finalPath + ", err=" + JSON.stringify(err));
                 } else {
-                  log.info(label(m) + "Stored location image " + file.originalname + " here: " + locationImageFolder);
+                  log.info(label(m) + "Stored location image " + file.originalname + " here: " + finalPath);
                 }
               });
             }
@@ -69,8 +70,8 @@ export let postCreateLocation = (req: Request, res: Response): void => {
               res.status(200).send(body);
             })
             .catch(() => {
-              log.error(label(m) + "Error saving location=" + name);
-              res.status(404).send("Cannot save location=" + name);
+              log.error(label(m) + "Error saving location name=" + name);
+              res.status(404).send("Cannot save location " + name);
             });
       } else {
           log.debug (label(m) + "A location with that name already exists");
@@ -116,7 +117,7 @@ function someLocations(Sensor: Model<ISensor>,
       if (sensors && sensors.length > 0) {
         for (const sensor of sensors) {
           const location = new Location();
-          const locationName = sensor.desc.SN + "-" + sensor.desc.port.toString();
+          const locationName = sensor.desc.SN + "-" + sensor.desc.port;
           location.set("name", locationName);
           location.set("color", "");
           location.set("path", "/uploads/" + tenantID + "locations/" + locationName + ".jpg" );
