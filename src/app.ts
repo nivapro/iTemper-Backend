@@ -66,8 +66,9 @@ app.use(lusca.xframe("SAMEORIGIN"));
 app.use(lusca.xssProtection(true));
 app.use(lusca.nosniff());
 app.set("trust proxy", "loopback, uniquelocal");
-
-app.use("/uploads", express.static(path.join(__dirname, "uploads"), { maxAge: 31557600000 }));
+const locationImageFolder = path.join(process.cwd(), "uploads");
+app.use("/uploads", express.static(locationImageFolder, { maxAge: 31557600000 }));
+log.info("app.ts locationImageFolder=" + locationImageFolder);
 
 app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
 

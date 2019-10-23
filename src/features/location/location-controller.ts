@@ -93,11 +93,6 @@ export let getAllLocations = (req: Request, res: Response): void => {
 
   Location.find({})
   .then(locations => {
-    if (locations.length === 0) {
-      someLocations(Sensor, Location, res.locals.tenantID).then((some) => {
-        locations = some;
-      });
-    }
     log.info(label(m) + "get #location(s)=" + locations.length);
     res.status(200).send(JSON.stringify(locations));
     }

@@ -22,7 +22,7 @@ export const DeviceIDFieldValidator = [DeviceIDValidator];
 export const RenameFieldValidator = [DeviceIDValidator, NameValidator];
 
 export let postRegisterDevice = (req: Request, res: Response): void => {
-    const m = "postRegisterDevice";
+    const m = "postRegisterDevice, tenantID=" + res.locals.tenantID;
     const Device: DeviceModel = res.locals.Device;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -37,32 +37,27 @@ export let postRegisterDevice = (req: Request, res: Response): void => {
         log.debug(label(m) + "Register device " + name);
         // Device does not exist, let's create one
         const deviceID = crypto.uuid();
-        crypto.fastHash(deviceID, (err, hash) => {
-          if (err) {
-            log.error(label(m) + "error registering device key for tenantID=" + res.locals.tenantID);
-            res.status(404).send("Cannot register device " + name);
-          } else {
-            const newDevice = new Device();
-            newDevice.set("name", name);
-            newDevice.set("key", hash); // will be hashed again when the device is saved below.
-            newDevice.set("deviceID", deviceID);
-            newDevice.set("tenantID", res.locals.tenantID);
+        const secrete = crypto.uuid();
 
-            const body = {name: newDevice.name, deviceID: newDevice.deviceID, key: newDevice.deviceID + ":" + newDevice.key};
-            newDevice.save()
-            .then(() => {
-              log.info(label(m) + "Registered device=" + JSON.stringify(body) + " for tenantID=" + res.locals.tenantID);
-              res.status(200).send(body);
-            })
-            .catch(() => {
-              log.error(label(m) + "Error saving device " + name + " for tenantID=" + res.locals.tenantID);
-              res.status(404).send("Cannot save device " + name);
-            });
+        const newDevice = new Device();
+        newDevice.set("name", name);
+        newDevice.set("key", secrete); // will be hashed when the device is saved below.
+        newDevice.set("deviceID", deviceID);
+        newDevice.set("tenantID", res.locals.tenantID);
 
-          }});
+        const body = {name: newDevice.name, deviceID: newDevice.deviceID, key: newDevice.deviceID + ":" + secrete};
+        newDevice.save()
+        .then(() => {
+          log.info(label(m) + "Registered device=" + JSON.stringify(body));
+          res.status(200).send(body);
+        })
+        .catch(() => {
+          log.error(label(m) + "Error saving device " + name);
+          res.status(404).send("Cannot save device " + name);
+        });
 
       } else {
-          log.debug(label(m) + "A device with that name already exists" + " for tenantID=" + res.locals.tenantID);
+          log.debug(label(m) + "A device with that name already exists");
           res.status(404).send("Device " + name + " exists already");
       }
     });

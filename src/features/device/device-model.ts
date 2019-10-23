@@ -40,14 +40,16 @@ DeviceSchema.pre("save", function save(next) {
       if (err) { return next(err); }
       log.debug(label(m) + "key=[" + result + "]");
       device.key = result; // hashed password
+      next();
     });
-    next();
+
   });
 
 DeviceSchema.methods.comparePassword = function (candidateKey: string, cb: (err: any, isMatch: boolean) => void) {
-    const m = "DeviceSchema.methods.comparePassword";
+    const m = "DeviceSchema.methods.comparePassword ";
     const device = this;
-    log.debug(label(m) + "");
+    log.debug(label(m) + "candidateKey=" + candidateKey);
+    log.debug(label(m) + "device.Key=" + device.key);
     crypto.compare(candidateKey, device.key, cb);
   };
 

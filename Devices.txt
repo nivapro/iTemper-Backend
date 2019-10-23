@@ -1,13 +1,2 @@
-{
-    "name": "twilightSound",
-    "deviceID": "0dc64046-0b87-4cfe-a6fb-5fda4afd2a7a",
-    "key": "0dc64046-0b87-4cfe-a6fb-5fda4afd2a7a:$2a$10$HG8DoFAE4Pa/P5DHvIXhbOV/FwTGqw7sfP2zIOgIrxv7t0xO/rMsO"
-}
-
-{
-    "name": "whightPaper",
-    "deviceID": "b0251fd5-762b-4ecb-803f-20ecb73970f9",
-    "key": "b0251fd5-762b-4ecb-803f-20ecb73970f9:$2a$10$Cm.bxhX5syjK.7dfMGZ17O9HXkSANpLfYHotkIXW4hh9cYOp95YCu"
-}
-
-b0251fd5-762b-4ecb-803f-20ecb73970f9:
+Precision
+f9caa562-5703-4a72-b824-11a1bcc1100e:b6942140-46fb-43c4-a20b-40529c042272
