@@ -13,6 +13,7 @@ export interface DeviceInterface {
     name: string;
     deviceID: string;
     key: string;
+    hash: string;
     tenantID: string;
     comparePassword: (candidatePassword: string, cb: (err: any, isMatch: any) => void) => void;
 }
@@ -23,6 +24,7 @@ export const DeviceSchema = new mongoose.Schema({
     name: {type: String },
     deviceID: {type: String, unique: true, timestamps: true },
     key: {type: String},
+    hash: {type: String},
     tenantID: {type: String},
 
 });
@@ -31,15 +33,12 @@ export const DeviceSchema = new mongoose.Schema({
  * Password hash middleware.
  */
 DeviceSchema.pre("save", function save(next) {
-    const m = "DeviceSchema.pre";
-    log.debug(label(m));
     const device = this;
     if (!device.isModified("key")) { return next(); }
 
     crypto.hash(device.key, (err, result) => {
       if (err) { return next(err); }
-      log.debug(label(m) + "key=[" + result + "]");
-      device.key = result; // hashed password
+      device.hash = result; // hashed password
       next();
     });
 
@@ -48,9 +47,7 @@ DeviceSchema.pre("save", function save(next) {
 DeviceSchema.methods.comparePassword = function (candidateKey: string, cb: (err: any, isMatch: boolean) => void) {
     const m = "DeviceSchema.methods.comparePassword ";
     const device = this;
-    log.debug(label(m) + "candidateKey=" + candidateKey);
-    log.debug(label(m) + "device.Key=" + device.key);
-    crypto.compare(candidateKey, device.key, cb);
+    crypto.compare(candidateKey, device.hash, cb);
   };
 
 export type DeviceModel = mongoose.Model<DeviceDocument>;

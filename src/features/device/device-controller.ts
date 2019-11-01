@@ -76,9 +76,10 @@ export let putDeviceName = (req: Request, res: Response): void => {
   const name = req.body.name;
   const filter = { deviceID: deviceID };
   const update = { name: name };
-  Device.findOneAndUpdate(filter, update).then(device => {
+  const option = { new: true };
+  Device.findOneAndUpdate(filter, update, option).then(device => {
       if (device) {
-        const body = {name, deviceID};
+        const body = {name, deviceID, key: device.deviceID + ":" + device.key};
         const bodyStr = JSON.stringify(body);
         log.info(label(m) + "Renamed device with deviceID=" + deviceID + " to " + name + "for tenantID=" + res.locals.tenantID);
         res.status(200).send(body);
@@ -108,7 +109,7 @@ export let getAllDevices = (req: Request, res: Response): void => {
     const body: any = [];
     // Loop through all devices and assign new JWT
     devices.forEach(device => {
-      body.push({name: device.name, deviceID: device.deviceID});
+      body.push({name: device.name, deviceID: device.deviceID, key: device.deviceID + ":" + device.key});
     });
     log.info(label(m) + "get #devices" + devices.length);
     res.status(200).send(JSON.stringify(body)); })
