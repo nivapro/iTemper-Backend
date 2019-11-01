@@ -76,7 +76,7 @@ app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }))
 // Create a locations from form
 app.post("/locations/", CreateLocationMiddleWare, locationController.postCreateLocation);
 
-app.get("/locations/", LocationMiddleWare, locationController.getAllLocations);
+
 
 // application/json after this
 app.use((req, res, next) => {
@@ -107,7 +107,12 @@ app.use((req, res, next) => {
 
 });
 
+app.get("/locations/", LocationMiddleWare, locationController.getAllLocations);
 
+app.put("/locations/:locationID/name", LocationMiddleWare, locationController.updateNameFieldValidator , locationController.putName);
+app.put("/locations/:locationID/color", LocationMiddleWare, locationController.updateColorFieldValidator, locationController.putColor);
+app.put("/locations/:locationID/sensors", LocationMiddleWare, locationController.updateSensorsFieldValidator, locationController.putSensors);
+app.delete("/locations/:locationID", LocationMiddleWare, locationController.LocationIDFieldValidator, locationController.deleteLocation);
 app.post("/signup", userController.postSignup);
 app.post("/login", userController.postLogin);
 

@@ -10,6 +10,7 @@ import path from "path";
 
 
 import multer from "multer";
+import { json } from "body-parser";
 
 const moduleName = "location-controller.";
 function label(name: string): string {
@@ -17,15 +18,29 @@ function label(name: string): string {
 }
 
 
-const NameValidator: ValidationChain = body ("name", "Location name is not valid, must be alphanumeric 4-32 characters").exists().trim().isLength({min: 4, max: 32});
-const NoNameValidator: ValidationChain = param ("name").not().exists();
-const ColorValidator: ValidationChain = param ("color").exists().isHexColor();
-const LocationIDValidator: ValidationChain = param ("id").exists().isMongoId();
+const NameValidator: ValidationChain = body ("name", "Location name must have 4-32 characters").exists().trim().isLength({min: 4, max: 32});
+const NoNameValidator: ValidationChain = param ("name", "no name provided").not().exists();
+const ColorValidator: ValidationChain = body ("color", "no color provided").exists().isHexColor();
+const LocationIDValidator: ValidationChain = param ("locationID").exists().isMongoId();
+const SensorDescValidator: ValidationChain = body ("sensorDesc").exists();
+// .isArray().isLength({min: 0, max: 5}).
+// custom((value, { req }) => {
+//   for (const item of value) {
+//     log.debug("SensorDescValidator: " + JSON.stringify(item));
+//     if (item.SN === undefined || item.port === undefined) {
+//       log.debug("SensorDescValidator: FALSE:" + JSON.stringify(item));
+//       return false;
+//     }
+//   }
+//   return true;
+// });
 
 export const NameFieldValidator = [ NameValidator ];
 export const NoNameFieldValidator = [NoNameValidator];
 export const LocationIDFieldValidator = [LocationIDValidator];
-export const RenameFieldValidator = [LocationIDValidator, NameValidator];
+export const updateNameFieldValidator = [LocationIDValidator, NameValidator];
+export const updateColorFieldValidator = [LocationIDValidator, ColorValidator];
+export const updateSensorsFieldValidator = [LocationIDValidator, SensorDescValidator];
 
 export let postCreateLocation = (req: Request, res: Response): void => {
     const m = "postCreateLocation, " + res.locals.tenantID;
@@ -63,9 +78,9 @@ export let postCreateLocation = (req: Request, res: Response): void => {
                 }
               });
             }
-            const body = {name: newLocation.name, color: newLocation.color, path: newLocation.path };
             newLocation.save()
-            .then(() => {
+            .then((savedLocation) => {
+              const body = savedLocation;
               log.info(label(m) + "Saved new location=" + JSON.stringify(body));
               res.status(200).send(body);
             })
@@ -94,7 +109,8 @@ export let getAllLocations = (req: Request, res: Response): void => {
   Location.find({})
   .then(locations => {
     log.info(label(m) + "get #location(s)=" + locations.length);
-    res.status(200).send(JSON.stringify(locations));
+    const body = locations;
+    res.status(200).send(body);
     }
   ).catch((err) => {
     res.status(404).send("No locations found");
@@ -102,25 +118,124 @@ export let getAllLocations = (req: Request, res: Response): void => {
   });
 };
 
-function someLocations(Sensor: Model<ISensor>,
-  Location: Model<LocationDocument>, tenantID: string): Promise<LocationDocument[]> {
-  return  new Promise((resolve, reject) => {
-    const locations: LocationDocument[] = [];
+export let putName = (req: Request, res: Response): void => {
+  const m = "putName, " + res.locals.tenantID;
+  const Location: Model<LocationDocument> = res.locals.Location ;
+  const Sensor: Model<ISensor> = res.locals.Sensor;
 
-    Sensor.find({}, "desc, attr", (err, sensors) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+     res.status(422).json({ errors: errors.mapped() });
+     return;
+  }
+  const locationID = req.params.locationID;
+  const name = req.body.name;
+  const filter = { _id: locationID };
+  const update = { name: name };
+  const option =  { new: true };
 
-      if (sensors && sensors.length > 0) {
-        for (const sensor of sensors) {
-          const location = new Location();
-          const locationName = sensor.desc.SN + "-" + sensor.desc.port;
-          location.set("name", locationName);
-          location.set("color", "");
-          location.set("path", "/uploads/" + tenantID + "locations/" + locationName + ".jpg" );
-          location.set("sensors", [sensor.desc]);
-          locations.push(location);
-        }
+  Location.findOneAndUpdate(filter, update, option).then(location => {
+      if (location) {
+        const body = location;
+        const bodyStr = JSON.stringify(body);
+        log.info(label(m) + "Renamed location name with locationID=" + locationID + " to " + name);
+        res.status(200).send(body);
       }
-      resolve(locations);
+      else {
+        log.error(label(m) + "Error renaming locationID=" + locationID );
+        res.status(404).send("Cannot rename location to" + name);
+      }
+    }).catch(err => {
+      log.info; (label(m) + "The device does not exist");
+      res.status(404).send("Cannot rename location");
     });
+  };
+
+export let putColor = (req: Request, res: Response): void => {
+  const m = "putColor, " + res.locals.tenantID;
+  const Location: Model<LocationDocument> = res.locals.Location ;
+  const Sensor: Model<ISensor> = res.locals.Sensor;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      res.status(422).json({ errors: errors.mapped() });
+      return;
+  }
+  const locationID = req.params.locationID;
+  const color = req.body.color;
+  const filter = { _id: locationID };
+  const update = { color: color };
+  const option =  { new: true };
+
+  Location.findOneAndUpdate(filter, update, option).then(location => {
+      if (location) {
+        const body = location;
+        const bodyStr = JSON.stringify(body);
+        log.info(label(m) + "Updated location color with locationID=" + locationID + " to " + color);
+        res.status(200).send(body);
+      }
+      else {
+        log.error(label(m) + "Error updating location color, locationID=" + locationID );
+        res.status(404).send("Cannot update location color to " + color);
+      }
+    }).catch(err => {
+      log.info; (label(m) + "The location does not exist");
+      res.status(404).send("Cannot update location color");
+    });
+  };
+
+  export let putSensors = (req: Request, res: Response): void => {
+    const m = "putSensors, " + res.locals.tenantID;
+    const Location: Model<LocationDocument> = res.locals.Location ;
+    const Sensor: Model<ISensor> = res.locals.Sensor;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+       res.status(422).json({ errors: errors.mapped() });
+       return;
+    }
+    const locationID = req.params.locationID;
+    const sensorDesc = req.body.sensorDesc;
+    const filter = { _id: locationID };
+    const update = { sensorDesc };
+    const option =  { new: true };
+
+    Location.findOneAndUpdate(filter, update, option).then(location => {
+        if (location) {
+          const body = location;
+          log.info(label(m) + "Updated sensors of locationID=" + locationID + " to " + JSON.stringify(sensorDesc));
+          res.status(200).send(body);
+        }
+        else {
+          log.error(label(m) + "Error updating sensors, locationID=" + locationID );
+          res.status(404).send("Cannot update location sensors to " + JSON.stringify(sensorDesc));
+        }
+      }).catch(err => {
+        log.info; (label(m) + "The location does not exist");
+        res.status(404).send("Cannot update location sensors");
+      });
+    };
+export let deleteLocation = (req: Request, res: Response): void => {
+  const m = "deleteLocation, " + res.locals.tenantID;
+  const Location: Model<LocationDocument> = res.locals.Location ;
+  const Sensor: Model<ISensor> = res.locals.Sensor;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+     res.status(422).json({ errors: errors.mapped() });
+     return;
+  }
+  const locationID = req.params.locationID;
+
+  const filter = { _id: locationID };
+  Location.findOneAndRemove(filter).then(location => {
+    if (location) {
+      log.info(label(m) + "Deleted locationID=" + location._id);
+      const body = location;
+      res.status(200).send(body);
+    } else {
+      log.debug(label(m) + "The location does not exist");
+      res.status(404).send("Location id=" + locationID + " does not exist");
+    }
   });
-}
+};
