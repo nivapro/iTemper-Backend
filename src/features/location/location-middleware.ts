@@ -20,7 +20,7 @@ function label(name: string): string {
 
 
 const limits =  {
-    fileSize: 5_000_000,
+    fileSize: 2_000_000,
     files: 1,
 };
 const uploads = multer({ dest: "uploads/", limits });
@@ -63,7 +63,7 @@ export const LocationMiddleWare = [authorizeJWT,
                                   useLocationModel,
                                   useSensorModel];
 
-export const CreateLocationMiddleWare = [authorizeJWT,
+export const LocationUploadMiddleWare = [authorizeJWT,
                                   useTenantDB,
                                   useLocationModel,
                                   useSensorModel,

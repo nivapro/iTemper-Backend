@@ -35,7 +35,7 @@ import errorHandler from "errorhandler";
 import { authorizeJWT } from "./features/auth/auth-middleware";
 import { SensorDeviceMiddleWare, SensorUserMiddleWare } from  "./features/sensor/sensor-middleware";
 import { DeviceMiddleWare } from  "./features/device/device-middleware";
-import { LocationMiddleWare, CreateLocationMiddleWare } from "./features/location/location-middleware";
+import { LocationMiddleWare, LocationUploadMiddleWare } from "./features/location/location-middleware";
 
 
 
@@ -70,49 +70,34 @@ const locationImageFolder = path.join(process.cwd(), "uploads");
 app.use("/uploads", express.static(locationImageFolder, { maxAge: 31557600000 }));
 log.info("app.ts locationImageFolder=" + locationImageFolder);
 
+app.use((req, res, next) => {
+  log.debug("App: received request " + req.method + " " + req.path);
+  next();
+});
+
 app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
 
+// Routes with file upload or forms
 
-// Create a locations from form
-app.post("/locations/", CreateLocationMiddleWare, locationController.postCreateLocation);
+app.post("/locations/", LocationUploadMiddleWare, locationController.postCreateLocation);
+app.put("/locations/:locationID/file", LocationUploadMiddleWare, locationController.putFile);
 
+// application/json after this point
 
-
-// application/json after this
 app.use((req, res, next) => {
-    log.debug("App: received request " + req.method + " " + req.path);
-    // res.setHeader("Content-Type", "application/json");
-    // // Website you wish to allow to connect
-
-    // res.setHeader("Access-Control-Allow-Origin", "https://itemper.io");
-
-
-    // // Request methods you wish to allow
-    // res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-
-    // Request headers you wish to allow
-    // res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type");
-
-    // Set to true if you need the website to include cookies in the requests sent
-    // to the API (e.g. in case you use sessions)
-    // res.setHeader("Access-Control-Allow-Credentials", true);
-
-    // Pass to next layer of middleware
-
     if (req.headers["content-type"] && req.headers["content-type"].toLowerCase() !== "application/json") {
       res.status(415).send("Unsupported media type, wrong content-type");
     } else {
       next();
     }
-
 });
 
 app.get("/locations/", LocationMiddleWare, locationController.getAllLocations);
-
 app.put("/locations/:locationID/name", LocationMiddleWare, locationController.updateNameFieldValidator , locationController.putName);
 app.put("/locations/:locationID/color", LocationMiddleWare, locationController.updateColorFieldValidator, locationController.putColor);
 app.put("/locations/:locationID/sensors", LocationMiddleWare, locationController.updateSensorsFieldValidator, locationController.putSensors);
 app.delete("/locations/:locationID", LocationMiddleWare, locationController.LocationIDFieldValidator, locationController.deleteLocation);
+
 app.post("/signup", userController.postSignup);
 app.post("/login", userController.postLogin);
 
@@ -160,8 +145,3 @@ app.post("/sensors/:sn/delete",  SensorUserMiddleWare, sensorController.deleteVa
 
 app.get("/", sensorController.notImplemented);
 app.get("/", homeController.getHome);
-
-
-
-
-

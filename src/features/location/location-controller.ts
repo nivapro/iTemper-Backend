@@ -183,38 +183,82 @@ export let putColor = (req: Request, res: Response): void => {
       res.status(404).send("Cannot update location color");
     });
   };
+export let putFile = (req: Request, res: Response): void => {
+  const m = "putFile, " + res.locals.tenantID;
+  const Location: Model<LocationDocument> = res.locals.Location ;
+  const Sensor: Model<ISensor> = res.locals.Sensor;
 
-  export let putSensors = (req: Request, res: Response): void => {
-    const m = "putSensors, " + res.locals.tenantID;
-    const Location: Model<LocationDocument> = res.locals.Location ;
-    const Sensor: Model<ISensor> = res.locals.Sensor;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      res.status(422).json({ errors: errors.mapped() });
+      return;
+  }
 
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-       res.status(422).json({ errors: errors.mapped() });
-       return;
+  const file: Express.Multer.File = req.file;
+  const locationImageFolder = file.destination + res.locals.tenantID + "/locations/";
+  const filename = file.filename + path.extname(file.originalname);
+  const finalPath = locationImageFolder + filename;
+  move(file.path, finalPath, (err) => {
+    if (err) {
+      log.error(label(m) +  "Cannot move image " + file.path +
+                            " to destination " + finalPath + ", err=" + JSON.stringify(err));
+      res.status(404).send("Cannot store location background");
+    } else {
+      log.info(label(m) + "Stored image " + file.originalname + " here: " + finalPath);
+      const locationID = req.params.locationID;
+      const filter = { _id: locationID };
+      const update = { path: finalPath };
+      const option = { new: true };
+
+      Location.findOneAndUpdate(filter, update, option).then(location => {
+          if (location) {
+            const body = location;
+            log.info(label(m) + "Updated background image of locationID=" + locationID);
+            res.status(200).send(body);
+          }
+          else {
+            log.error(label(m) + "Error updating location image, locationID=" + locationID );
+            res.status(404).send("Cannot update location background image: " + file.originalname);
+          }
+        }).catch(err => {
+          log.error(label(m) + "The location does not exist");
+          res.status(404).send("Cannot update location background");
+        });
     }
-    const locationID = req.params.locationID;
-    const sensorDesc = req.body.sensorDesc;
-    const filter = { _id: locationID };
-    const update = { sensorDesc };
-    const option =  { new: true };
+  });
 
-    Location.findOneAndUpdate(filter, update, option).then(location => {
-        if (location) {
-          const body = location;
-          log.info(label(m) + "Updated sensors of locationID=" + locationID + " to " + JSON.stringify(sensorDesc));
-          res.status(200).send(body);
-        }
-        else {
-          log.error(label(m) + "Error updating sensors, locationID=" + locationID );
-          res.status(404).send("Cannot update location sensors to " + JSON.stringify(sensorDesc));
-        }
-      }).catch(err => {
-        log.info; (label(m) + "The location does not exist");
-        res.status(404).send("Cannot update location sensors");
-      });
-    };
+  };
+export let putSensors = (req: Request, res: Response): void => {
+  const m = "putSensors, " + res.locals.tenantID;
+  const Location: Model<LocationDocument> = res.locals.Location ;
+  const Sensor: Model<ISensor> = res.locals.Sensor;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      res.status(422).json({ errors: errors.mapped() });
+      return;
+  }
+  const locationID = req.params.locationID;
+  const sensorDesc = req.body.sensorDesc;
+  const filter = { _id: locationID };
+  const update = { sensorDesc };
+  const option =  { new: true };
+
+  Location.findOneAndUpdate(filter, update, option).then(location => {
+      if (location) {
+        const body = location;
+        log.info(label(m) + "Updated sensors of locationID=" + locationID + " to " + JSON.stringify(sensorDesc));
+        res.status(200).send(body);
+      }
+      else {
+        log.error(label(m) + "Error updating sensors, locationID=" + locationID );
+        res.status(404).send("Cannot update location sensors to " + JSON.stringify(sensorDesc));
+      }
+    }).catch(err => {
+      log.info; (label(m) + "The location does not exist");
+      res.status(404).send("Cannot update location sensors");
+    });
+  };
 export let deleteLocation = (req: Request, res: Response): void => {
   const m = "deleteLocation, " + res.locals.tenantID;
   const Location: Model<LocationDocument> = res.locals.Location ;
