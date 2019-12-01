@@ -64,8 +64,9 @@ export let postRegisterDevice = (req: Request, res: Response): void => {
   };
 
 export let putDeviceName = (req: Request, res: Response): void => {
-  const m = "putDeviceName";
+  const m = "putDeviceName, tenantID=" + res.locals.tenantID;
   const Device: DeviceModel = res.locals.Device;
+  const tenantID = res.locals.tenantID;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -74,7 +75,7 @@ export let putDeviceName = (req: Request, res: Response): void => {
   }
   const deviceID = req.params.deviceID;
   const name = req.body.name;
-  const filter = { deviceID: deviceID };
+  const filter = { deviceID: deviceID, tenantID: tenantID };
   const update = { name: name };
   const option = { new: true };
   Device.findOneAndUpdate(filter, update, option).then(device => {
@@ -97,36 +98,39 @@ export let putDeviceName = (req: Request, res: Response): void => {
 type GetDeviceTokenBody = {deviceID: string, shared_access_key: string};
 
 export let getAllDevices = (req: Request, res: Response): void => {
-  const m = "getAllDevices";
+  const m = "getAllDevices, tenantID=" + res.locals.tenantID;
   const Device: DeviceModel = res.locals.Device;
+  const tenantID = res.locals.tenantID;
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
      res.status(422).json({ errors: errors.mapped() });
      return;
   }
-  Device.find({})
+  const filter = { tenantID: tenantID };
+  Device.find(filter)
   .then(devices => {
     const body: any = [];
-    // Loop through all devices and assign new JWT
     devices.forEach(device => {
       body.push({name: device.name, deviceID: device.deviceID, key: device.deviceID + ":" + device.key});
     });
     log.info(label(m) + "get #devices" + devices.length);
-    res.status(200).send(JSON.stringify(body)); })
+    res.status(200).send(body); })
   .catch((err) => res.status(404).end());
 };
 
 export let getDevice = (req: Request, res: Response): void => {
-  const m = "getDevice";
+  const m = "getDevice, tenantID=" + res.locals.tenantID;
   const Device: DeviceModel = res.locals.Device;
+  const tenantID = res.locals.tenantID;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
      res.status(422).json({ errors: errors.mapped() });
      return;
   }
   const deviceID = req.params.deviceID;
-
-  Device.findOne({deviceID: deviceID})
+  const filter = { deviceID: deviceID, tenantID: tenantID };
+  Device.findOne(filter)
   .then(device => {
     log.info(label(m) + "get deviceID=" + device.deviceID + "for tenantID=" + device.tenantID);
     const body: any = {name: device.name, deviceID: device.deviceID};
@@ -138,6 +142,7 @@ export let getDevice = (req: Request, res: Response): void => {
 export let deleteDevice = (req: Request, res: Response): void => {
   const m = "deleteDevice";
   const Device: DeviceModel = res.locals.Device;
+  const tenantID = res.locals.tenantID;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -145,8 +150,8 @@ export let deleteDevice = (req: Request, res: Response): void => {
      return;
   }
   const deviceID = req.params.deviceID;
-
-  Device.findOneAndRemove({deviceID: deviceID}).then(device => {
+  const filter = { deviceID: deviceID, tenantID: tenantID };
+  Device.findOneAndRemove(filter).then(device => {
     if (device) {
       log.info(label(m) + "Deleted deviceID=" + device.deviceID + "for tenantID=" + res.locals.tenantID);
       const body = JSON.stringify({name: device.name, deviceID: device.deviceID});

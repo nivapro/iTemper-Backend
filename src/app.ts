@@ -72,6 +72,7 @@ log.info("app.ts locationImageFolder=" + locationImageFolder);
 
 app.use((req, res, next) => {
   log.debug("App: received request " + req.method + " " + req.path);
+  log.debug("App: request body=" + JSON.stringify(req.body));
   next();
 });
 

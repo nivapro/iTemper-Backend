@@ -15,26 +15,26 @@ function label(name: string): string {
 }
 
 export const getValidatorSN = [
-  param("sn").exists().isLength({min: 5, max: 12})
+  param("sn").exists().isLength({min: 4, max: 12})
 ];
 
 export const getValidatorSNPort = [
-  param("sn").exists().isLength({min: 5, max: 12}),
+  param("sn").exists().isLength({min: 4, max: 12}),
   param("port").exists().isInt({ min: 0, max: 8 })
 ];
 export const postValidator = [
   body ("desc", "desc missing").exists(),
-  body ("desc.SN", "serial number missing" ).exists().isLength({min: 5}),
+  body ("desc.SN", "serial number missing" ).exists().isLength({min: 4}),
   body ("desc.port", "port number missing" ).exists(),
   body ("attr.model", "attributes missing" ).exists()
 ];
 
 export const deleteValidator = [
-  param("sn").exists().isLength({min: 5, max: 12})
+  param("sn").exists().isLength({min: 4, max: 12})
 ];
 
 export const postDataValidator = [
-  param("sn").exists().isLength({min: 5, max: 12}),
+  param("sn").exists().isLength({min: 4, max: 12}),
   param("port").exists().isInt({ min: 0, max: 7 }),
   body ("samples", "samples missing").exists()
 ];

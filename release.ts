@@ -3,7 +3,7 @@ import * as shell from "shelljs";
 const version = require("./package").version;
 const name = require("./package").name;
 
-console.log("--- releasing " + name + " version: ", version);
+console.log("release.ts: releasing " + name + " version: ", version);
 
 const archiveName = name + "_" + version + ".tar";
 const compressedArchiveName = archiveName + ".gz";
@@ -22,13 +22,13 @@ const content = [
 ];
 
 if (shell.test("-f", releasePath)) {
-    console.log("*** release failed: existing release found: " + releasePath);
+    console.log("release.ts: release failed: existing release found: " + releasePath);
     shell.exit(1);
 }
 
 if (!shell.test("-d", releaseFolder)) {
     shell.mkdir(releaseFolder);
-    console.log("+++ created release folder" + releaseFolder);
+    console.log("release.ts: created release folder" + releaseFolder);
 }
 
 let releaseFiles = "";
@@ -36,11 +36,11 @@ for (const releaseFile of content) {
     releaseFiles += " " + releaseFile;
 
 }
-console.log("--- archiving files and folders:", releaseFiles);
+console.log("release.ts: archiving files and folders:", releaseFiles);
 
 if (shell.exec("tar cf -" + releaseFiles + "| gzip > " + releasePath).code !== 0) {
-    shell.echo("*** tar failed creating compressed archive: ", releasePath);
+    shell.echo("release.ts:  *** tar failed creating compressed archive: ", releasePath);
     shell.exit(1);
 }
 
-console.log("+++ released " + name + " version: " + version);
+console.log("release.ts: released " + name + " version: " + version);
