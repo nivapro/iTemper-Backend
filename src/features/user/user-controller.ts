@@ -20,11 +20,6 @@ export const PostValidator = [
   body ("password", "Password cannot be blank" ).exists().isLength({min: 4})
 ];
 
-export let getLogin = (req: Request, res: Response) => {
-  const m = "getLogin";
-  log.info(label(m));
-  return res.status(404).end();
-};
 
 export let postLogin = (req: Request, res: Response, next: NextFunction) => {
   const m = "postLogin";
@@ -77,21 +72,10 @@ export let postLogin = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-
-/**
- * GET /logout
- * Log out.
- */
-export let logout = (req: Request, res: Response) => {
+export let postLogout = (req: Request, res: Response) => {
   const m = "logout";
-  log.info(label(m) + "user id=");
+  log.info(label(m) + "user");
   res.status(200).end();
-};
-
-export let getSignup = (req: Request, res: Response) => {
-  const m = "getSignup";
-  log.info(label(m));
-  return res.status(404).send("POST /signup required");
 };
 
 export let postSignup = (req: Request, res: Response, next: NextFunction) => {
@@ -111,13 +95,14 @@ export let postSignup = (req: Request, res: Response, next: NextFunction) => {
   user.set("password", req.body.password);
 
   // Calling signup when logged in, the new user inherits the tenant ID
+  log.debug(label(m) + "tenantID= " + res.locals.tenantID);
   if (res.locals.tenantID) {
       // Is only true if middleware has verified the JWT and set tenant ID
     user.tenantID = res.locals.tenantID;
-    log.debug(label(m) + "Adding user to existing tenantID= " + user.tenantID);
+    log.info(label(m) + "Adding user to existing tenantID= " + user.tenantID);
   } else {
     user.createTenantID();
-    log.debug(label(m) + "created new tenantID= " + user.tenantID);
+    log.info(label(m) + "created new tenantID= " + user.tenantID);
   }
 
 
@@ -142,7 +127,7 @@ export let postSignup = (req: Request, res: Response, next: NextFunction) => {
 
       jwt.signJWT(payload)
       .then((token) => {
-        res.status(200).send({token: token});
+        res.status(200).send({token: token, tenantID: user.get("tenantID")});
         log.info(label(m) + "New user signed up and logged in");
       })
       .catch(err => {

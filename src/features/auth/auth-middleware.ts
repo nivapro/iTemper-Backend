@@ -38,7 +38,7 @@ export function authorizeJWT(req: Request, res: Response, next: NextFunction) {
           res.status(401).send("Expected Authorization bearer <token> but got " + reqHeader);
         }
       } else {
-        log.debug (label(m) + "header Authorization bearer expected");
+        log.debug (label(m) + "Invalid Authorization header");
         res.status(401).send("Expected Authorization bearer <token> but got " + reqHeader);
       }
     } else {

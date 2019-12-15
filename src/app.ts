@@ -93,10 +93,11 @@ app.delete("/locations/:locationID", LocationMiddleWare, locationController.Loca
 
 app.post("/signup", userController.PostValidator, userController.postSignup);
 app.post("/login", userController.PostValidator, userController.postLogin);
+app.post("/logout", authorizeJWT, userController.postLogout);
 
 // Requires JWT Token //
 // Tenant methods
-app.post("/users/add", authorizeJWT, userController.postSignup);
+app.post("/users/add", authorizeJWT, userController.PostValidator, userController.postSignup);
 
 // Create a device, returns a shared API key (the key is not saved, so remember)
 app.post("/devices/", DeviceMiddleWare, deviceController.NameFieldValidator, deviceController.postRegisterDevice);
