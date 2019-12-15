@@ -20,7 +20,10 @@ export const PostValidator = [
   body ("password", "Password cannot be blank" ).exists().isLength({min: 4})
 ];
 
-
+export const DeleteValidator = [
+  sanitize("email").normalizeEmail({ gmail_remove_dots: false }),
+  body ("email", "Email is not valid").exists().isEmail(),
+];
 export let postLogin = (req: Request, res: Response, next: NextFunction) => {
   const m = "postLogin";
 
@@ -56,7 +59,7 @@ export let postLogin = (req: Request, res: Response, next: NextFunction) => {
 
           jwt.signJWT(payload)
           .then((token) => {
-            res.status(200).send({email, token});
+            res.status(200).send({email, token, tenantID: user.get("tenantID")});
             log.info(label(m) + "Signed JWT for user id=" + user.id + ", tenantID=" + user.tenantID);
           })
           .catch(err => {
@@ -127,7 +130,7 @@ export let postSignup = (req: Request, res: Response, next: NextFunction) => {
 
       jwt.signJWT(payload)
       .then((token) => {
-        res.status(200).send({token: token, tenantID: user.get("tenantID")});
+        res.status(200).send({email: user.get("email"), token: token, tenantID: user.get("tenantID")});
         log.info(label(m) + "New user signed up and logged in");
       })
       .catch(err => {
@@ -135,5 +138,61 @@ export let postSignup = (req: Request, res: Response, next: NextFunction) => {
         log.error(label(m) + "signJWT err=" + JSON.stringify(err));
       });
     });
+  });
+};
+
+export let deleteUser = (req: Request, res: Response) => {
+  const m = "deleteUser, tenantID=" + res.locals.tenantID;
+  log.info(label(m));
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    log.info(label(m) + "Validation error");
+    log.debug(label(m) + "req.body=" + JSON.stringify(req.body));
+    return res.status(401).send("User validation error");
+  }
+  const loggedInUser = res.locals.sub;
+  const email = req.body.email;
+  const filter = { email };
+
+
+  User.findOne(filter, (err: any, targetUser: UserDocument) => {
+    const errorMsg = "Cannot delete user ";
+    if (err) {
+        log.error(label(m) + "User.findOne error=" + JSON.stringify(err));
+        return res.status(403).send(errorMsg);
+    } else if (!targetUser) {
+        log.info(label(m) + errorMsg + "unknown user:" + JSON.stringify(email));
+        return res.status(403).send(errorMsg);
+    } else {
+       User.findOne({email: loggedInUser}, (err: any, user: UserDocument) => {
+        if (err || !user) {
+            log.error(label(m) + "User.findOne logged in user: " + loggedInUser + ", error=" + JSON.stringify(err));
+            return res.status(403).send(errorMsg);
+        }
+        const sameTenant: boolean = targetUser.get("tenantID") ===  user.get("tenantID");
+        const ownAccount: boolean = targetUser.get("email") === user.get("email");
+
+        const deleteUserAllowed = sameTenant && (( user.isFirstUser()  && !ownAccount) ||
+                                         ( !user.isFirstUser() && ownAccount));
+         if (deleteUserAllowed) {
+           User.deleteOne(filter, (err: any) => {
+             if (err) {
+               log.error(label(m) + "Cannot delete user, error=" + JSON.stringify(err));
+               return res.status(403).send(errorMsg);
+             } else {
+               log.info(label(m) + "User deleted: " + email);
+               return res.status(200).end();
+             }
+           });
+         } else {
+           log.info(label(m) + "Deleting the user not allowed, sameTenant: " + sameTenant +
+                               ", ownAccount: "  + ownAccount + ", isFirstUser: " + user.isFirstUser());
+           return res.status(403).send(errorMsg);
+         }
+      });
+
+
+    }
   });
 };

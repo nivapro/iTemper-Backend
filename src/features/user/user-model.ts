@@ -27,6 +27,8 @@ export type UserDocument = mongoose.Document & {
 
   createTenantID: () => void,
 
+  isFirstUser: () => boolean,
+
   comparePassword: (candidatePassword: string, cb: (err: any, isMatch: any) => void) => void,
   gravatar: (size: number) => string
 };
@@ -96,6 +98,10 @@ userSchema.methods.createTenantID = function () {
   user.tenantID = user.id;
 };
 
+userSchema.methods.isFirstUser = function () {
+  const user = this;
+  return user.tenantID && user.id && user.tenantID === user.id;
+};
 
 // export const User: UserType = mongoose.model<UserType>('User', userSchema);
 const User: mongoose.Model<UserDocument> = mongoose.model<UserDocument>("User", userSchema);

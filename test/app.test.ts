@@ -1,6 +1,6 @@
 
 import log from "../src/services/logger";
-log.setLevel("error");
+log.setLevel("info");
 import { app } from "../src/app";
 import supertest  from "supertest";
 const request = supertest(app);
@@ -79,7 +79,7 @@ describe("POST /signup", () => {
     });
 
 });
-describe("POST /add/user", () => {
+describe("POST /users/add", () => {
   test("New user when logged in should return 200, JWT token and the same tenantID", async done => {
     const res = await request
     .post("/users/add")
@@ -129,29 +129,76 @@ describe("POST /login", () => {
         expect(res.body.token).toBeDefined();
         done();
     });
-  });
-  describe("POST /logout", () => {
-    test("logging out with correct credentials should return 200", async done => {
+    test("Logging in added user should return 200 and JWT and inherent tenantID", async done => {
       const res = await request
-      .post("/logout")
-      .set("Authorization", "bearer " + token)
-      .set({ "content-type": "application/json" })
+      .post("/login")
       .send({
-        email: "test1@test.com",
+        email: "test2@test.com",
         password: "Hemligt",
       });
       expect(res.status).toBe(200);
+      expect(res.body.token).toBeDefined();
+      expect(res.body.tenantID).toBe(tenantID);
       done();
+  });
+});
+describe("POST /logout", () => {
+  test("logging out with correct credentials should return 200", async done => {
+    const res = await request
+    .post("/logout")
+    .set("Authorization", "bearer " + token)
+    .set({ "content-type": "application/json" })
+    .send({
+      email: "test1@test.com",
+      password: "Hemligt",
     });
-    test("logging out without JET token should return 401", async done => {
-      const res = await request
-      .post("/logout")
-      .set({ "content-type": "application/json" })
-      .send({
-        email: "test1@test.com",
-        password: "Hemligt",
-      });
-      expect(res.status).toBe(401);
-      done();
+    expect(res.status).toBe(200);
+    done();
+  });
+  test("logging out without JWT token should return 401", async done => {
+    const res = await request
+    .post("/logout")
+    .set({ "content-type": "application/json" })
+    .send({
+      email: "test1@test.com",
+      password: "Hemligt",
     });
+    expect(res.status).toBe(401);
+    done();
+  });
+});
+describe("DELETE /users/delete", () => {
+  test("Can delete added user", async done => {
+    const res = await request
+    .delete("/users/delete")
+    .set("Authorization", "bearer " + token)
+    .set({ "content-type": "application/json" })
+    .send({
+      email: "test2@test.com",
+    });
+    expect(res.status).toBe(200);
+    done();
+  });
+  test("Logging in deleted user should return 401 and no JWT", async done => {
+    const res = await request
+    .post("/login")
+    .send({
+      email: "test2@test.com",
+      password: "Hemligt",
+    });
+    expect(res.status).toBe(401);
+    expect(res.body.token).not.toBeDefined();
+    done();
+});
+  test("Cannot delete first user", async done => {
+    const res = await request
+    .delete("/users/delete")
+    .set("Authorization", "bearer " + token)
+    .set({ "content-type": "application/json" })
+    .send({
+      email: "test1@test.com",
+    });
+    expect(res.status).toBe(403);
+    done();
+  });
 });
