@@ -7,15 +7,15 @@ function label(name: string): string {
   return moduleName + name + ": ";
 }
 function saltAndHash(no: number, password: string, callback: (err: Error, hash: string) => void): void {
-    const m = "saltAndHash";
+    const m = "saltAndHash ";
     const cb  = callback;
     log.debug(label(m));
     bcrypt.genSalt(no, (err, salt) => {
-  //      log.debug(label(m) + "salt");
-        if (err) { log.debug("crypto.saltSndHash err"); callback(err, undefined); log.debug("crypto.saltSndHash undefined"); }
-  //      log.debug(label(m) + "salted");
+        // log.debug(label(m) + "salt");
+        if (err) { log.error(label(m) + "err"); callback(err, undefined); log.error(label(m) + "undefined"); }
+        // log.debug(label(m) + "salted");
         bcrypt.hash(password, salt, (err, hash) => {
-  //      log.debug(label(m) + "hashed");
+        // log.debug(label(m) + "hashed");
             callback(err, hash);
         });
     });

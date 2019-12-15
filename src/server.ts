@@ -1,14 +1,24 @@
 import log from "./services/logger";
 import * as http from "http";
+import { app } from "./app";
 
 import * as monitor from "./features/monitor/monitor";
 
-import { app } from "./app";
+
+// DB Databases
+import { userDBConnectionString, tenantDBConnectionString } from "./services/config";
+
+import * as UserDatabase from "./features/user/user-database";
+UserDatabase.initialize(userDBConnectionString);
+
+import * as TenantDatabase from "./features/tenant/tenant-database";
+TenantDatabase.initialize(tenantDBConnectionString);
 
 import * as WebSocket from "ws";
 
 const httpServer: http.Server = http.createServer(app);
 
+app.set("port", process.env.PORT || 3000);
 
 const iTemperServer = httpServer.listen(app.get("port"), () => {
   log.info(

@@ -3,6 +3,8 @@ import * as jwt from "../../services/jwt/jwt-handler";
 import { default as User } from "./user-model";
 import { Request, Response, NextFunction } from "express";
 
+import { body, sanitize, validationResult } from "express-validator";
+
 import log from "../../services/logger";
 
 import { UserDocument } from "./user-model";
@@ -11,6 +13,12 @@ const moduleName = "user-controller.";
 function label(name: string): string {
   return moduleName + name + ": ";
 }
+
+export const PostValidator = [
+  sanitize("email").normalizeEmail({ gmail_remove_dots: false }),
+  body ("email", "Email is not valid").exists().isEmail(),
+  body ("password", "Password cannot be blank" ).exists().isLength({min: 4})
+];
 
 export let getLogin = (req: Request, res: Response) => {
   const m = "getLogin";
@@ -21,13 +29,8 @@ export let getLogin = (req: Request, res: Response) => {
 export let postLogin = (req: Request, res: Response, next: NextFunction) => {
   const m = "postLogin";
 
-  req.assert("email", "Email is not valid").isEmail();
-  req.assert("password", "Password cannot be blank").notEmpty();
-  req.sanitize("email").normalizeEmail({ gmail_remove_dots: false });
-
-  const errors = req.validationErrors();
-
-  if (errors) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
     log.info(label(m) + "Validation error");
     log.debug(label(m) + "req.body=" + JSON.stringify(req.body));
     return res.status(401).send("User validation error");
@@ -95,17 +98,11 @@ export let postSignup = (req: Request, res: Response, next: NextFunction) => {
   const m = "postSignup";
   log.info(label(m) + "New user sign-up request");
 
-  req.assert("email", "Email is not valid").isEmail();
-  req.assert("password", "Password must be at least 4 characters long").len({ min: 4 });
-  req.assert("confirmPassword", "Passwords do not match").equals(req.body.password);
-  req.sanitize("email").normalizeEmail({ gmail_remove_dots: false });
-
-  const errors = req.validationErrors();
-
-  if (errors) {
-    log.debug(label(m) + "Validation error");
-    return res.status(403).send("Signup validation error");
-
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    log.info(label(m) + "Validation error");
+    log.debug(label(m) + "req.body=" + JSON.stringify(req.body));
+    return res.status(401).send("User validation error");
   }
 
   log.debug(label(m) + "req.body=" + JSON.stringify(req.body));

@@ -12,12 +12,20 @@ if (!SALT) {
     process.exit(1);
 }
 
-export const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI;
 
-export const MONGODB_PORT = process.env.MONGODB_PORT;
+const MONGODB_PORT = process.env.MONGODB_PORT;
 
-export function connectionString (base: string, port: string, path: string): string {
-    let str: string  = base + ":" + parseInt(port);
-    if (path && path.length > 0) { str += "/" + path; }
-    return  str;
+let userDBConnectionStr: string = MONGODB_URI  + ":" + parseInt(MONGODB_PORT);
+
+export function setUserDBConnectionString(connectionString: string) {
+    userDBConnectionStr = connectionString;
+}
+
+export function userDBConnectionString(): Promise<string> {
+    return new Promise (resolve => { resolve(userDBConnectionStr); });
+}
+
+export function tenantDBConnectionString(tenantID: string): Promise<string> {
+    return new Promise (resolve => { resolve( userDBConnectionStr += "/" + tenantID); });
 }

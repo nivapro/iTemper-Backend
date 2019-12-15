@@ -3,7 +3,7 @@ import log from "../../services/logger";
 import * as crypto from "../../services/crypto";
 
 import { Response, Request } from "express";
-import { body, param, validationResult, ValidationChain } from "express-validator/check";
+import { body, param, validationResult, ValidationChain } from "express-validator";
 import { DeviceModel } from "./device-model";
 
 const moduleName = "device-controller.";

@@ -68,24 +68,26 @@ const userSchema = new mongoose.Schema({
 /**
  * Password hash middleware.
  */
-userSchema.pre("save", function save(next) {
+userSchema.pre<UserDocument>("save", function save(next) {
   const user = this;
-  log.debug("user-model.userSchema.preSave");
 
   if (user.isModified("password")) {
+    log.debug("user-model.userSchema.preSave password modified");
     crypto.hash(user.password, (err, result) => {
-      if (err) { return next(err); }
+      if (err) { log.debug("user-model.userSchema.preSave hash error"); return next(err); }
       log.debug("user-model.userSchema.preSave hash=[" + result + "]");
       user.password = result; // hashed password
+      next();
     });
+  } else {
+    log.debug("user-model.userSchema.preSave: password not modified");
+    next();
   }
-
-  next();
 });
 
 userSchema.methods.comparePassword = function (candidatePassword: string, cb: (err: any, isMatch: boolean) => void) {
   const user = this;
-  log.debug("user-model.userSchema.methods.comparePassword");
+  log.debug("user-model.userSchema.methods.comparePassword: candidate: " + candidatePassword + ", password: " + user.password);
   crypto.compare(candidatePassword, user.password, cb);
 };
 

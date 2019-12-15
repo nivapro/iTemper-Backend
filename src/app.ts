@@ -1,23 +1,17 @@
 
 import cors from "cors";
 import express from "express";
+import { NextFunction, Request, Response } from "express";
 import expressWs from "express-ws";
 import compression from "compression";  // compresses requests
 
 import bodyParser from "body-parser";
 import lusca from "lusca";
+
 import dotenv from "dotenv";
-
-import path from "path";
-import expressValidator from "express-validator";
-
-import * as UserDatabase from "./features/user/user-database";
-// Load environment variables from .env file, where API keys and passwords are configured
 dotenv.config({ path: ".env" });
 
-// Databases
-
-UserDatabase.initialize();
+import path from "path";
 
 // Controllers (route handlers)
 import * as homeController from "./features/home/home-controller";
@@ -56,11 +50,9 @@ app.options("*", cors());
 // app.options("*", cors()); // include before other routes
 
 // Common configuration
-app.set("port", process.env.PORT || 3000);
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(expressValidator());
 app.disable("x-powered-by");
 app.use(lusca.xframe("SAMEORIGIN"));
 app.use(lusca.xssProtection(true));
@@ -70,7 +62,7 @@ const locationImageFolder = path.join(process.cwd(), "uploads");
 app.use("/uploads", express.static(locationImageFolder, { maxAge: 31557600000 }));
 log.info("app.ts locationImageFolder=" + locationImageFolder);
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   log.debug("App: received request " + req.method + " " + req.path);
   log.debug("App: request body=" + JSON.stringify(req.body));
   next();
@@ -85,7 +77,7 @@ app.put("/locations/:locationID/file", LocationUploadMiddleWare, locationControl
 
 // application/json after this point
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.headers["content-type"] && req.headers["content-type"].toLowerCase() !== "application/json") {
       res.status(415).send("Unsupported media type, wrong content-type");
     } else {
@@ -99,8 +91,8 @@ app.put("/locations/:locationID/color", LocationMiddleWare, locationController.u
 app.put("/locations/:locationID/sensors", LocationMiddleWare, locationController.updateSensorsFieldValidator, locationController.putSensors);
 app.delete("/locations/:locationID", LocationMiddleWare, locationController.LocationIDFieldValidator, locationController.deleteLocation);
 
-app.post("/signup", userController.postSignup);
-app.post("/login", userController.postLogin);
+app.post("/signup", userController.PostValidator, userController.postSignup);
+app.post("/login", userController.PostValidator, userController.postLogin);
 
 // Requires JWT Token //
 // Tenant methods

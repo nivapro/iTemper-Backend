@@ -32,7 +32,7 @@ export const DeviceSchema = new mongoose.Schema({
 /**
  * Password hash middleware.
  */
-DeviceSchema.pre("save", function save(next) {
+DeviceSchema.pre<DeviceDocument>("save", function save(next) {
     const device = this;
     if (!device.isModified("key")) { return next(); }
 

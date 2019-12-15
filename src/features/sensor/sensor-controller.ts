@@ -3,13 +3,13 @@ import log from "../../services/logger";
 import * as util from "../../services/util";
 
 import { Response, Request } from "express";
-import { body, query, param, validationResult } from "express-validator/check";
+import { body, query, param, validationResult } from "express-validator";
 import { Model } from "mongoose";
 import { ISensor, SensorInterface, SensorLog, Attributes, Descriptor, Data } from "./sensor-model";
 
 import * as monitor from "./../monitor/monitor";
 
-const moduleName = "device-controller.";
+const moduleName = "sensor-controller.";
 function label(name: string): string {
   return moduleName + name + ": ";
 }

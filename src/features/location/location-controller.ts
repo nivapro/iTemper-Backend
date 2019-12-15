@@ -2,7 +2,7 @@
 import log from "../../services/logger";
 import { move } from "../../services/util";
 import { Response, Request } from "express";
-import { body, param, validationResult, ValidationChain } from "express-validator/check";
+import { body, param, validationResult, ValidationChain } from "express-validator";
 import { Model } from "mongoose";
 import { LocationDocument } from "./location-model";
 import { ISensor, Descriptor } from "../sensor/sensor-model";

@@ -16,5 +16,8 @@
         "node",
         "torbjorn",
         "vading"
+    ],
+    "cSpell.ignoreWords": [
+        "mongod"
     ]
 }
