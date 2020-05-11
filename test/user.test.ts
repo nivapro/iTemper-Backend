@@ -129,17 +129,17 @@ describe("POST /login", () => {
         expect(res.body.token).toBeDefined();
         done();
     });
-  //   test("Logging in added user should return 200 and JWT and inherent tenantID", async done => {
-  //     const res = await request
-  //     .post("/login")
-  //     .send({
-  //       email: "test2@test.com",
-  //       password: "Hemligt",
-  //     });
-  //     expect(res.status).toBe(200);
-  //     expect(res.body.token).toBeDefined();
-  //     expect(res.body.tenantID).toBe(tenantID);
-  //     done();
+    test("Logging in added user should return 200 and JWT and inherent tenantID", async done => {
+      const res = await request
+      .post("/login")
+      .send({
+        email: "test2@test.com",
+        password: "Hemligt",
+      });
+      expect(res.status).toBe(200);
+      expect(res.body.token).toBeDefined();
+      expect(res.body.tenantID).toBe(tenantID);
+      done();
   // });
 });
 describe("POST /logout", () => {
