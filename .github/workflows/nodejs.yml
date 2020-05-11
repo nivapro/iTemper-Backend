@@ -30,4 +30,7 @@ jobs:
       env: 
         SALT: ${{ secrets.SALT }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag itemper-node:$(date +%s)
+
 
