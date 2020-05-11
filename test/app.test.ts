@@ -1,6 +1,4 @@
 
-import log from "../src/services/logger";
-log.setLevel("info");
 import { app } from "../src/app";
 import supertest  from "supertest";
 const request = supertest(app);

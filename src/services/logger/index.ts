@@ -1,3 +1,4 @@
+import { LOG_LEVEL } from "./../config";
 import { createLogger, format, transports, Logger } from "winston";
 const { combine, timestamp, printf, label } = format;
 const myFormat = printf(({ level, message, label, timestamp }) => {
@@ -29,7 +30,7 @@ private _name: string;
     Log.logger =  createLogger ({
       format: combine (timestamp(), label ({ label: this.label}), myFormat),
       exitOnError: false,
-      level: "debug",
+      level: LOG_LEVEL,
       transports: [
         Log.transports.file,
         Log.transports.console,
