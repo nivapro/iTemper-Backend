@@ -26,5 +26,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run build --if-present
+    - env: 
+      SALT: ${{ secrets.SALT }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
     - run: npm test
     - run: docker build . --file Dockerfile --tag=itemper-node:$(date +%s)
