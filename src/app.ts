@@ -99,6 +99,8 @@ app.post("/logout", authorizeJWT, userController.postLogout);
 // Tenant methods
 app.post("/users/add", authorizeJWT, userController.PostValidator, userController.postSignup);
 
+app.delete("/users/delete", authorizeJWT, userController.DeleteValidator, userController.deleteUser);
+
 // Create a device, returns a shared API key (the key is not saved, so remember)
 app.post("/devices/", DeviceMiddleWare, deviceController.NameFieldValidator, deviceController.postRegisterDevice);
 

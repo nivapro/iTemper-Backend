@@ -1,6 +1,6 @@
 {
     "name": "iTemperNode",
-    "version": "0.0.37",
+    "version": "0.0.38",
     "description": "iTemper.io server implementation",
     "repository": {
         "type": "git",
