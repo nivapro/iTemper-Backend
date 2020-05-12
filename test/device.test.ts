@@ -1,11 +1,17 @@
 
 import log from "../src/services/logger";
-log.setLevel("debug");
+log.setLevel("info");
 import { app } from "../src/app";
 import supertest  from "supertest";
 const request = supertest(app);
 
 import * as TestDbs from "./dbs";
+
+let token: string = "";
+let tenantID: string = "";
+let name: string = "";
+let deviceID: string = "";
+let key: string = "";
 
 beforeAll(async done => {
   TestDbs.initDatabases();
@@ -35,6 +41,7 @@ beforeAll(async done => {
   name = res.body.name;
   deviceID = res.body.deviceID;
   key = res.body.key;
+  log.debug("deviceID.test.beforeAll: deviceID=" + deviceID);
   done();
 });
 
@@ -43,93 +50,129 @@ afterAll(async done => {
   done();
 });
 
-let token: string = "";
-let tenantID: string = "";
-let name: string = "";
-let deviceID: string = "";
-let key: string = "";
-
-describe("AUTHENTICATION - authorizeJWT", () => {
-  test("No Authorization header should return 401", async done => {
+describe("REGISTER DEVICE VALIDATION", () => {
+  test("Register a device without a name should return 422", async done => {
     const res = await request
-    .get("/devices")
-    .send({});
-    expect(res.status).toBe(401);
-    done();
-  });
-  test("Invalid JWT should return 401", async done => {
-    const res = await request
-    .get("/devices")
-    .set("Authorization", "bearer true")
-    .send({});
-    expect(res.status).toBe(401);
-    done();
-  });
-  test("no bearer should return 401", async done => {
-    const res = await request
-    .get("/devices")
-    .set("Authorization", token)
-    .send({});
-    expect(res.status).toBe(401);
-    done();
-  });
-  test("Invalid bearer should return 401", async done => {
-    const res = await request
-    .get("/devices")
-    .set("Authorization", "bear " + token)
-    .send({ });
-    expect(res.status).toBe(401);
-    done();
-  });
-  test("Correct credentials should return 200 and JWT", async done => {
-    const res = await request
-    .get("/devices")
+    .post("/devices")
     .set("Authorization", "bearer " + token)
-    .send({ });
+    .send({});
+    expect(res.status).toBe(422);
+    done();
+  });
+  test("Register a device name twice should return 404", async done => {
+    const res = await request
+    .post("/devices")
+    .set("Authorization", "bearer " + token)
+    .send({
+      name: "Hejhoppilingonskogen",
+    });
+    expect(res.status).toBe(404);
+    done();
+  });
+});
+
+describe("RENAME DEVICE", () => {
+
+  test("Rename a device without a deviceID should return 404", async done => {
+    const res = await request
+    .put("/devices")
+    .set("Authorization", "bearer " + token)
+    .send({});
+    expect(res.status).toBe(404);
+    done();
+  });
+  test("Rename a device with deviceID but without a name should return 422", async done => {
+    const res = await request
+    .put("/devices/" + deviceID)
+    .set("Authorization", "bearer " + token)
+    .send({});
+    expect(res.status).toBe(422);
+    done();
+  });
+  test("Rename a device to self should return 200", async done => {
+    const res = await request
+    .put("/devices/" + deviceID)
+    .set("Authorization", "bearer " + token)
+    .send({name: "Hejhoppilingonskogen", });
+    expect(res.status).toBe(200);
+    done();
+  });
+  test("Rename a device too short name should return 422", async done => {
+    const res = await request
+    .put("/devices/" + deviceID)
+    .set("Authorization", "bearer " + token)
+    .send({name: "Hej", });
+    expect(res.status).toBe(422);
+    done();
+  });
+  test("Rename a device should return 200", async done => {
+    const res = await request
+    .put("/devices/" + deviceID)
+    .set("Authorization", "bearer " + token)
+    .send({name: "Hejhopp", });
     expect(res.status).toBe(200);
     done();
   });
 });
 
-describe("AUTHENTICATION - authorizeAPIKey", () => {
+describe("GET DEVICE(S)", () => {
+    test("Get all devices should return 200", async done => {
+      const res = await request
+      .get("/devices")
+      .set("Authorization", "bearer " + token)
+      .send({});
+      expect(res.status).toBe(200);
+      done();
+  });
 
-  test("No API Key should return 401", async done => {
+  test("Get a device should return 200", async done => {
     const res = await request
-    .post("/devices")
+    .get("/devices/" + deviceID)
+    .set("Authorization", "bearer " + token)
     .send({});
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(200);
+    done();
+});
+
+});
+
+describe("DELETE DEVICE(S)", () => {
+  test("Delete a device without deviceID should return 404", async done => {
+    const res = await request
+    .delete("/devices")
+    .set("Authorization", "bearer " + token)
+    .send({});
+    expect(res.status).toBe(404);
     done();
   });
-  test("Invalid API Key should return 401", async done => {
+
+  test("Delete a device with a non-UUID deviceID should return 422", async done => {
     const res = await request
-    .post("/devices")
-    .set("Authorization", "bearer true")
+    .delete("/devices/" + "abc")
+    .set("Authorization", "bearer " + token)
     .send({});
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(422);
     done();
   });
-  test("no bearer should return 401", async done => {
+
+  test("Delete a device with a wrong UUID should return 404", async done => {
     const res = await request
-    .post("/devices")
-    .set("Authorization", key)
+    .delete("/devices/" + "a65b6d7b-8bb9-43ee-83ba-8becd0e2fce1")
+    .set("Authorization", "bearer " + token)
     .send({});
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(404);
     done();
   });
-  test("Invalid bearer should return 401", async done => {
+
+  test("Delete an existing device should return device name and deviceID", async done => {
     const res = await request
-    .post("/devices")
-    .set("Authorization", "bear " + key)
+    .delete("/devices/" + deviceID)
+    .set("Authorization", "bearer " + token)
     .send({});
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(200);
+    expect(res.body.name).toBeDefined();
+    expect(res.body.deviceID).toBeDefined();
     done();
   });
-  test("Correct API Key should NOT return return 401", async done => {
-    const res = await request
-    .post("/sensors")
-    .set("Authorization", "bearer " + key)
-    .send({});
-    expect(res.status).not.toBe(401);
-    done();
-  });
+
 });

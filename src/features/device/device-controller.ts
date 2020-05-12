@@ -154,7 +154,7 @@ export let deleteDevice = (req: Request, res: Response): void => {
   Device.findOneAndRemove(filter).then(device => {
     if (device) {
       log.info(label(m) + "Deleted deviceID=" + device.deviceID + "for tenantID=" + res.locals.tenantID);
-      const body = JSON.stringify({name: device.name, deviceID: device.deviceID});
+      const body = {name: device.name, deviceID: device.deviceID};
       res.status(200).send(body);
     } else {
       log.debug(label(m) + "The device does not exist for tenantID=" + res.locals.tenantID);
