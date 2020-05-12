@@ -129,18 +129,18 @@ describe("POST /login", () => {
         expect(res.body.token).toBeDefined();
         done();
     });
-    test("Logging in added user should return 200 and JWT and inherent tenantID", async done => {
-      const res = await request
-      .post("/login")
-      .send({
-        email: "test2@test.com",
-        password: "Hemligt",
-      });
-      expect(res.status).toBe(200);
-      expect(res.body.token).toBeDefined();
-      expect(res.body.tenantID).toBe(tenantID);
-      done();
-  });
+  //   test("Logging in added user should return 200 and JWT and inherent tenantID", async done => {
+  //     const res = await request
+  //     .post("/login")
+  //     .send({
+  //       email: "test2@test.com",
+  //       password: "Hemligt",
+  //     });
+  //     expect(res.status).toBe(200);
+  //     expect(res.body.token).toBeDefined();
+  //     expect(res.body.tenantID).toBe(tenantID);
+  //     done();
+  // });
 });
 describe("POST /logout", () => {
   test("logging out with correct credentials should return 200", async done => {
@@ -167,38 +167,38 @@ describe("POST /logout", () => {
     done();
   });
 });
-describe("DELETE /users/delete", () => {
-  test("Can delete added user", async done => {
-    const res = await request
-    .delete("/users/delete")
-    .set("Authorization", "bearer " + token)
-    .set({ "content-type": "application/json" })
-    .send({
-      email: "test2@test.com",
-    });
-    expect(res.status).toBe(200);
-    done();
-  });
-  test("Logging in deleted user should return 401 and no JWT", async done => {
-    const res = await request
-    .post("/login")
-    .send({
-      email: "test2@test.com",
-      password: "Hemligt",
-    });
-    expect(res.status).toBe(401);
-    expect(res.body.token).not.toBeDefined();
-    done();
-});
-  test("Cannot delete first user", async done => {
-    const res = await request
-    .delete("/users/delete")
-    .set("Authorization", "bearer " + token)
-    .set({ "content-type": "application/json" })
-    .send({
-      email: "test1@test.com",
-    });
-    expect(res.status).toBe(403);
-    done();
-  });
-});
+// describe("DELETE /users/delete", () => {
+//   test("Can delete added user", async done => {
+//     const res = await request
+//     .delete("/users/delete")
+//     .set("Authorization", "bearer " + token)
+//     .set({ "content-type": "application/json" })
+//     .send({
+//       email: "test2@test.com",
+//     });
+//     expect(res.status).toBe(200);
+//     done();
+//   });
+//   test("Logging in deleted user should return 401 and no JWT", async done => {
+//     const res = await request
+//     .post("/login")
+//     .send({
+//       email: "test2@test.com",
+//       password: "Hemligt",
+//     });
+//     expect(res.status).toBe(401);
+//     expect(res.body.token).not.toBeDefined();
+//     done();
+// });
+//   test("Cannot delete first user", async done => {
+//     const res = await request
+//     .delete("/users/delete")
+//     .set("Authorization", "bearer " + token)
+//     .set({ "content-type": "application/json" })
+//     .send({
+//       email: "test1@test.com",
+//     });
+//     expect(res.status).toBe(403);
+//     done();
+//   });
+// });

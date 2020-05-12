@@ -9,8 +9,10 @@ vading\administrator
 
 #Software
 #Build and release
-npm build
-npm release
+Check latest released version in the folder release
+Edit version in package.json
+npm run build
+npm run release
 
 ##deploy preparations
 tar -czvf bin.tar.gz bin

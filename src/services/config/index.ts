@@ -12,6 +12,13 @@ if (!SALT) {
     process.exit(1);
 }
 
+export const LOG_LEVEL = process.env["LOG_LEVEL"];
+
+
+if (!process.env["LOG_LEVEL"]) {
+    console.log("Set LOG_LEVEL environment variable.");
+    process.exit(1);
+}
 const MONGODB_URI = process.env.MONGODB_URI;
 
 const MONGODB_PORT = process.env.MONGODB_PORT;

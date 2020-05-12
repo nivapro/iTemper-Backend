@@ -1,0 +1,42 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Build and test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - run: npm run build --if-present
+    - run: npm test
+      env: 
+        SALT: ${{ secrets.SALT }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        LOG_LEVEL: info
+    - run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - run: docker build . --file Dockerfile --tag itemper
+    - run: |
+          docker tag itemper ${{ secrets.DOCKER_USER }}/itemper:${{ github.sha }}
+          docker tag itemper ${{ secrets.DOCKER_USER }}/itemper:latest
+    - run: |
+          docker push ${{ secrets.DOCKER_USER }}/itemper:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USER }}/itemper:latest
+
