@@ -69,7 +69,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
-
+app.get("/", sensorController.notImplemented);
+app.get("/", homeController.getHome);
 // Routes with file upload or forms
 
 app.post("/locations/", LocationUploadMiddleWare, locationController.postCreateLocation);
@@ -138,6 +139,3 @@ app.get("/sensors/:sn", SensorUserMiddleWare, sensorController.getValidatorSN,  
 // delete  sensors
 app.post("/sensors/:sn/delete",  SensorUserMiddleWare, sensorController.deleteValidator, sensorController.postDeleteSensors);
 
-
-app.get("/", sensorController.notImplemented);
-app.get("/", homeController.getHome);
