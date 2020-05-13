@@ -7,14 +7,34 @@ ssh tova@itemper
 ## vs.vading.lan
 vading\administrator
 
-#Software
-#Build and release
+#Pipeline
+## New feature
+git checkout -b <new branch>
+git pull --rebase origin master
+
+## Code changes (locally)
+git add .
+git status
+git commit -m "<message>"
+
+## Push code changes to remote branch on Github
+git push --set-upstream origin <branch>
+git push -u origin <branch>
+
+## Build docker and deploy
+create pull request on github (username: vadintor)
+ssh tova@itemper
+./bin/runItemper
+
+
+# Software - manual
+# Build and release
 Check latest released version in the folder release
 Edit version in package.json
 npm run build
 npm run release
 
-##deploy preparations
+## deploy preparations
 tar -czvf bin.tar.gz bin
 scp bin tova@temper:
 ssh tova@itemper
@@ -24,6 +44,6 @@ initDebian.sh
 initKeys.sh
 initMongodb.sh
 
-##Deploy a back-end release
+## Deploy a back-end release
 scp release/iTemperNode_<version>.tar.gz tova@iTemper:
 deploy.sh <version>
