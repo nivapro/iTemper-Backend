@@ -73,7 +73,7 @@ app.get("/", sensorController.notImplemented);
 app.get("/", homeController.getHome);
 // Routes with file upload or forms
 
-app.post("/locations/", LocationUploadMiddleWare, locationController.postCreateLocation);
+app.post("/locations/", LocationUploadMiddleWare, locationController.createLocationFieldValidator, locationController.postCreateLocation);
 app.put("/locations/:locationID/file", LocationUploadMiddleWare, locationController.putFile);
 
 // application/json after this point
