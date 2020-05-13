@@ -34,7 +34,7 @@ const SensorDescValidator: ValidationChain = body ("sensorDesc").exists();
 //   }
 //   return true;
 // });
-
+export const createLocationFieldValidator = [NameValidator, ColorValidator];
 export const NameFieldValidator = [ NameValidator ];
 export const NoNameFieldValidator = [NoNameValidator];
 export const LocationIDFieldValidator = [LocationIDValidator];
@@ -57,37 +57,37 @@ export let postCreateLocation = (req: Request, res: Response): void => {
     Location.findOne({name: name}).then(location => {
       if (location === null) {
         log.debug(label(m) + "Creating location " + name);
-            const color = req.body.color;
-            const file: Express.Multer.File = req.file;
-            log.debug(label(m) + "file=" + JSON.stringify(req.file));
-            log.debug(label(m) + "files=" + JSON.stringify(req.files));
-            const newLocation = new Location();
-            newLocation.set("name", name);
-            newLocation.set("color", color);
-            if (file) {
-              const locationImageFolder = file.destination + res.locals.tenantID + "/locations/";
-              const filename = file.filename + path.extname(file.originalname);
-              const finalPath = locationImageFolder + filename;
-              newLocation.set("path", finalPath);
-              move(file.path, finalPath, (err) => {
-                if (err) {
-                  log.error(label(m) +  "Cannot move " + file.path +
-                                        " to destination " + finalPath + ", err=" + JSON.stringify(err));
-                } else {
-                  log.info(label(m) + "Stored location image " + file.originalname + " here: " + finalPath);
-                }
-              });
+        const color = req.body.color;
+        const file: Express.Multer.File = req.file;
+        log.debug(label(m) + "file=" + JSON.stringify(req.file));
+        log.debug(label(m) + "files=" + JSON.stringify(req.files));
+        const newLocation = new Location();
+        newLocation.set("name", name);
+        newLocation.set("color", color);
+        if (file) {
+          const locationImageFolder = file.destination + res.locals.tenantID + "/locations/";
+          const filename = file.filename + path.extname(file.originalname);
+          const finalPath = locationImageFolder + filename;
+          newLocation.set("path", finalPath);
+          move(file.path, finalPath, (err) => {
+            if (err) {
+              log.error(label(m) +  "Cannot move " + file.path +
+                                    " to destination " + finalPath + ", err=" + JSON.stringify(err));
+            } else {
+              log.info(label(m) + "Stored location image " + file.originalname + " here: " + finalPath);
             }
-            newLocation.save()
-            .then((savedLocation) => {
-              const body = savedLocation;
-              log.info(label(m) + "Saved new location=" + JSON.stringify(body));
-              res.status(200).send(body);
-            })
-            .catch(() => {
-              log.error(label(m) + "Error saving location name=" + name);
-              res.status(404).send("Cannot save location " + name);
-            });
+          });
+        }
+        newLocation.save()
+        .then((savedLocation) => {
+          const body = savedLocation;
+          log.info(label(m) + "Saved new location=" + JSON.stringify(body));
+          res.status(200).send(body);
+        })
+        .catch(() => {
+          log.error(label(m) + "Error saving location name=" + name);
+          res.status(404).send("Cannot save location " + name);
+        });
       } else {
           log.debug (label(m) + "A location with that name already exists");
           res.status(404).send("Location " + name + " exists already");
