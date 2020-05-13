@@ -1,8 +1,8 @@
 #!/bin/bash
-docker stop iTemper
-docker rename iTemper iTemper_pre_v$1
-docker run --name iTemper -d -p 3000:3000 \
---mount type=bind,source=/home/tova/dist/.env,target=/usr/src/app/.env \
+docker stop itemper
+docker rm itemper
+docker pull tova/itemper:latest
+docker run --name itemper -d -p 3000:3000 \
+--mount type=bind,source=/home/tova/.env,target=/usr/src/app/.env \
 -v /home/tova/tenants:/usr/src/app/uploads \
-itemper-node:v$1
-
+tova/itemper:latest

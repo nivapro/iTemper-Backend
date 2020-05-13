@@ -7,7 +7,25 @@ ssh tova@itemper
 ## vs.vading.lan
 vading\administrator
 
-#Software
+#Pipeline
+## New feature
+git checkout -b <new branch>
+git pull --rebase origin master
+
+## Code changes
+git add .
+git status
+git commit -m "<message>"
+git push -u origin <branch>
+git push --set-upstream origin <branch>
+
+## Deploy feature
+create pull request on github (username: tova)
+ssh tova@itemper
+./bin/runItemper
+
+
+#Software - manual
 #Build and release
 Check latest released version in the folder release
 Edit version in package.json
