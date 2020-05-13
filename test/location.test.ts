@@ -42,7 +42,6 @@ beforeAll(async done => {
   name = res.body.name;
   deviceID = res.body.deviceID;
   key = res.body.key;
-  log.debug("deviceID.test.beforeAll: deviceID=" + deviceID);
   done();
 });
 
@@ -160,7 +159,6 @@ describe("SET LOCATION COLOR", () => {
         expect(res.body).toHaveLength(1);
         expect(res.body[0]._id).toBeDefined();
         locationID = res.body[0]._id;
-        log.info("===========>" + JSON.stringify(res.body[0]._id));
         done();
     });
     test("Set a location color without a locationID should return 404", async done => {
@@ -233,7 +231,6 @@ test("Get all locations after an update should return 200 and updated location v
     .set("Authorization", "bearer " + token)
     .send({});
     expect(res.status).toBe(200);
-    log.error(JSON.stringify(res.body));
     expect(res.body).toHaveLength(1);
     expect(res.body[0].name).toBeDefined();
     expect(res.body[0].name).toEqual("Åtta");
