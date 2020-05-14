@@ -19,6 +19,7 @@ import * as userController from "./features/user/user-controller";
 import * as sensorController from "./features/sensor/sensor-controller";
 import * as deviceController from "./features/device/device-controller";
 import * as locationController from "./features/location/location-controller";
+import * as adminController from "./features/admin/admin-controller";
 
 
 import log from "./services/logger";
@@ -139,3 +140,4 @@ app.get("/sensors/:sn", SensorUserMiddleWare, sensorController.getValidatorSN,  
 // delete  sensors
 app.post("/sensors/:sn/delete",  SensorUserMiddleWare, sensorController.deleteValidator, sensorController.postDeleteSensors);
 
+app.put("/admin",  authorizeJWT, adminController.logLevelFieldValidator, adminController.putLogLevel);
