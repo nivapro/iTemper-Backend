@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Verify code changes
+name: Pre-merge
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: Build Nodejs & docker
+    name: Build backend services
     runs-on: ubuntu-latest
 
     strategy:
@@ -27,7 +27,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies from package-lock
       run: npm ci
-    - name: Build Nodejs application
+    - name: Build services
       run: npm run build
     - name: Run test suite
       run: npm run test
