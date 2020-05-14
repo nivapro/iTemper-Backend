@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Build and test
+name: Build 
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-
+    name: Nodejs & docker
     runs-on: ubuntu-latest
 
     strategy:
@@ -24,19 +24,26 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+    - name: Install dependencies from package-lock
+      run: npm ci
+    - name: Build Nodejs application
+      run: npm run build --if-present
+    - name: Run test suite
+      run: npm test
       env: 
         SALT: ${{ secrets.SALT }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         LOG_LEVEL: info
-    - run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
-    - run: docker build . --file Dockerfile --tag itemper
-    - run: |
+    - name: Login to Docker hub
+      run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Build docker image ${{ secrets.DOCKER_USER }} /itemper
+      run: docker build . --file Dockerfile --tag itemper
+    - name Tag latest & SHA ${{ github.sha }}
+      run:|
           docker tag itemper ${{ secrets.DOCKER_USER }}/itemper:${{ github.sha }}
           docker tag itemper ${{ secrets.DOCKER_USER }}/itemper:latest
-    - run: |
+    - name: Push docker image to Docker hub
+      run: |
           docker push ${{ secrets.DOCKER_USER }}/itemper:${{ github.sha }}
           docker push ${{ secrets.DOCKER_USER }}/itemper:latest
 
