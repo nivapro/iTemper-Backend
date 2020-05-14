@@ -38,7 +38,7 @@ jobs:
       run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build docker image ${{ secrets.DOCKER_USER }} /itemper
       run: docker build . --file Dockerfile --tag itemper
-    - name Tag latest & SHA ${{ github.sha }}
+    - name Tag image with latest & SHA 
       run:|
           docker tag itemper ${{ secrets.DOCKER_USER }}/itemper:${{ github.sha }}
           docker tag itemper ${{ secrets.DOCKER_USER }}/itemper:latest
