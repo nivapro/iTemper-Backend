@@ -206,7 +206,7 @@ export let postSensors = (req: Request, res: Response) => {
     const attr: Attributes = req.body.attr;
     if (desc.SN !== deviceName) {
         log.info(label(m) + "Cannot create sensor: " + JSON.stringify(desc) + ". Sensor SN does not match device name");
-        return res.status(401).send("Cannot create sensor: " + JSON.stringify(desc) + ". Sensor SN does not match device name");
+        return res.status(308).send({deviceID, name: deviceName});
     }
 
     Sensor.findOne({ "desc.SN": desc.SN, "desc.port": desc.port }, "desc", function (err, sensor) {
