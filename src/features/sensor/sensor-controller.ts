@@ -256,8 +256,8 @@ export let postSensorData = (req: Request, res: Response) => {
 
     if (desc.SN !== deviceName) {
       log.info(label(m) + "Logging sensor data refused for " + JSON.stringify(desc) + ". Sensor SN does not match device name");
-      return res.status(403).send("Cannot create sensor for " + JSON.stringify(desc) + ". Sensor SN does not match device name");
-  }
+      return res.status(308).send({deviceID, name: deviceName});
+    }
     const samples: Data[] = req.body.samples;
 
     const sensorLog: SensorLog = {desc, samples};
