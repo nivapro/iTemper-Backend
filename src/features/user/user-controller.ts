@@ -4,7 +4,7 @@ import { default as User } from "./user-model";
 import { Request, Response, NextFunction } from "express";
 import express from "express";
 
-import { body, sanitize, validationResult } from "express-validator";
+import { body, check, validationResult } from "express-validator";
 
 import log from "../../services/logger";
 
@@ -16,13 +16,13 @@ function label(name: string): string {
 }
 
 export const PostValidator = [
-  sanitize("email").normalizeEmail({ gmail_remove_dots: false }),
+  check("email").normalizeEmail({ gmail_remove_dots: false }),
   body ("email", "Email is not valid").exists().isEmail(),
   body ("password", "Password cannot be blank" ).exists().isLength({min: 4})
 ];
 
 export const DeleteValidator = [
-  sanitize("email").normalizeEmail({ gmail_remove_dots: false }),
+  check("email").normalizeEmail({ gmail_remove_dots: false }),
   body ("email", "Email is not valid").exists().isEmail(),
 ];
 export let postLogin = (req: Request, res: Response, next: NextFunction) => {
