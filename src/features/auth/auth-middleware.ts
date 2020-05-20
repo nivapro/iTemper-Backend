@@ -76,6 +76,7 @@ export function authorizeJWT(req: Request, res: Response, next: NextFunction) {
                   log.info(label(m) + "Access authorized for DeviceID=" + device.deviceID + ", tenantID=" + device.tenantID);
                   res.locals.tenantID = device.tenantID;
                   res.locals.deviceID = device.deviceID;
+                  res.locals.deviceName = device.name;
                   next();
                 } else {
                   log.info (label(m) + "Access DENIED for deviceID=" + deviceID + ", tenantID=" + device.tenantID);

@@ -81,7 +81,7 @@ export let getSensors = (req: Request, res: Response) => {
         }
       }], function(err: any, sensors: SensorInterface[]) {
           if (err) {
-              res.status(400).end();
+              res.status(503).end();
           } else if (sensors.length === 0) {
               res.status(200).send(JSON.stringify(sensors));
               log.debug(label(m) + "No sensor data found for specified period");
@@ -99,7 +99,7 @@ export let getSensors = (req: Request, res: Response) => {
         Sensor.find( {}, {"samples": { $slice: -samples }},
           function(err, sensors) {
             if (err) {
-              res.status(400).send(JSON.stringify(err));
+              res.status(503).send(JSON.stringify(err));
             } else if (sensors.length === 0) {
               log.debug(label(m) + "No sensor samples found");
               res.status(200).end();
@@ -109,7 +109,7 @@ export let getSensors = (req: Request, res: Response) => {
             }});
     }
   } catch (e) {
-    res.status(404).end();
+    res.status(400).end();
     log.error(label(m) + "Error=" + e);
   }
 };
@@ -200,26 +200,32 @@ export let postSensors = (req: Request, res: Response) => {
       return res.status(422).json({ errors: errors.mapped() });
     }
     const deviceID = res.locals.deviceID;
+    const deviceName = res.locals.deviceName;
     const desc: Descriptor = req.body.desc;
     const attr: Attributes = req.body.attr;
-    log.debug(label(m) + "findOne");
+    if (desc.SN !== deviceName) {
+        log.info(label(m) + "Cannot create sensor: " + JSON.stringify(desc) + ". Sensor SN does not match device name");
+        return res.status(308).send({deviceID, name: deviceName});
+    }
+
     Sensor.findOne({ "desc.SN": desc.SN, "desc.port": desc.port }, "desc", function (err, sensor) {
       log.debug(label(m) + "findOne sensor=" + JSON.stringify(sensor));
       if (sensor === null) {
             // Sensor does not exist, let's create and save it
         const sensor = new Sensor({ deviceID: deviceID, desc: desc, attr: attr, samples: []});
 
-          sensor.save(function (err) {
-            log.debug(label(m) + "saving");
-            if (err) {
-              log.error(label(m) + "Cannot save sensor error=" + JSON.stringify(err));
-              return res.status(503).end();
-            }
-            log.info(label(m) + "Sensor created");
-            res.setHeader("Content-Location", req.path + "/" + desc.SN + "/" + desc.port);
-            res.status(200).send(sensor);
-          });
+        sensor.save(function (err) {
+          log.debug(label(m) + "saving " + JSON.stringify(desc) );
+          if (err) {
+            log.error(label(m) + "Cannot save sensor " + JSON.stringify(desc) + " error=" + JSON.stringify(err));
+            return res.status(503).end();
+          }
+          log.info(label(m) + "Sensor " + JSON.stringify(desc) + " registered");
+          res.setHeader("Content-Location", req.path + "/" + desc.SN + "/" + desc.port);
+          res.status(200).send(sensor);
+        });
       } else {
+        log.debug(label(m) + "OK! Sensor " + JSON.stringify(desc) + " registered already");
         return res.status(200).end();
       }
     });
@@ -244,8 +250,15 @@ export let postSensorData = (req: Request, res: Response) => {
     }
 
     const deviceID = res.locals.deviceID;
-    const samples: Data[] = req.body.samples;
+    const deviceName = res.locals.deviceName;
     const desc: Descriptor =  req.body.desc;
+
+    if (desc.SN !== deviceName) {
+      log.info(label(m) + "Logging sensor data refused for " + JSON.stringify(desc) + ". Sensor SN does not match device name");
+      return res.status(308).send({deviceID, name: deviceName});
+    }
+    const samples: Data[] = req.body.samples;
+
     const sensorLog: SensorLog = {desc, samples};
     monitor.send(sensorLog);
 
@@ -259,13 +272,13 @@ export let postSensorData = (req: Request, res: Response) => {
                   },
                   { new: true },
       function (err, sensor) {
-        if (err) return res.status(401).send(err);
+        if (err) return res.status(503).send(err);
         if (sensor) {
-          log.info(label(m) + "Sensor data logged");
+          log.info(label(m) + "Sensor data logged for sensor " + JSON.stringify(desc));
           res.status(200).end();
         } else {
-          log.debug(label(m) + "Sensor not found, register required before posting sensor data");
-          res.status(403).send(" Sensor not found, register sensor before posting sensor data");
+          log.debug(label(m) + "Sensor " + JSON.stringify(desc) + " not found, register required before posting sensor data");
+          res.status(404).send(" Sensor " + JSON.stringify(desc) + " not found, register sensor before posting sensor data");
         }
       });
   }
