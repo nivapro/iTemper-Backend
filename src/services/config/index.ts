@@ -34,5 +34,5 @@ export function userDBConnectionString(): Promise<string> {
 }
 
 export function tenantDBConnectionString(tenantID: string): Promise<string> {
-    return new Promise (resolve => { resolve( userDBConnectionStr += "-" + tenantID); });
+    return new Promise (resolve => { resolve( userDBConnectionStr += + tenantID); });
 }
