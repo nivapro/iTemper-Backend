@@ -2,8 +2,9 @@
 import * as jwt from "../../services/jwt/jwt-handler";
 import { default as User } from "./user-model";
 import { Request, Response, NextFunction } from "express";
+import express from "express";
 
-import { body, sanitize, validationResult } from "express-validator";
+import { body, check, validationResult } from "express-validator";
 
 import log from "../../services/logger";
 
@@ -15,13 +16,13 @@ function label(name: string): string {
 }
 
 export const PostValidator = [
-  sanitize("email").normalizeEmail({ gmail_remove_dots: false }),
+  check("email").normalizeEmail({ gmail_remove_dots: false }),
   body ("email", "Email is not valid").exists().isEmail(),
   body ("password", "Password cannot be blank" ).exists().isLength({min: 4})
 ];
 
 export const DeleteValidator = [
-  sanitize("email").normalizeEmail({ gmail_remove_dots: false }),
+  check("email").normalizeEmail({ gmail_remove_dots: false }),
   body ("email", "Email is not valid").exists().isEmail(),
 ];
 export let postLogin = (req: Request, res: Response, next: NextFunction) => {
@@ -81,7 +82,7 @@ export let postLogout = (req: Request, res: Response) => {
   res.status(200).end();
 };
 
-export let postSignup = (req: Request, res: Response, next: NextFunction) => {
+export let postSignup = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const m = "postSignup";
   log.info(label(m) + "New user sign-up request");
 
@@ -141,7 +142,7 @@ export let postSignup = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-export let deleteUser = (req: Request, res: Response) => {
+export let deleteUser = (req: express.Request, res: express.Response) => {
   const m = "deleteUser, tenantID=" + res.locals.tenantID;
   log.info(label(m));
 

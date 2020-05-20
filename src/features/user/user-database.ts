@@ -14,7 +14,7 @@ export function initialize (getConnectionString: () => Promise<string>) {
   // Connect to MongoDB
 
   getConnectionString().then(connectionURI => {
-    mongoose.connect(connectionURI, { }, (err: mongoose.Error) => {
+    mongoose.connect(connectionURI, {   useNewUrlParser: true,  useUnifiedTopology: true, useCreateIndex: true }, (err: mongoose.Error) => {
       if (err)
         log.error ("user-database: connection error, check that the db is running - " + connectionURI);
       else
