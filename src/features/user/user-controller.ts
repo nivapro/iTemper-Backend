@@ -2,6 +2,7 @@
 import * as jwt from "../../services/jwt/jwt-handler";
 import { default as User } from "./user-model";
 import { Request, Response, NextFunction } from "express";
+import express from "express";
 
 import { body, sanitize, validationResult } from "express-validator";
 
@@ -81,7 +82,7 @@ export let postLogout = (req: Request, res: Response) => {
   res.status(200).end();
 };
 
-export let postSignup = (req: Request, res: Response, next: NextFunction) => {
+export let postSignup = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const m = "postSignup";
   log.info(label(m) + "New user sign-up request");
 
@@ -141,7 +142,7 @@ export let postSignup = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-export let deleteUser = (req: Request, res: Response) => {
+export let deleteUser = (req: express.Request, res: express.Response) => {
   const m = "deleteUser, tenantID=" + res.locals.tenantID;
   log.info(label(m));
 

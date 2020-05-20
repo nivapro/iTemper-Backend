@@ -46,7 +46,7 @@ const uploadLocationImage = uploads.single("locationImage");
 function useUpload (req: Request, res: Response, next: NextFunction)  {
   const m = "useUpload, tenantID=" + res.locals.tenantID;
   log.debug(label(m));
-  uploadLocationImage(req, res, (err) => {
+  uploadLocationImage(req, res, (err: any) => {
     const m = "uploadLocationImage, tenantID=" + res.locals.tenantID;
     if (err) {
       log.error(label(m) + "error=" + util.stringify(err));
