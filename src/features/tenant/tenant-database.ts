@@ -18,7 +18,8 @@ export function useDB(tenantID: string, callback: (err: Error, connection: mongo
   } else {
 
     getConnectionString(tenantID).then(connectionURI => {
-      const connection: mongoose.Connection = mongoose.createConnection(connectionURI);
+      const connection: mongoose.Connection = mongoose.createConnection(connectionURI,
+        {  useNewUrlParser: true,  useUnifiedTopology: true, useCreateIndex: true });
 
       connection.on("error", (): void =>  {
         log.error ("tenant-database.useDB:  connection error, check that the db is running - " + connectionURI);

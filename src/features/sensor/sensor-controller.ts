@@ -60,9 +60,8 @@ export let getSensors = (req: Request, res: Response) => {
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.mapped() });
     }
-
-    const samples: number = parseInt(req.query.samples);
-    const myFrom: number = parseInt(req.query.from);
+    const samples: number = parseInt(req.query.samples as string);
+    const myFrom: number = parseInt(req.query.from as string);
     log.debug(label(m) + "host IP=" + req.ips.toString() + ", samples=" + samples + " from=" + myFrom);
     if (myFrom) {
 
@@ -134,7 +133,7 @@ export let getSensorsSN = (req: Request, res: Response) => {
       return res.status(422).json({ errors: errors.mapped() });
     }
 
-    samples = parseInt(req.query.samples);
+    samples = parseInt(req.query.samples as string);
 
     Sensor.find({ "desc.SN": req.params.sn}, { "samples": { $slice: -samples }},
       function(err: any, sensors: SensorInterface[]) {
@@ -167,7 +166,7 @@ export let getSensorsSNPort = (req: Request, res: Response) => {
       return res.status(422).json({ errors: errors.mapped() });
     }
 
-    samples = parseInt(req.query.samples);
+    samples = parseInt(req.query.samples as string);
 
     Sensor.find({ "desc.SN": req.params.sn, "desc.port": req.params.port })
         .select( {"samples": { $slice: -samples }})
