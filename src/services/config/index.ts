@@ -39,7 +39,8 @@ export function userDBConnectionString(): Promise<string> {
 
 export function tenantDBConnectionString(tenantID: string): Promise<string> {
     return new Promise (resolve => {
-        console.log("Config, Set tenantDBConnectionString: " + tenantID);
-        resolve( userDBConnectionStr += "/" + tenantID);
+        const connectionString = userDBConnectionStr + "/" + tenantID;
+        console.log("Config, Set tenantDBConnectionString: " + connectionString);
+        resolve( connectionString);
     });
 }
