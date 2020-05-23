@@ -16,6 +16,8 @@ export interface DeviceInterface {
     hash: string;
     tenantID: string;
     comparePassword: (candidatePassword: string, cb: (err: any, isMatch: any) => void) => void;
+    statusTime?: number;
+    uptime?: number;
 }
 
 export interface DeviceDocument extends DeviceInterface, mongoose.Document {}
@@ -26,7 +28,8 @@ export const DeviceSchema = new mongoose.Schema({
     key: {type: String},
     hash: {type: String},
     tenantID: {type: String},
-
+    statusTime: {type: Number},
+    uptime: {type: Number},
 });
 
 /**

@@ -5,6 +5,7 @@ import * as crypto from "../../services/crypto";
 import { Response, Request } from "express";
 import { body, param, validationResult, ValidationChain } from "express-validator";
 import { DeviceModel } from "./device-model";
+import { DeviceData, formatDeviceData } from "./device-status";
 
 const moduleName = "device-controller.";
 function label(name: string): string {
@@ -12,13 +13,17 @@ function label(name: string): string {
 }
 
 
+const DeviceIDValidator: ValidationChain = param ("deviceID").exists().isUUID(4);
+const DataValidator: ValidationChain = body ("data", "Device data not found").exists();
+const DataTimestampValidator: ValidationChain = body ("data.timestamp", "Device data timestamp not found").exists().isNumeric();
+const DataUptimeValidator: ValidationChain = body ("data.uptime", "Device data timestamp not found").exists().isNumeric();
 const NameValidator: ValidationChain = body ("name", "Device name is not valid, must be alphanumeric 4-32 characters").exists().trim().isAlphanumeric().isLength({min: 4, max: 32});
 const NoNameValidator: ValidationChain = param ("name").not().exists();
-const DeviceIDValidator: ValidationChain = param ("deviceID").exists().isUUID(4);
 
+export const DeviceIDFieldValidator = [DeviceIDValidator];
+export const DeviceDataFieldValidator = [DataValidator, DataTimestampValidator, DataUptimeValidator];
 export const NameFieldValidator = [ NameValidator ];
 export const NoNameFieldValidator = [NoNameValidator];
-export const DeviceIDFieldValidator = [DeviceIDValidator];
 export const RenameFieldValidator = [DeviceIDValidator, NameValidator];
 
 export let postRegisterDevice = (req: Request, res: Response): void => {
@@ -90,10 +95,43 @@ export let putDeviceName = (req: Request, res: Response): void => {
         res.status(404).send("Cannot rename device=" + name);
       }
     }).catch(err => {
-      log.info; (label(m) + "The device does not exist for tenantID=" + res.locals.tenantID);
-      res.status(404).send("Cannot rename device");
-    });
-  };
+      log.info(label(m) + "The device does not exist for tenantID=" + res.locals.tenantID);
+      res.status(400).send("Cannot rename device");
+  });
+};
+export let postDeviceData = (req: Request, res: Response): void => {
+  const m = "postDeviceData, tenantID=" + res.locals.tenantID;
+  const Device: DeviceModel = res.locals.Device;
+  const tenantID = res.locals.tenantID;
+  const deviceID = res.locals.deviceID;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+     res.status(422).json({ errors: errors.mapped() });
+     return;
+  }
+
+  const statusTime: number = req.body.data.timestamp;
+  const uptime: number = req.body.data.uptime;
+  const filter = { deviceID: deviceID, tenantID: tenantID };
+  const update = { statusTime,  uptime};
+  const option = { new: true };
+  Device.findOneAndUpdate(filter, update, option).then(device => {
+    const report = formatDeviceData(req.body.data);
+      if (device) {
+        const body = { update };
+        log.info(label(m) + "Status report deviceID=" + deviceID + " : " + report + "for tenantID=" + res.locals.tenantID);
+        res.status(200).send(body);
+      }
+      else {
+        log.info(label(m) + "Error saving status report, deviceID=" + deviceID + " not found for tenantID=" + res.locals.tenantID);
+        res.status(404).send("Cannot save status report");
+      }
+    }).catch(err => {
+      log.error(label(m) + "The device does not exist for tenantID=" + res.locals.tenantID + ", err=" + err);
+      res.status(400).send("Cannot save device status report");
+  });
+};
 
 type GetDeviceTokenBody = {deviceID: string, shared_access_key: string};
 

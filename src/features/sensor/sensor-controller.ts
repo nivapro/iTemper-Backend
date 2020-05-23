@@ -190,17 +190,16 @@ export let postSensors = (req: Request, res: Response) => {
   const m = "postSensors" + ", tenantID=" + res.locals.tenantID;
   log.debug(label(m) + "res.locals.Sensor=" + util.stringify(res.locals.Sensor));
   const Sensor: Model<ISensor> = res.locals.Sensor ;
-
+  const deviceID = res.locals.deviceID;
+  const deviceName = res.locals.deviceName;
   try {
     res.setHeader("Content-Type", "application/json");
     log.debug(label(m) + "try");
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       log.debug(label(m) + "validation error");
-      return res.status(422).json({ errors: errors.mapped() });
+      return res.status(422).json({ errors: errors.mapped(), deviceID, name: deviceName });
     }
-    const deviceID = res.locals.deviceID;
-    const deviceName = res.locals.deviceName;
     const desc: Descriptor = req.body.desc;
     const attr: Attributes = req.body.attr;
     if (desc.SN !== deviceName) {
@@ -240,17 +239,18 @@ export let postSensors = (req: Request, res: Response) => {
 export let postSensorData = (req: Request, res: Response) => {
   const m = "postSensorData" + ", tenantID=" + res.locals.tenantID;
   log.debug(label(m) + "res.locals.sub=" + util.stringify(res.locals.sub));
+
   const Sensor: Model<ISensor> = res.locals.Sensor;
+  const deviceID = res.locals.deviceID;
+  const deviceName = res.locals.deviceName;
+
   log.debug(label(m) + "{ SN: " + req.params.sn.toString() + ", port: " + req.params.port.toString() + ", samples: " + JSON.stringify(req.body.samples) + " }");
   try {
     res.setHeader("Content-Type", "application/json");
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.mapped() });
+      return res.status(422).json({ errors: errors.mapped(), deviceID, name: deviceName });
     }
-
-    const deviceID = res.locals.deviceID;
-    const deviceName = res.locals.deviceName;
     const desc: Descriptor =  req.body.desc;
 
     if (desc.SN !== deviceName) {
@@ -278,7 +278,7 @@ export let postSensorData = (req: Request, res: Response) => {
           res.status(200).end();
         } else {
           log.debug(label(m) + "Sensor " + JSON.stringify(desc) + " not found, register required before posting sensor data");
-          res.status(404).send(" Sensor " + JSON.stringify(desc) + " not found, register sensor before posting sensor data");
+          res.status(404).send({deviceID, name: deviceName });
         }
       });
   }
