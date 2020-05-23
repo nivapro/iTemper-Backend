@@ -29,7 +29,7 @@ import errorHandler from "errorhandler";
 // Middleware
 import { authorizeJWT } from "./features/auth/auth-middleware";
 import { SensorDeviceMiddleWare, SensorUserMiddleWare } from  "./features/sensor/sensor-middleware";
-import { DeviceMiddleWare } from  "./features/device/device-middleware";
+import { DeviceDataMiddleWare, DeviceMiddleWare } from  "./features/device/device-middleware";
 import { LocationMiddleWare, LocationUploadMiddleWare } from "./features/location/location-middleware";
 
 
@@ -69,9 +69,13 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+// -------------- / & /public ----------------------------------
 app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
 app.get("/", sensorController.notImplemented);
 app.get("/", homeController.getHome);
+
+// -------------- /locations ----------------------------------
+
 // Routes with file upload or forms
 
 app.post("/locations/", LocationUploadMiddleWare, locationController.createLocationFieldValidator, locationController.postCreateLocation);
@@ -93,6 +97,8 @@ app.put("/locations/:locationID/color", LocationMiddleWare, locationController.u
 app.put("/locations/:locationID/sensors", LocationMiddleWare, locationController.updateSensorsFieldValidator, locationController.putSensors);
 app.delete("/locations/:locationID", LocationMiddleWare, locationController.LocationIDFieldValidator, locationController.deleteLocation);
 
+// -------------- /users ----------------------------------
+
 app.post("/signup", userController.PostValidator, userController.postSignup);
 app.post("/login", userController.PostValidator, userController.postLogin);
 app.post("/logout", authorizeJWT, userController.postLogout);
@@ -103,6 +109,8 @@ app.post("/users/add", authorizeJWT, userController.PostValidator, userControlle
 
 app.delete("/users/delete", authorizeJWT, userController.DeleteValidator, userController.deleteUser);
 
+// -------------- /devices ----------------------------------
+// // Requires JWT Token //
 // Create a device, returns a shared API key (the key is not saved, so remember)
 app.post("/devices/", DeviceMiddleWare, deviceController.NameFieldValidator, deviceController.postRegisterDevice);
 
@@ -118,7 +126,12 @@ app.get("/devices/:deviceID", DeviceMiddleWare, deviceController.DeviceIDFieldVa
 // Delete deviceID
 app.delete("/devices/:deviceID", DeviceMiddleWare, deviceController.DeviceIDFieldValidator, deviceController.deleteDevice);
 
+// -------------- /device ----------------------------------
+// Require Shared API Key //
+// Update device data
+app.post("/device/status", DeviceDataMiddleWare,  deviceController.DeviceDataFieldValidator, deviceController.postDeviceData);
 
+// -------------- /sensors ----------------------------------
 // Require Shared API Key //
 // Create a sensor
 app.post("/sensors", SensorDeviceMiddleWare, sensorController.postValidator, sensorController.postSensors);
