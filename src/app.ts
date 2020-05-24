@@ -65,7 +65,7 @@ log.info("app.ts locationImageFolder=" + locationImageFolder);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   log.debug("");
-  log.debug("------------------" +  req.method + " " + req.path + " ------------------------------");
+  log.debug("------------------ " +  req.method + " " + req.path + " ------------------------------");
   log.debug("body:   " + JSON.stringify(req.body));
   log.debug("params: " + JSON.stringify(req.params));
   log.debug("query:  " + JSON.stringify(req.query));
