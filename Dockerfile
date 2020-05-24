@@ -19,6 +19,11 @@ RUN npm install --production
 # This will copy all files in our root to the working  directory in the container
 COPY ./dist ./dist
 
+VOLUME [ "./uploads" ]
+
+RUN addgroup --gid 1024 itemper && adduser --disabled-password --gecos "iTemper node user" --force-badname --ingroup 1024 node \
+    && chown :1024 ./uploads && chmod 775 ./uploads && chmodg+s ./uploads
+
 # Enable systemd init system in container
 ENV INITSYSTEM on
 
