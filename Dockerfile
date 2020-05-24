@@ -12,17 +12,18 @@ WORKDIR /usr/src/app
 
 # Copies the package.json first for better cache on later pushes
 COPY package.json package.json
-COPY README.md README.md 
+COPY README.md README.md
 
-RUN npm install --production 
+RUN npm install --production
 
 # This will copy all files in our root to the working  directory in the container
 COPY ./dist ./dist
 
-VOLUME [ "./uploads" ]
 
-RUN addgroup --gid 1024 itemper && adduser --disabled-password --gecos "iTemper node user" --force-badname --ingroup 1024 node \
-    && chown :1024 ./uploads && chmod 775 ./uploads && chmodg+s ./uploads
+RUN mkdir ./uploads \
+    && chown node ./uploads && chmod 775 ./uploads && chmod g+s ./uploads
+
+VOLUME [ "./uploads" ]
 
 # Enable systemd init system in container
 ENV INITSYSTEM on
