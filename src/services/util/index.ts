@@ -1,4 +1,6 @@
 import * as fs from "fs";
+import mkdirp from "mkdirp";
+import log from "../../services/logger";
 
 export function stringify(o: object) {
     let cache: object[] = [];
@@ -19,30 +21,37 @@ export function stringify(o: object) {
     cache = undefined;
   }
 
-  export function move(oldPath: string, newPath: string, callback: (err?: any) => void) {
+  export function move(oldPath: string, newFolder: string, newFilename: string, callback: (err?: any) => void) {
+    const newPath = newFolder + newFilename;
+    const newDir = mkdirp.sync(newFolder);
 
-      fs.rename(oldPath, newPath, function (err) {
-          if (err) {
-              if (err.code === "EXDEV") {
-                  copy();
-              } else {
-                  callback(err);
-              }
-              return;
-          }
-          callback();
-      });
+    if (newDir) {
+        log.info("Created dir " + newFolder);
+    } else {
+        log.error("Cannot create dir " + newFolder);
+    }
+    fs.rename(oldPath, newPath, function (err) {
+        if (err) {
+            if (err.code === "EXDEV") {
+                copy();
+            } else {
+                callback(err);
+            }
+            return;
+        }
+        callback();
+    });
 
-      function copy() {
-          const readStream = fs.createReadStream(oldPath);
-          const writeStream = fs.createWriteStream(newPath);
+    function copy() {
+        const readStream = fs.createReadStream(oldPath);
+        const writeStream = fs.createWriteStream(newPath);
 
-          readStream.on("error", callback);
-          writeStream.on("error", callback);
+        readStream.on("error", callback);
+        writeStream.on("error", callback);
 
-          readStream.on("close", function () {
-              fs.unlink(oldPath, callback);
-          });
-          readStream.pipe(writeStream);
-      }
+        readStream.on("close", function () {
+            fs.unlink(oldPath, callback);
+        });
+        readStream.pipe(writeStream);
+    }
   }

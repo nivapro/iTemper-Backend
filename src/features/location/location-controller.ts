@@ -69,7 +69,7 @@ export let postCreateLocation = (req: Request, res: Response): void => {
           const filename = file.filename + path.extname(file.originalname);
           const finalPath = locationImageFolder + filename;
           newLocation.set("path", finalPath);
-          move(file.path, finalPath, (err) => {
+          move(file.path, locationImageFolder, filename, (err) => {
             if (err) {
               log.error(label(m) +  "Cannot move " + file.path +
                                     " to destination " + finalPath + ", err=" + JSON.stringify(err));
@@ -198,7 +198,7 @@ export let putFile = (req: Request, res: Response): void => {
   const locationImageFolder = file.destination + res.locals.tenantID + "/locations/";
   const filename = file.filename + path.extname(file.originalname);
   const finalPath = locationImageFolder + filename;
-  move(file.path, finalPath, (err) => {
+  move(file.path, locationImageFolder, filename, (err) => {
     if (err) {
       log.error(label(m) +  "Cannot move image " + file.path +
                             " to destination " + finalPath + ", err=" + JSON.stringify(err));
