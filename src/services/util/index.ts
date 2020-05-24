@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import mkdirp from "mkdirp";
+import log from "../../services/logger";
 
 export function stringify(o: object) {
     let cache: object[] = [];
@@ -23,6 +24,12 @@ export function stringify(o: object) {
   export function move(oldPath: string, newFolder: string, newFilename: string, callback: (err?: any) => void) {
     const newPath = newFolder + newFilename;
     const newDir = mkdirp.sync(newFolder);
+
+    if (newDir) {
+        log.info("Created dir " + newFolder);
+    } else {
+        log.error("Cannot create dir " + newFolder);
+    }
     fs.rename(oldPath, newPath, function (err) {
         if (err) {
             if (err.code === "EXDEV") {
