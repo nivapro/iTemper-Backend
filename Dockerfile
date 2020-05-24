@@ -19,11 +19,10 @@ RUN npm install --production
 # This will copy all files in our root to the working  directory in the container
 COPY ./dist ./dist
 
+VOLUME [ "./uploads" ]
 
 RUN mkdir ./uploads \
     && chown node ./uploads && chmod 775 ./uploads && chmod g+s ./uploads
-
-VOLUME [ "./uploads" ]
 
 # Enable systemd init system in container
 ENV INITSYSTEM on
