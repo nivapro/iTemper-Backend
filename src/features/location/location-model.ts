@@ -17,6 +17,9 @@ export interface LocationInterface {
     sensorDesc: Descriptor[];
 }
 
+export interface LocationResponse {
+  data: LocationInterface;
+}
 export interface LocationDocument extends LocationInterface, mongoose.Document {}
 
 export const LocationSchema = new mongoose.Schema({

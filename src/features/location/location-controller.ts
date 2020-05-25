@@ -4,7 +4,7 @@ import { move } from "../../services/util";
 import { Response, Request } from "express";
 import { body, param, validationResult, ValidationChain } from "express-validator";
 import { Model } from "mongoose";
-import { LocationDocument } from "./location-model";
+import { LocationDocument, LocationResponse } from "./location-model";
 import { ISensor, Descriptor } from "../sensor/sensor-model";
 import path from "path";
 
@@ -136,7 +136,7 @@ export let putName = (req: Request, res: Response): void => {
 
   Location.findOneAndUpdate(filter, update, option).then(location => {
       if (location) {
-        const body = location;
+        const body: LocationResponse  = {data: location};
         const bodyStr = JSON.stringify(body);
         log.info(label(m) + "Renamed location name with locationID=" + locationID + " to " + name);
         res.status(200).send(body);
@@ -169,7 +169,7 @@ export let putColor = (req: Request, res: Response): void => {
 
   Location.findOneAndUpdate(filter, update, option).then(location => {
       if (location) {
-        const body = location;
+        const body: LocationResponse  = {data: location};
         const bodyStr = JSON.stringify(body);
         log.info(label(m) + "Updated location color with locationID=" + locationID + " to " + color);
         res.status(200).send(body);
@@ -212,7 +212,7 @@ export let putFile = (req: Request, res: Response): void => {
 
       Location.findOneAndUpdate(filter, update, option).then(location => {
           if (location) {
-            const body = location;
+            const body: LocationResponse  = {data: location};
             log.info(label(m) + "Updated background image of locationID=" + locationID);
             res.status(200).send(body);
           }
@@ -246,7 +246,7 @@ export let putSensors = (req: Request, res: Response): void => {
 
   Location.findOneAndUpdate(filter, update, option).then(location => {
       if (location) {
-        const body = location;
+        const body: LocationResponse  = {data: location};
         log.info(label(m) + "Updated sensors of locationID=" + locationID + " to " + JSON.stringify(sensorDesc));
         res.status(200).send(body);
       }
@@ -275,7 +275,7 @@ export let deleteLocation = (req: Request, res: Response): void => {
   Location.findOneAndRemove(filter).then(location => {
     if (location) {
       log.info(label(m) + "Deleted locationID=" + location._id);
-      const body = location;
+      const body: LocationResponse  = {data: location};
       res.status(200).send(body);
     } else {
       log.debug(label(m) + "The location does not exist");
