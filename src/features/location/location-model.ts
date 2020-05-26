@@ -10,15 +10,16 @@ function label(name: string): string {
 }
 
 export interface LocationInterface {
-    name: string;
-    color: string;
-    path: string;
-
-    sensorDesc: Descriptor[];
+  name: string;
+  color: string;
+  path: string;
+  sensorDesc: Descriptor[];
 }
-
+export interface LocationData extends LocationInterface {
+}
 export interface LocationResponse {
-  data: LocationInterface;
+  _id: string;
+  data: LocationData;
 }
 export interface LocationDocument extends LocationInterface, mongoose.Document {}
 
