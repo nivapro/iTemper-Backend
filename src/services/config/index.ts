@@ -32,8 +32,9 @@ export function setUserDBConnectionString(connectionString: string) {
 
 export function userDBConnectionString(): Promise<string> {
     return new Promise (resolve => {
-        console.log("Config, Set userDBConnectionString: " + userDBConnectionStr);
-        resolve(userDBConnectionStr);
+        const connectionString = userDBConnectionStr + "/Directory";
+        console.log("Config, Set userDBConnectionString: " + connectionString);
+        resolve(connectionString);
     });
 }
 
