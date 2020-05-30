@@ -1,6 +1,6 @@
 FROM nginx
 
- COPY ../dist/public /usr/share/nginx/html
+ COPY ../src/public /usr/share/nginx/html
 
  COPY . /etc/nginx
 
