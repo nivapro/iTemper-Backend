@@ -1,7 +1,7 @@
 version: '3'
 services:
   nginx:
-    image: nginx
+    image: itemper-nginx
     ports:
       - "80:80"
       - "443:443"
