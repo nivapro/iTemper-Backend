@@ -2,16 +2,19 @@ version: '3'
 
 services:
   webserver:
-    image: nginx
+    image: itemper-nginx
     container_name: my-nginx
     restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - web-root:/var/www/html
-      - ./nginx-conf:/etc/nginx/conf.d
+      - web-logs:/var/log/nginx
+      - web-root:/usr/share/nginx/html
+      - web-conf:/etc/nginx
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
+      - dhparam:/etc/ssl/certs
 
   certbot:
     image: certbot/certbot
@@ -19,17 +22,15 @@ services:
     volumes:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
-      - web-root:/var/www/html
+      - web-root:/usr/share/nginx/html
     depends_on:
       - webserver
-    command: certonly --webroot --webroot-path=/var/www/html --email torbjorn.vading@nivapro.com --agree-tos --no-eff-email --staging -d device.itemper.io
+    command: certonly --webroot --webroot-path=/usr/share/nginx/html --email torbjorn.vading@nivapro.com --agree-tos --no-eff-email --force-renewal -d device.itemper.io
 
 volumes:
+  web-logs:
+  web-root:
+  web-conf:
   certbot-etc:
   certbot-var:
-  web-root:
-    driver: local
-    driver_opts:
-      type: none
-      device: /home/tova/iTemper-Backend/nginx
-      o: bind
+  dhparam:
