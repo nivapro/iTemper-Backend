@@ -1,7 +1,7 @@
 version: "2"
 services:
   iTemperNode:
-    container_name: iTemperNode
+    container_name: itemper-backend
     restart: always
     build: .
     ports:
