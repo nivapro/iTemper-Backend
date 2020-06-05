@@ -75,7 +75,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // -------------- / & /public ----------------------------------
 app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
 app.get("/", sensorController.notImplemented);
-app.get("/sales", sensorController.notImplemented);
+
 
 // -------------- /locations ----------------------------------
 
@@ -157,3 +157,15 @@ app.get("/sensors/:sn", SensorUserMiddleWare, sensorController.getValidatorSN,  
 app.post("/sensors/:sn/delete",  SensorUserMiddleWare, sensorController.deleteValidator, sensorController.postDeleteSensors);
 
 app.put("/admin",  authorizeJWT, adminController.logLevelFieldValidator, adminController.putLogLevel);
+
+// Sales
+app.get("/sales", sensorController.notImplemented);
+app.post("/sales", sensorController.notImplemented);
+app.put("/sales", sensorController.notImplemented);
+app.delete("/sales", sensorController.notImplemented);
+
+// Payment
+app.get("/payment", sensorController.notImplemented);
+app.post("/payment", sensorController.notImplemented);
+app.put("/payment", sensorController.notImplemented);
+app.delete("/payment", sensorController.notImplemented);
