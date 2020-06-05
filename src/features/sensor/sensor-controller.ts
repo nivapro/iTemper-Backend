@@ -318,7 +318,6 @@ export let postDeleteSensors = (req: Request, res: Response) => {
 
 export let notImplemented = (req: Request, res: Response) => {
   log.info("notImplemented: method not implemented");
-  res.setHeader("Content-Type", "application/json");
   const method = req.method;
   const headers = req.headers;
   const url = req.url;
