@@ -77,10 +77,24 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
 
 
+
+// --------------------------------------------------------------
+// Routes with file uploads or forms
+// --------------------------------------------------------------
+
+// -------------- /Wooecommerce webhooks ------------------------
+app.get("/sales", sensorController.notImplemented);
+app.post("/sales", sensorController.notImplemented);
+app.put("/sales", sensorController.notImplemented);
+app.delete("/sales", sensorController.notImplemented);
+
+// -------------- /Stripe webhooks -----------------------------
+app.get("/payment", sensorController.notImplemented);
+app.post("/payment", sensorController.notImplemented);
+app.put("/payment", sensorController.notImplemented);
+app.delete("/payment", sensorController.notImplemented);
+
 // -------------- /locations ----------------------------------
-
-// Routes with file upload or forms
-
 app.post("/locations/", LocationUploadMiddleWare, locationController.createLocationFieldValidator, locationController.postCreateLocation);
 app.put("/locations/:locationID/file", LocationUploadMiddleWare, locationController.putFile);
 
@@ -158,17 +172,7 @@ app.post("/sensors/:sn/delete",  SensorUserMiddleWare, sensorController.deleteVa
 
 app.put("/admin",  authorizeJWT, adminController.logLevelFieldValidator, adminController.putLogLevel);
 
-// Sales
-app.get("/sales", sensorController.notImplemented);
-app.post("/sales", sensorController.notImplemented);
-app.put("/sales", sensorController.notImplemented);
-app.delete("/sales", sensorController.notImplemented);
 
-// Payment
-app.get("/payment", sensorController.notImplemented);
-app.post("/payment", sensorController.notImplemented);
-app.put("/payment", sensorController.notImplemented);
-app.delete("/payment", sensorController.notImplemented);
 app.get("/", sensorController.notImplemented);
 app.post("/", sensorController.notImplemented);
 app.put("/", sensorController.notImplemented);
