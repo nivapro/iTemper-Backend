@@ -28,7 +28,7 @@ const iTemperServer = httpServer.listen(app.get("port"), () => {
   log.info("Press CTRL-C to stop\n");
 });
 perMessageDeflate: false;
-export const wss = new WebSocket.Server({server: httpServer, clientTracking: true, perMessageDeflate: false, path: "/ws"} );
+export const wss = new WebSocket.Server({server: httpServer, clientTracking: true, perMessageDeflate: false} );
 
 monitor.init(wss);
 
