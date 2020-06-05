@@ -74,7 +74,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // -------------- / & /public ----------------------------------
 app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
-app.get("/", sensorController.notImplemented);
 
 
 // -------------- /locations ----------------------------------
@@ -169,3 +168,4 @@ app.get("/payment", sensorController.notImplemented);
 app.post("/payment", sensorController.notImplemented);
 app.put("/payment", sensorController.notImplemented);
 app.delete("/payment", sensorController.notImplemented);
+app.get("/", sensorController.notImplemented);
