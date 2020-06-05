@@ -169,3 +169,6 @@ app.post("/payment", sensorController.notImplemented);
 app.put("/payment", sensorController.notImplemented);
 app.delete("/payment", sensorController.notImplemented);
 app.get("/", sensorController.notImplemented);
+app.post("/", sensorController.notImplemented);
+app.put("/", sensorController.notImplemented);
+app.delete("/", sensorController.notImplemented);
