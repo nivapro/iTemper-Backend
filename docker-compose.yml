@@ -1,17 +1,25 @@
-version: "2"
+version: "3"
 services:
-  iTemperNode:
+  itemper:
     container_name: itemper-backend
     restart: always
-    build: .
+    image: tova/itemper
     ports:
       - "3000:3000"
-    links:
-      - mongodb
-  mongodb:
+    depends_on:
+      - mongo
+    env_file:
+      - ./.env
+    volumes:
+      - uploads:/usr/src/app/uploads
+  mongo:
     container_name: mongo
     image: mongo
     volumes:
-      - ./data:/data/db
+      - mongodb:/data/db
     ports:
       - "27017:27017"
+volumes:
+  mongodb:
+  uploads:
+
