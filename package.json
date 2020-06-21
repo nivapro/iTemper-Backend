@@ -1,13 +1,13 @@
 {
-    "name": "iTemperNode",
-    "version": "0.0.39",
+    "name": "itemper-backend",
+    "version": "0.0.40",
     "description": "iTemper.io server implementation",
     "repository": {
         "type": "git",
-        "url": "https://github.com/vadintor/iTemperNode"
+        "url": "https://github.com/vadintor/iTemper-Backend.git"
     },
     "author": "Torbjörn Vading",
-    "license": "Apache 2.0",
+    "license": "MIT",
     "scripts": {
         "start": "node -r dotenv/config dist/server.js",
         "build": "npm run build-ts && npm run tslint && npm run copy-static-assets",
