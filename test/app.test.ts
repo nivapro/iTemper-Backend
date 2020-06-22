@@ -20,17 +20,17 @@ let token: string = "";
 let tenantID: string = "";
 
 describe("POST /", () => {
-  test("should return 404", async done => {
+  test("should return 200", async done => {
     const res = await request
     .post("/")
     .send({});
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(200);
     done();
   });
 });
 
 describe("GET /", () => {
-  test("should return 404", async done => {
+  test("should return 200", async done => {
     const res = await request
     .get("/")
     .send({});

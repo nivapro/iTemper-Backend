@@ -66,21 +66,35 @@ log.info("app.ts locationImageFolder=" + locationImageFolder);
 app.use((req: Request, res: Response, next: NextFunction) => {
   log.debug("");
   log.debug("------------------ " +  req.method + " " + req.path + " ------------------------------");
-  log.debug("body:   " + JSON.stringify(req.body));
-  log.debug("params: " + JSON.stringify(req.params));
-  log.debug("query:  " + JSON.stringify(req.query));
+  log.debug("headers: " + JSON.stringify(req.headers));
+  log.debug("body:    " + JSON.stringify(req.body));
+  log.debug("params:  " + JSON.stringify(req.params));
+  log.debug("query:   " + JSON.stringify(req.query));
   next();
 });
 
 // -------------- / & /public ----------------------------------
 app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
-app.get("/", sensorController.notImplemented);
-app.get("/", homeController.getHome);
+
+
+
+// --------------------------------------------------------------
+// Routes with file uploads or forms
+// --------------------------------------------------------------
+
+// -------------- /Wooecommerce webhooks ------------------------
+app.get("/sales", sensorController.notImplemented);
+app.post("/sales", sensorController.notImplemented);
+app.put("/sales", sensorController.notImplemented);
+app.delete("/sales", sensorController.notImplemented);
+
+// -------------- /Stripe webhooks -----------------------------
+app.get("/payment", sensorController.notImplemented);
+app.post("/payment", sensorController.notImplemented);
+app.put("/payment", sensorController.notImplemented);
+app.delete("/payment", sensorController.notImplemented);
 
 // -------------- /locations ----------------------------------
-
-// Routes with file upload or forms
-
 app.post("/locations/", LocationUploadMiddleWare, locationController.createLocationFieldValidator, locationController.postCreateLocation);
 app.put("/locations/:locationID/file", LocationUploadMiddleWare, locationController.putFile);
 
@@ -157,3 +171,9 @@ app.get("/sensors/:sn", SensorUserMiddleWare, sensorController.getValidatorSN,  
 app.post("/sensors/:sn/delete",  SensorUserMiddleWare, sensorController.deleteValidator, sensorController.postDeleteSensors);
 
 app.put("/admin",  authorizeJWT, adminController.logLevelFieldValidator, adminController.putLogLevel);
+
+
+app.get("/", sensorController.notImplemented);
+app.post("/", sensorController.notImplemented);
+app.put("/", sensorController.notImplemented);
+app.delete("/", sensorController.notImplemented);
