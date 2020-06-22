@@ -80,24 +80,24 @@ export function authorizeJWT(req: Request, res: Response, next: NextFunction) {
                   next();
                 } else {
                   log.info (label(m) + "Access DENIED for deviceID=" + deviceID + ", tenantID=" + device.tenantID);
-                  res.status(404).send("Invalid shared access key");
+                  res.status(401).send("Invalid shared access key");
                 }
               });
             } else {
               log.debug (label(m) + "Device not found, deviceID=" + deviceID);
-              res.status(404).send("Device not found");
+              res.status(401).send("Device not found");
             }
           });
         } else {
           log.debug (label(m) + "header Authorization bearer expected");
-          res.status(401).send("Erroneous authorization header value, expected Authorization bearer <token> but got " + reqHeader);
+          res.status(400).send("Erroneous authorization header value, expected Authorization bearer <token> but got " + reqHeader);
         }
       } else {
         log.debug (label(m) + "header Authorization bearer expected");
-        res.status(401).send("Invalid authorization header, expected Authorization bearer <token> but got " + reqHeader);
+        res.status(400).send("Invalid authorization header, expected Authorization bearer <token> but got " + reqHeader);
       }
     } else {
       log.debug (label(m) + "Authentication header missing, req.headers=" + JSON.stringify(req.headers));
-      res.status(401).send("No authentication information provided");
+      res.status(400).send("No authentication information provided");
     }
   }

@@ -105,7 +105,7 @@ export let getSensors = (req: Request, res: Response) => {
               res.status(200).end();
             } else {
                 log.info(label(m) + "Sensor samples found and sent");
-                res.status(200).send(JSON.stringify(sensors));
+                res.status(200).send(sensors);
             }});
     }
   } catch (e) {
@@ -138,14 +138,14 @@ export let getSensorsSN = (req: Request, res: Response) => {
     Sensor.find({ "desc.SN": req.params.sn}, { "samples": { $slice: -samples }},
       function(err: any, sensors: SensorInterface[]) {
         if (err) {
-          res.status(400).send(JSON.stringify(err));
+          res.status(503).send();
         } else if (sensors.length === 0) {
           res.status(404).end();
         } else {
-            res.status(200).send(JSON.stringify(sensors));
+            res.status(200).send(sensors);
         }});
   } catch (e) {
-    res.status(404).end();
+    res.status(400).end();
   }
 
 };
@@ -172,11 +172,11 @@ export let getSensorsSNPort = (req: Request, res: Response) => {
         .select( {"samples": { $slice: -samples }})
         .exec(function(err, sensors) {
           if (err) {
-            res.status(400).send(JSON.stringify(err));
+            res.status(503).send();
           } else if (sensors.length === 0) {
             res.status(404).end();
           } else {
-              res.status(200).send(JSON.stringify(sensors));
+              res.status(200).send(sensors);
           }});
   } catch (e) {
     res.status(404).end();
@@ -317,7 +317,14 @@ export let postDeleteSensors = (req: Request, res: Response) => {
 };
 
 export let notImplemented = (req: Request, res: Response) => {
-  log.error("notImplemented: method not implemented");
-  res.setHeader("Content-Type", "application/json");
-  res.status(400).end();
+  log.info("notImplemented: method not implemented");
+  const method = req.method;
+  const headers = req.headers;
+  const url = req.url;
+  const body = req.body;
+  log.info("- Method: " + JSON.stringify(method));
+  log.info("- Headers: " + JSON.stringify(headers));
+  log.info("- url: " + JSON.stringify(url));
+  log.info("- body: " + JSON.stringify(body));
+  res.status(200).end();
 };
