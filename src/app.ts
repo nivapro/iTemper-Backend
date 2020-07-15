@@ -40,7 +40,7 @@ export const app = expressWs(express()).app;
 app.use(errorHandler());
 
 const corsOptions = {
-  origin: ["https://itemper.io", "https://api.itemper.io", "http://localhost:8080"],
+  origin: ["https://itemper.io", "https://api.itemper.io", "http://localhost:8080", "https://localhost:8080"],
   allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "PUT", "POST", "OPTIONS", "DELETE"],
   credentials: true,

@@ -1,7 +1,12 @@
+import * as config from "./services/config";
 import log from "./services/logger";
 
+import * as https from "https";
 import * as http from "http";
+
 import { app } from "./app";
+
+import * as fs from "fs";
 
 import * as monitor from "./features/monitor/monitor";
 
@@ -17,18 +22,21 @@ TenantDatabase.initialize(tenantDBConnectionString);
 
 import * as WebSocket from "ws";
 
-const httpServer: http.Server = http.createServer(app);
 
-app.set("port", process.env.PORT || 3000);
+const serverOptions: https.ServerOptions = {
+  key: fs.readFileSync("./certs/server-cert.key"),
+  cert: fs.readFileSync("./certs/server-cert.pem"),
+};
+const server = https.createServer(serverOptions, app);
 
-const iTemperServer = httpServer.listen(app.get("port"), () => {
+const iTemperServer = server.listen(config.PORT, () => {
   log.info(
-    "iTemper back-end app is running at port " + app.get("port") +
+    "iTemper back-end app is running at port " + config.PORT +
     " in " + app.get("env") + " mode");
   log.info("Press CTRL-C to stop\n");
 });
 perMessageDeflate: false;
-export const wss = new WebSocket.Server({server: httpServer, clientTracking: true, perMessageDeflate: false} );
+export const wss = new WebSocket.Server({server: iTemperServer, clientTracking: true, perMessageDeflate: false} );
 
 monitor.init(wss);
 
