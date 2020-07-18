@@ -19,8 +19,6 @@ UserDatabase.initialize(userDBConnectionString);
 import * as TenantDatabase from "./features/tenant/tenant-database";
 TenantDatabase.initialize(tenantDBConnectionString);
 
-
-
 function useHttps() {
   const serverOptions: https.ServerOptions = {
     key: fs.readFileSync("./certs/server-cert.key"),
@@ -37,13 +35,7 @@ function useHttp() {
   return server;
 }
 
-const webServer = config.PRODUCTION ? useHttp() : useHttps();
-
-const server = webServer.listen(config.PORT, () => {
-  log.info(
-    "server: web server listening at port " + config.PORT +
-    " in " + app.get("env") + " mode");
-});
+const server = config.PRODUCTION ? useHttp() : useHttps();
 
 export const wss = new WebSocket.Server({
     server,
@@ -53,9 +45,17 @@ export const wss = new WebSocket.Server({
 
 monitor.init(wss);
 
-wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
+server.on("upgrade", function upgrade(request, socket, head) {
+  const ip = request.headers["x-forwarded-for"].split(/\s*,\s*/)[0];
+  log.info("server.on(upgrade) -----" + ip + " ---");
+  wss.handleUpgrade(request, socket, head, function done(ws) {
+    wss.emit("connection", ws, request);
+  });
+});
 
-  log.info("server.wss.on(connection): new connection from client, url/headers: " + ws.url + "/" + JSON.stringify(request.headers));
+wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
+  log.info("server.wss.on(connection): new connection from client, url=: " + ws.url);
+  log.info("server.wss.on(connection): new connection from client, headers= " + JSON.stringify(request.headers));
   const message = {command: "ping", data: "Hello world from server"};
   ws.send(JSON.stringify(message));
 
@@ -74,3 +74,9 @@ wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
       log.error("ws.on: Error: " + err);
     });
 } );
+
+server.listen(config.PORT, () => {
+  log.info(
+    "server: web server listening at port " + config.PORT +
+    " in " + app.get("env") + " mode");
+});
