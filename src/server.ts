@@ -1,8 +1,8 @@
 import * as config from "./services/config";
 import log from "./services/logger";
-import { app } from "./app";
-import expressWs, * as expressWS from "express-ws";
+import express from "express";
 
+import { initApp } from "./app";
 
 import * as fs from "fs";
 import * as https from "https";
@@ -10,7 +10,6 @@ import * as http from "http";
 import * as WebSocket from "ws";
 
 import * as monitor from "./features/monitor/monitor";
-
 
 // DB Databases
 import { userDBConnectionString, tenantDBConnectionString } from "./services/config";
@@ -20,6 +19,10 @@ UserDatabase.initialize(userDBConnectionString);
 
 import * as TenantDatabase from "./features/tenant/tenant-database";
 TenantDatabase.initialize(tenantDBConnectionString);
+
+// Create server
+
+const app = express();
 
 function useHttps() {
   const serverOptions: https.ServerOptions = {
@@ -37,18 +40,13 @@ function useHttp() {
   return server;
 }
 
+// Use reverse proxy in production
+// Need to run https in development to allow Web Bluetooth device requests
 const server = config.PRODUCTION ? useHttp() : useHttps();
 
-const wsInstance = expressWs(app, server, {
-  wsOptions: {
-  clientTracking: true,
-  perMessageDeflate: false
-}});
+const wss = new WebSocket.Server({ clientTracking: true, perMessageDeflate: false, path: "/ws"});
 
-
-monitor.init(wsInstance.getWss());
-
-app.ws("/ws", (ws: WebSocket, request: http.IncomingMessage): void  => {
+wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
   log.info("server.app.ws: new connection from client, url=: " + ws.url);
   log.info("server.app.ws: new connection from client, headers= " + JSON.stringify(request.headers));
   const message = {command: "ping", data: "Hello world from server"};
@@ -69,6 +67,9 @@ app.ws("/ws", (ws: WebSocket, request: http.IncomingMessage): void  => {
       log.error("ws.on: Error: " + err);
     });
 } );
+
+monitor.init(wss);
+initApp(app);
 
 server.listen(config.PORT, () => {
   log.info(
