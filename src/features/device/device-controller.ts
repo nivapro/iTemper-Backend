@@ -17,8 +17,9 @@ const DeviceIDValidator: ValidationChain = param ("deviceID").exists().isUUID(4)
 const DataValidator: ValidationChain = body ("data", "Device data not found").exists();
 const DataTimestampValidator: ValidationChain = body ("data.timestamp", "Device data timestamp not found").exists().isNumeric();
 const DataUptimeValidator: ValidationChain = body ("data.uptime", "Device data timestamp not found").exists().isNumeric();
+const DeviceNameRegExp = /^[0-9A-Z]+[\-0-9A-Z]+[0-9A-Z]$/i;
 const NameValidator: ValidationChain = body ("name", "Device name is not valid, must be alphanumeric 4-32 characters")
-  .exists().trim().isLength({min: 4, max: 32}).matches("/^[0-9A-Z\-]+$/i");
+  .exists().trim().isLength({min: 4, max: 32}).matches(DeviceNameRegExp);
 const NoNameValidator: ValidationChain = param ("name").not().exists();
 
 export const DeviceIDFieldValidator = [DeviceIDValidator];
