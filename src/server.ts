@@ -1,6 +1,8 @@
 import * as config from "./services/config";
 import log from "./services/logger";
 import { app } from "./app";
+import expressWs, * as expressWS from "express-ws";
+
 
 import * as fs from "fs";
 import * as https from "https";
@@ -37,26 +39,18 @@ function useHttp() {
 
 const server = config.PRODUCTION ? useHttp() : useHttps();
 
-export const wss = new WebSocket.Server({
-    server,
-    clientTracking: true,
-    perMessageDeflate: false,
-    path: "/ws"
-  });
+const wsInstance = expressWs(app, server, {
+  wsOptions: {
+  clientTracking: true,
+  perMessageDeflate: false
+}});
 
-monitor.init(wss);
 
-server.on("upgrade", function upgrade(request, socket, head) {
-  const ip = request.headers["x-forwarded-for"].split(/\s*,\s*/)[0];
-  log.info("server.on(upgrade) -----" + ip + " ---");
-  wss.handleUpgrade(request, socket, head, function done(ws) {
-    wss.emit("connection", ws, request);
-  });
-});
+monitor.init(wsInstance.getWss());
 
-wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
-  log.info("server.wss.on(connection): new connection from client, url=: " + ws.url);
-  log.info("server.wss.on(connection): new connection from client, headers= " + JSON.stringify(request.headers));
+app.ws("/ws", (ws: WebSocket, request: http.IncomingMessage): void  => {
+  log.info("server.app.ws: new connection from client, url=: " + ws.url);
+  log.info("server.app.ws: new connection from client, headers= " + JSON.stringify(request.headers));
   const message = {command: "ping", data: "Hello world from server"};
   ws.send(JSON.stringify(message));
 
