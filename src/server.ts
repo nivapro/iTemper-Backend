@@ -22,21 +22,36 @@ TenantDatabase.initialize(tenantDBConnectionString);
 
 import * as WebSocket from "ws";
 
+function useHttps() {
+  const serverOptions: https.ServerOptions = {
+    key: fs.readFileSync("./certs/server-cert.key"),
+    cert: fs.readFileSync("./certs/server-cert.pem"),
+  };
+  log.info("server: Creating https web server");
+  const server = https.createServer(serverOptions, app);
+  return server;
+}
 
-const serverOptions: https.ServerOptions = {
-  key: fs.readFileSync("./certs/server-cert.key"),
-  cert: fs.readFileSync("./certs/server-cert.pem"),
-};
-const server = https.createServer(serverOptions, app);
+function useHttp() {
+  log.info("server: Creating http web server");
+  const server = http.createServer(app);
+  return server;
+}
 
-const iTemperServer = server.listen(config.PORT, () => {
+const webServer = config.PRODUCTION ? useHttp() : useHttps();
+
+const server = webServer.listen(config.PORT, () => {
   log.info(
-    "iTemper back-end app is running at port " + config.PORT +
+    "server: web server listening at port " + config.PORT +
     " in " + app.get("env") + " mode");
-  log.info("Press CTRL-C to stop\n");
 });
 
-export const wss = new WebSocket.Server({server: iTemperServer, clientTracking: true, perMessageDeflate: false, path: "/ws"} );
+export const wss = new WebSocket.Server({
+    server,
+    clientTracking: true,
+    perMessageDeflate: false,
+    path: "/ws"
+  });
 
 monitor.init(wss);
 

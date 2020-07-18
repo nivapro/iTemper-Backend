@@ -8,6 +8,8 @@ export const LOG_LEVEL = getEnv("LOG_LEVEL");
 
 export const PORT = getEnv("PORT");
 
+export const PRODUCTION = getEnv("NODE_ENV") === "production";
+
 const MONGODB_URI = getEnv("MONGODB_URI");
 
 const MONGODB_PORT = getEnv("MONGODB_PORT");
