@@ -1,12 +1,11 @@
 import * as config from "./services/config";
 import log from "./services/logger";
-
-import * as https from "https";
-import * as http from "http";
-
 import { app } from "./app";
 
 import * as fs from "fs";
+import * as https from "https";
+import * as http from "http";
+import * as WebSocket from "ws";
 
 import * as monitor from "./features/monitor/monitor";
 
@@ -20,7 +19,7 @@ UserDatabase.initialize(userDBConnectionString);
 import * as TenantDatabase from "./features/tenant/tenant-database";
 TenantDatabase.initialize(tenantDBConnectionString);
 
-import * as WebSocket from "ws";
+
 
 function useHttps() {
   const serverOptions: https.ServerOptions = {
@@ -49,8 +48,7 @@ const server = webServer.listen(config.PORT, () => {
 export const wss = new WebSocket.Server({
     server,
     clientTracking: true,
-    perMessageDeflate: false,
-    path: "/ws"
+    perMessageDeflate: false
   });
 
 monitor.init(wss);
