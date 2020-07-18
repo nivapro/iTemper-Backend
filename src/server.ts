@@ -44,7 +44,8 @@ function useHttp() {
 // Need to run https in development to allow Web Bluetooth device requests
 const server = config.PRODUCTION ? useHttp() : useHttps();
 
-const wss = new WebSocket.Server({ clientTracking: true, perMessageDeflate: false, path: "/ws"});
+const wsOptions = { clientTracking: true, perMessageDeflate: false, noServer: true, path: "/ws"};
+const wss = new WebSocket.Server(wsOptions);
 
 wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
   log.info("server.app.ws: new connection from client, url=: " + ws.url);
