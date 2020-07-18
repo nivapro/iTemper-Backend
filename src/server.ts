@@ -40,7 +40,8 @@ const server = config.PRODUCTION ? useHttp() : useHttps();
 export const wss = new WebSocket.Server({
     server,
     clientTracking: true,
-    perMessageDeflate: false
+    perMessageDeflate: false,
+    path: "/ws"
   });
 
 monitor.init(wss);
