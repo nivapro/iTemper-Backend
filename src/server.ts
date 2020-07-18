@@ -22,7 +22,7 @@ TenantDatabase.initialize(tenantDBConnectionString);
 
 // Create server
 
-const app = express();
+export const app = express();
 
 function useHttps() {
   const serverOptions: https.ServerOptions = {
@@ -81,7 +81,7 @@ server.on("upgrade", function upgrade(request, socket, head) {
     wss.handleUpgrade(request, socket, head, function done(ws) {
       wss.emit("connection", ws, request);
     });
-});
+  });
 monitor.init(wss);
 initApp(app);
 
