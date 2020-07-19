@@ -26,6 +26,8 @@ TenantDatabase.initialize(tenantDBConnectionString);
 
 export const app = express();
 
+
+
 function useHttps(app: Application) {
   const serverOptions: https.ServerOptions = {
     key: fs.readFileSync("./certs/server-cert.key"),
@@ -46,30 +48,11 @@ function useHttp(app: Application) {
 // Need to run https in development to allow Web Bluetooth device requests
 const server = config.PRODUCTION ? useHttp(app) : useHttps(app);
 
-const wsOptions = { server, clientTracking: true, perMessageDeflate: false };
+const wsOptions = { server, clientTracking: true, perMessageDeflate: false, path: "/ws" };
 const wss = new WebSocket.Server(wsOptions);
 
-wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
-  log.info("server.app.ws: new connection from client, url=: " + ws.url);
-  log.info("server.app.ws: new connection from client, headers= " + JSON.stringify(request.headers));
-  const message = {command: "ping", data: "Hello world from server"};
-  ws.send(JSON.stringify(message));
-
-  ws.on("close", (ws: WebSocket, code: number, reason: string): void => {
-    log.info("server.wss.on(close): Websocket: " + ws.url + " + code: " + code +  "reason: " + reason);
-  });
-
-  ws.on("message", (data: Buffer): void => {
-    log.info("server.wss.on (message):  message=" + data.toString());
-
-    monitor.parseInboundMessage(ws, data);
-
-  });
-
-  ws.on("error", (err): void => {
-      log.error("ws.on: Error: " + err);
-    });
-} );
+monitor.init(wss);
+initApp(wss, app);
 
 // server.on("upgrade", function upgrade(request, socket, head) {
 //   // This function is not defined on purpose. Implement it with your own logic.
@@ -84,8 +67,7 @@ wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
 //       wss.emit("connection", ws, request);
 //     });
 //   });
-monitor.init(wss);
-initApp(app);
+
 
 server.listen(config.PORT, () => {
   log.info(

@@ -1,5 +1,3 @@
-
-
 import * as WebSocket from "ws";
 import * as http from "http";
 import log from "../../services/logger";
@@ -9,7 +7,6 @@ export interface InboundMessage {
     command: "startMonitor" | "stopMonitor";
     data: any;
 }
-
 export interface OutboundMessage {
     command: "sensors" | "settings"| "setting" |  "log" | "ping";
     data: any;
@@ -18,21 +15,38 @@ let wss: WebSocket.Server;
 
 export function init (webSocketServer: WebSocket.Server) {
     wss = webSocketServer;
+    wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
+        log.info("server.app.ws: new connection from client, url=: " + ws.url);
+        log.info("server.app.ws: new connection from client, headers= " + JSON.stringify(request.headers));
+        const message = {command: "ping", data: "Hello world from server"};
+        ws.send(JSON.stringify(message));
+
+        ws.on("close", (ws: WebSocket, code: number, reason: string): void => {
+          log.info("server.wss.on(close): Websocket: " + ws.url + " + code: " + code +  "reason: " + reason);
+        });
+
+        ws.on("message", (data: Buffer): void => {
+          log.info("server.wss.on (message):  message=" + data.toString());
+
+          parseInboundMessage(ws, data);
+
+        });
+        ws.on("error", (err): void => {
+            log.error("ws.on: Error: " + err);
+          });
+      } );
 }
-
-
 export function send(data: SensorLog) {
     const message: OutboundMessage = { command: "log", data};
     const messageStr = JSON.stringify(message);
-    log.debug("monitor.broadcast: sending message=" + messageStr);
+    log.info("monitor.send: sending message=" + messageStr);
 
     wss.clients.forEach(function each(client) {
         if (client.readyState === WebSocket.OPEN) {
           client.send(messageStr);
-          log.debug("monitor.broadcast: message sent");
+          log.debug("monitor.send: message sent to client");
         }
       });
-
 }
 
 export function parseInboundMessage(ws: WebSocket, data: Buffer): void  {
@@ -48,18 +62,7 @@ export function parseInboundMessage(ws: WebSocket, data: Buffer): void  {
             stopMonitor(ws, message.data);
             break;
       }
-
 }
-// export interface SensorSample {
-//     value: number;
-//     date: number;
-// }
-// export interface SensorLog {
-//     desc: Descriptor;
-//     samples: SensorSample[];
-// }
-
-
 const MonitoringClients = new Set();
 
 export function startMonitor(ws: WebSocket, desc: Descriptor[]) {
@@ -69,7 +72,6 @@ export function startMonitor(ws: WebSocket, desc: Descriptor[]) {
     }
     log.info ("monitor.startMonitor: " + MonitoringClients.size + " clients");
 }
-
 export function stopMonitor(ws: WebSocket, desc: Descriptor[]) {
     log.info("monitor.stopMonitor: has not implemented filter on Desc yet: " + JSON.stringify(desc));
 
@@ -79,7 +81,3 @@ export function stopMonitor(ws: WebSocket, desc: Descriptor[]) {
 
     log.info ("monitor.stopMonitor: " + MonitoringClients.size + " clients");
 }
-
-
-
-

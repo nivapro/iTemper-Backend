@@ -18,7 +18,7 @@ import * as sensorController from "./features/sensor/sensor-controller";
 import * as deviceController from "./features/device/device-controller";
 import * as locationController from "./features/location/location-controller";
 import * as adminController from "./features/admin/admin-controller";
-
+import * as MonitorController from "./features/monitor/monitor-controller";
 
 import log from "./services/logger";
 
@@ -30,7 +30,9 @@ import { SensorDeviceMiddleWare, SensorUserMiddleWare } from  "./features/sensor
 import { DeviceDataMiddleWare, DeviceMiddleWare } from  "./features/device/device-middleware";
 import { LocationMiddleWare, LocationUploadMiddleWare } from "./features/location/location-middleware";
 
-export function initApp(app: Application) {
+import * as WebSocket from "ws";
+
+export function initApp(wss: WebSocket.Server, app: Application) {
   app.use(errorHandler());
   const corsOptions = {
     origin: ["https://itemper.io", "https://api.itemper.io", "http://localhost:8080", "https://localhost:8080"],
@@ -57,6 +59,10 @@ export function initApp(app: Application) {
   app.use("/uploads", staticFiles(locationImageFolder, { maxAge: 31557600000 }));
   log.info("app.ts locationImageFolder=" + locationImageFolder);
 
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.locals = wss;
+    next();
+  });
   app.use((req: Request, res: Response, next: NextFunction) => {
     log.info("");
     log.info("------------------ " +  req.method + " " + req.path + " ------------------------------");
@@ -164,8 +170,6 @@ export function initApp(app: Application) {
 
   app.put("/admin",  authorizeJWT, adminController.logLevelFieldValidator, adminController.putLogLevel);
 
-// app.get("/", sensorController.notImplemented);
-// app.post("/", sensorController.notImplemented);
-// app.put("/", sensorController.notImplemented);
-// app.delete("/", sensorController.notImplemented);
+  app.get("/ws", MonitorController.getWebSocket);
+
 }
