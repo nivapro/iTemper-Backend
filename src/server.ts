@@ -1,8 +1,10 @@
 import * as config from "./services/config";
 import log from "./services/logger";
-import express from "express";
 
+import express from "express";
+import { Application } from "express";
 import { initApp } from "./app";
+
 
 import * as fs from "fs";
 import * as https from "https";
@@ -24,7 +26,7 @@ TenantDatabase.initialize(tenantDBConnectionString);
 
 export const app = express();
 
-function useHttps() {
+function useHttps(app: Application) {
   const serverOptions: https.ServerOptions = {
     key: fs.readFileSync("./certs/server-cert.key"),
     cert: fs.readFileSync("./certs/server-cert.pem"),
@@ -34,7 +36,7 @@ function useHttps() {
   return server;
 }
 
-function useHttp() {
+function useHttp(app: Application) {
   log.info("server: Creating http web server");
   const server = http.createServer(app);
   return server;
@@ -42,9 +44,9 @@ function useHttp() {
 
 // Use reverse proxy in production
 // Need to run https in development to allow Web Bluetooth device requests
-const server = config.PRODUCTION ? useHttp() : useHttps();
+const server = config.PRODUCTION ? useHttp(app) : useHttps(app);
 
-const wsOptions = { clientTracking: true, perMessageDeflate: false, noServer: true, path: "/ws"};
+const wsOptions = { server, clientTracking: true, perMessageDeflate: false };
 const wss = new WebSocket.Server(wsOptions);
 
 wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
@@ -69,19 +71,19 @@ wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
     });
 } );
 
-server.on("upgrade", function upgrade(request, socket, head) {
-  // This function is not defined on purpose. Implement it with your own logic.
-  // authenticate(request, (err, client) => {
-  //   if (err || !client) {
-  //     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-  //     socket.destroy();
-  //     return;
-  //   }
+// server.on("upgrade", function upgrade(request, socket, head) {
+//   // This function is not defined on purpose. Implement it with your own logic.
+//   // authenticate(request, (err, client) => {
+//   //   if (err || !client) {
+//   //     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+//   //     socket.destroy();
+//   //     return;
+//   //   }
 
-    wss.handleUpgrade(request, socket, head, function done(ws) {
-      wss.emit("connection", ws, request);
-    });
-  });
+//     wss.handleUpgrade(request, socket, head, function done(ws) {
+//       wss.emit("connection", ws, request);
+//     });
+//   });
 monitor.init(wss);
 initApp(app);
 

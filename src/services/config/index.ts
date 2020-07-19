@@ -10,6 +10,8 @@ export const PORT = getEnv("PORT");
 
 export const PRODUCTION = getEnv("NODE_ENV") === "production";
 
+export const EXCLUDE = getEnv("EXCLUDE") === "routes";
+
 const MONGODB_URI = getEnv("MONGODB_URI");
 
 const MONGODB_PORT = getEnv("MONGODB_PORT");

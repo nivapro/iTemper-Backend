@@ -60,10 +60,10 @@ export function initApp(app: Application) {
   app.use((req: Request, res: Response, next: NextFunction) => {
     log.info("");
     log.info("------------------ " +  req.method + " " + req.path + " ------------------------------");
-    log.debug("headers: " + JSON.stringify(req.headers));
-    log.debug("body:    " + JSON.stringify(req.body));
-    log.debug("params:  " + JSON.stringify(req.params));
-    log.debug("query:   " + JSON.stringify(req.query));
+    log.info("headers: " + JSON.stringify(req.headers));
+    log.info("body:    " + JSON.stringify(req.body));
+    log.info("params:  " + JSON.stringify(req.params));
+    log.info("query:   " + JSON.stringify(req.query));
     next();
   });
 
@@ -164,8 +164,8 @@ export function initApp(app: Application) {
 
   app.put("/admin",  authorizeJWT, adminController.logLevelFieldValidator, adminController.putLogLevel);
 
-  app.get("/", sensorController.notImplemented);
-  app.post("/", sensorController.notImplemented);
-  app.put("/", sensorController.notImplemented);
-  app.delete("/", sensorController.notImplemented);
+// app.get("/", sensorController.notImplemented);
+// app.post("/", sensorController.notImplemented);
+// app.put("/", sensorController.notImplemented);
+// app.delete("/", sensorController.notImplemented);
 }
