@@ -16,17 +16,17 @@ let wss: WebSocket.Server;
 export function init (webSocketServer: WebSocket.Server) {
     wss = webSocketServer;
     wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
-        log.info("server.app.ws: new connection from client, url=: " + ws.url);
-        log.info("server.app.ws: new connection from client, headers= " + JSON.stringify(request.headers));
+        log.info("monitor.init: new connection from client, url=: " + ws.url);
+        log.info("monitor.init: new connection from client, headers= " + JSON.stringify(request.headers));
         const message = {command: "ping", data: "Hello world from server"};
         ws.send(JSON.stringify(message));
 
         ws.on("close", (ws: WebSocket, code: number, reason: string): void => {
-          log.info("server.wss.on(close): Websocket: " + ws.url + " + code: " + code +  "reason: " + reason);
+          log.info("monitor.init.on(close): Websocket: " + ws.url + " + code: " + code +  "reason: " + reason);
         });
 
         ws.on("message", (data: Buffer): void => {
-          log.info("server.wss.on (message):  message=" + data.toString());
+          log.info("monitor.init.on (message):  message=" + data.toString());
 
           parseInboundMessage(ws, data);
 
@@ -39,7 +39,7 @@ export function init (webSocketServer: WebSocket.Server) {
 export function send(data: SensorLog) {
     const message: OutboundMessage = { command: "log", data};
     const messageStr = JSON.stringify(message);
-    log.info("monitor.send: sending message=" + messageStr);
+    log.info("monitor.send: sending message=" + messageStr + " to #clients " + wss.clients.size);
 
     wss.clients.forEach(function each(client) {
         if (client.readyState === WebSocket.OPEN) {
