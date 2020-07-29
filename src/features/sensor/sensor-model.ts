@@ -7,7 +7,7 @@ export enum Category {
   WindSpeed,
 }
 
-export interface Data {
+export interface Sample {
   value: number;
   date: number;
 }
@@ -24,12 +24,14 @@ export interface Attributes {
    maxSampleRate: number;
 }
 
-
+export interface SensorData extends SensorInterface {
+  _id: string;
+}
 export interface SensorInterface {
   deviceID: string;
   desc: Descriptor;
   attr: Attributes;
-  samples: Data[];
+  samples: Sample[];
 }
 
 // export interface Log {
@@ -38,7 +40,7 @@ export interface SensorInterface {
 // }
 export interface SensorLog {
   desc: Descriptor;
-  samples: Data[];
+  samples: Sample[];
 }
 
 export interface ISensor extends SensorInterface, mongoose.Document {}

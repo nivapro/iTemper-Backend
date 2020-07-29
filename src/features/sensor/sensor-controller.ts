@@ -5,7 +5,7 @@ import * as util from "../../services/util";
 import { Response, Request } from "express";
 import { body, query, param, validationResult } from "express-validator";
 import { Model } from "mongoose";
-import { ISensor, SensorInterface, SensorLog, Attributes, Descriptor, Data } from "./sensor-model";
+import { ISensor, SensorInterface, SensorLog, Attributes, Descriptor } from "./sensor-model";
 
 import * as monitor from "./../monitor/monitor";
 
@@ -237,30 +237,25 @@ export let postSensors = (req: Request, res: Response) => {
 
 // Called by devices when logging sensor data
 export let postSensorData = (req: Request, res: Response) => {
-  const m = "postSensorData" + ", tenantID=" + res.locals.tenantID;
-  log.debug(label(m) + "res.locals.sub=" + util.stringify(res.locals.sub));
-
+  const tenantID = res.locals.tenantID;
+  const m = "postSensorData" + "tenantID=" + tenantID;
   const Sensor: Model<ISensor> = res.locals.Sensor;
   const deviceID = res.locals.deviceID;
   const deviceName = res.locals.deviceName;
 
-  log.debug(label(m) + "{ SN: " + req.params.sn.toString() + ", port: " + req.params.port.toString() + ", samples: " + JSON.stringify(req.body.samples) + " }");
   try {
-    res.setHeader("Content-Type", "application/json");
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.mapped(), deviceID, name: deviceName });
     }
-    const desc: Descriptor =  req.body.desc;
+    const sensorLog: SensorLog = req.body;
 
-    if (desc.SN !== deviceName) {
-      log.info(label(m) + "Logging sensor data refused for " + JSON.stringify(desc) + ". Sensor SN does not match device name");
+    if (sensorLog.desc.SN !== deviceName) {
+      log.info(label(m) + "Refused " + JSON.stringify(sensorLog.desc) + ". SN does not match device name.");
       return res.status(308).send({deviceID, name: deviceName});
     }
-    const samples: Data[] = req.body.samples;
 
-    const sensorLog: SensorLog = {desc, samples};
-    monitor.send(sensorLog);
+    monitor.sendSensorLog(tenantID, deviceID, sensorLog);
 
     // find sensor and push each sample to the end of the sensor.samples array
     // return the sensor object with the newly pushed samples
@@ -268,16 +263,16 @@ export let postSensorData = (req: Request, res: Response) => {
     Sensor.findOneAndUpdate({ "desc.SN": req.params.sn, "desc.port": req.params.port },
                   {
                     $set: { "deviceID" : deviceID},
-                    $push: { "samples": { $each: samples } }
+                    $push: { "samples": { $each: sensorLog.samples } }
                   },
                   { new: true },
       function (err, sensor) {
         if (err) return res.status(503).send(err);
         if (sensor) {
-          log.info(label(m) + "Sensor data logged for sensor " + JSON.stringify(desc));
+          log.info(label(m) + "Sensor data logged for sensor " + JSON.stringify(sensorLog.desc));
           res.status(200).end();
         } else {
-          log.debug(label(m) + "Sensor " + JSON.stringify(desc) + " not found, register required before posting sensor data");
+          log.debug(label(m) + "Sensor " + JSON.stringify(sensorLog.desc) + " not found, register required before posting sensor data");
           res.status(404).send({deviceID, name: deviceName });
         }
       });

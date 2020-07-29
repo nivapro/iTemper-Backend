@@ -18,7 +18,6 @@ import * as sensorController from "./features/sensor/sensor-controller";
 import * as deviceController from "./features/device/device-controller";
 import * as locationController from "./features/location/location-controller";
 import * as adminController from "./features/admin/admin-controller";
-import * as MonitorController from "./features/monitor/monitor-controller";
 
 import log from "./services/logger";
 
@@ -169,7 +168,5 @@ export function initApp(wss: WebSocket.Server, app: Application) {
   app.post("/sensors/:sn/delete",  SensorUserMiddleWare, sensorController.deleteValidator, sensorController.postDeleteSensors);
 
   app.put("/admin",  authorizeJWT, adminController.logLevelFieldValidator, adminController.putLogLevel);
-
-  app.get("/ws", MonitorController.getWebSocket);
 
 }
