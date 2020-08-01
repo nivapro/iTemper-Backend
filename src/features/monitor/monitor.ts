@@ -2,7 +2,7 @@ import * as ws from "ws";
 import * as http from "http";
 import log from "../../services/logger";
 import { Descriptor, SensorLog } from "../sensor/sensor-model";
-import { isDescriptorArrayValid } from "../sensor/sensor-model-validators";
+import { isDescriptorArrayValid } from "../sensor/sensor-data-validators";
 import { DeviceData }  from "../device/device-status";
 import { MonitoringClient, ExtWebSocket, MonitoringClients } from "./monitoring-client";
 
@@ -115,8 +115,9 @@ export function sendDeviceStatus(tenantID: string, deviceID: string, data: Devic
 function send(tenantID: string, deviceID: string, message: OutboundMessage) {
     const m = "send";
     MonitoringClients.forEach((client) => {
-        if (client.tenantID === tenantID && client.monitoring) {
+        if (client.tenantID === tenantID) {
             client.send(message);
+            log.info(label(m)  + " sent to client");
         }
     });
 }
@@ -128,9 +129,9 @@ function isValidInboundMessage(raw: unknown) {
     if (valid) {
         const msg = raw as Partial<InboundMessage>;
         valid = valid
-        && !!msg.command && typeof msg.command === "string"
+        && "command" in msg && typeof msg.command === "string"
         && (msg.command === "authorization" || msg.command === "startMonitor" || msg.command === "stopMonitor")
-        && !!msg.data;
+        && "data" in msg;
     }
     return valid;
 }
@@ -145,7 +146,7 @@ export function parseInboundMessage(ws: ExtWebSocket, data: Buffer): void  {
         if (isValidInboundMessage(raw)) {
             const message = raw as InboundMessage;
             const client = MonitoringClients.get(ws);
-            if (!!client && client.authenticated) {
+            if (client && client.authenticated) {
                 client.received += data.length;
                 switch (message.command) {
                     case "authorization":
@@ -182,7 +183,7 @@ function receiveAuthorizationCommand(ws: ExtWebSocket, raw?: unknown) {
     }
 }
 function receiveStartMonitorCommand(client: MonitoringClient, raw?: unknown) {
-    if (!!raw && isDescriptorArrayValid(raw)) {
+    if (raw && isDescriptorArrayValid(raw)) {
         const descs = raw as Descriptor[];
         startMonitor(client, descs);
     } else {
