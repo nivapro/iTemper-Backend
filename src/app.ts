@@ -126,13 +126,16 @@ export function initApp(wss: WebSocket.Server, app: Application) {
   // -------------- /devices ----------------------------------
   // // Requires JWT Token //
   // Create a device, returns a shared API key (the key is not saved, so remember)
-  app.post("/devices/", DeviceMiddleWare, deviceController.NameFieldValidator, deviceController.postRegisterDevice);
+  app.post("/devices/", DeviceMiddleWare, deviceController.RegisterDeviceValidator, deviceController.postRegisterDevice);
 
   // Get all devices
   app.get("/devices", DeviceMiddleWare, deviceController.NoNameFieldValidator, deviceController.getAllDevices);
 
   // Update device name
   app.put("/devices/:deviceID", DeviceMiddleWare,  deviceController.RenameFieldValidator, deviceController.putDeviceName);
+
+   // Update device color
+   app.put("/devices/:deviceID", DeviceMiddleWare,  deviceController.UpdateColorFieldValidator, deviceController.putDeviceColor);
 
   // Get device with deviceID
   app.get("/devices/:deviceID", DeviceMiddleWare, deviceController.DeviceIDFieldValidator, deviceController.getDevice);
@@ -166,6 +169,9 @@ export function initApp(wss: WebSocket.Server, app: Application) {
 
   // delete  sensors
   app.post("/sensors/:sn/delete",  SensorUserMiddleWare, sensorController.deleteValidator, sensorController.postDeleteSensors);
+
+  // delete  sensors
+  app.post("/sensors/:sn/:port/delete",  SensorUserMiddleWare, sensorController.deleteValidator, sensorController.postDeleteSensors);
 
   app.put("/admin",  authorizeJWT, adminController.logLevelFieldValidator, adminController.putLogLevel);
 
