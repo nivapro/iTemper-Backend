@@ -9,19 +9,25 @@ import { useTenantDB } from "./../tenant/tenant-middleware";
 import { tenantModel } from "./../tenant/tenant-model";
 import { ISensor, SensorSchema } from "./sensor-model";
 
+const moduleName = "sensor-middleware.";
+function label(name: string): string {
+  return moduleName + name + ": ";
+}
+
+function collectionName(): string {
+    const date = new Date(Date.now());
+    return "sensors-" + date.getFullYear() + date.getMonth();
+}
 // assume the requests has been authorized an tenantID assigned
 export function useSensorModel(req: Request, res: Response, next: NextFunction) {
-    log.debug("sensor-middleware.useSensorModel: res.locals.connection.db.dbName=" + res.locals.connection.db.dbName);
-    log.debug("sensor-middleware.useSensorModel: res.locals.tenantID=" + res.locals.tenantID);
+    const m = "useSensorModel";
     const connection: Connection = res.locals.connection;
     const tenantID = res.locals.tenantID;
 
     if (!connection) next(new Error());
-    const SensorModel: Model<ISensor> = tenantModel("Sensor", SensorSchema, tenantID, connection);
+
+    const SensorModel: Model<ISensor> = tenantModel("Sensor", SensorSchema, tenantID, connection, collectionName());
     res.locals.Sensor = SensorModel;
-    log.debug("sensor-middleware.useSensorModel res.locals.Sensor=" + util.stringify(res.locals.Sensor));
-
-
     next();
 }
 

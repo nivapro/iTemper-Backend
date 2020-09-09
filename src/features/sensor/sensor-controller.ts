@@ -5,7 +5,7 @@ import * as util from "../../services/util";
 import { Response, Request } from "express";
 import { body, query, param, validationResult } from "express-validator";
 import { Model } from "mongoose";
-import { ISensor, SensorInterface, SensorLog, Attributes, Descriptor } from "./sensor-model";
+import { ISensor, SensorInterface, SensorLog, Attributes, Descriptor, SensorSchema } from "./sensor-model";
 
 import * as monitor from "./../monitor/monitor";
 
@@ -234,7 +234,6 @@ export let postSensors = (req: Request, res: Response) => {
   }
 };
 
-
 // Called by devices when logging sensor data
 export let postSensorData = (req: Request, res: Response) => {
   const tenantID = res.locals.tenantID;
@@ -251,7 +250,7 @@ export let postSensorData = (req: Request, res: Response) => {
     const sensorLog: SensorLog = req.body;
 
     if (sensorLog.desc.SN !== deviceName) {
-      log.info(label(m) + "Refused " + JSON.stringify(sensorLog.desc) + ". SN does not match device name.");
+      log.debug(label(m) + "Refused " + JSON.stringify(sensorLog.desc) + ". SN does not match device name.");
       return res.status(308).send({deviceID, name: deviceName});
     }
 
@@ -259,7 +258,16 @@ export let postSensorData = (req: Request, res: Response) => {
 
     // find sensor and push each sample to the end of the sensor.samples array
     // return the sensor object with the newly pushed samples
-
+    // sample = {val: 59, time: 1535530450}
+    // day = ISODate("2018-08-29")
+    // db.iot.updateOne({deviceid: 1234, sensorid: 3, nsamples: {$lt: 200}, day: day},
+    //                  {
+    //                           $push: { samples: sample},
+    //                           $min: { first: sample.time},
+    //                           $max: { last: sample.time},
+    //                           $inc: { nsamples: 1}
+    //                   },
+    //                   { upsert: true } )
     Sensor.findOneAndUpdate({ "desc.SN": req.params.sn, "desc.port": req.params.port },
                   {
                     $set: { "deviceID" : deviceID},
@@ -267,9 +275,13 @@ export let postSensorData = (req: Request, res: Response) => {
                   },
                   { new: true },
       function (err, sensor) {
-        if (err) return res.status(503).send(err);
+        if (err) {
+          const code = 503;
+          log.error(label(m) + "findOneAndUpdate error responding with %s, err=%s",  code, JSON.stringify(err));
+          return res.status(503).send(err);
+        }
         if (sensor) {
-          log.info(label(m) + "Sensor data logged for sensor " + JSON.stringify(sensorLog.desc));
+          log.debug(label(m) + "Sensor data logged for sensor " + JSON.stringify(sensorLog.desc));
           res.status(200).end();
         } else {
           log.debug(label(m) + "Sensor " + JSON.stringify(sensorLog.desc) + " not found, register required before posting sensor data");
@@ -306,13 +318,14 @@ export let postDeleteSensors = (req: Request, res: Response) => {
         res.status(200).send(JSON.stringify(sensor));
       }});
   } catch (e) {
-    return res.status(409).send(JSON.stringify(e));
+    log.error(label(m) + "error=", e);
+    return res.status(409).end();
   }
 
 };
 
 export let notImplemented = (req: Request, res: Response) => {
-  log.info("notImplemented: method not implemented");
+  log.error("notImplemented: method not implemented");
   const method = req.method;
   const headers = req.headers;
   const url = req.url;

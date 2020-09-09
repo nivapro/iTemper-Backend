@@ -20,7 +20,7 @@ import * as locationController from "./features/location/location-controller";
 import * as adminController from "./features/admin/admin-controller";
 
 import log from "./services/logger";
-
+import { stringify } from "./services/util";
 import errorHandler from "errorhandler";
 
 // Middleware
@@ -31,7 +31,11 @@ import { LocationMiddleWare, LocationUploadMiddleWare } from "./features/locatio
 
 import * as WebSocket from "ws";
 
+import * as monitor from "./features/monitor/monitor";
 export function initApp(wss: WebSocket.Server, app: Application) {
+
+  monitor.init(wss);
+
   app.use(errorHandler());
   const corsOptions = {
     origin: ["https://itemper.io", "https://api.itemper.io", "http://localhost:8080", "https://localhost:8080"],
@@ -59,16 +63,13 @@ export function initApp(wss: WebSocket.Server, app: Application) {
   log.info("app.ts locationImageFolder=" + locationImageFolder);
 
   app.use((req: Request, res: Response, next: NextFunction) => {
-    res.locals = wss;
-    next();
-  });
-  app.use((req: Request, res: Response, next: NextFunction) => {
     log.info("");
     log.info("------------------ " +  req.method + " " + req.path + " ------------------------------");
-    log.info("headers: " + JSON.stringify(req.headers));
-    log.info("body:    " + JSON.stringify(req.body));
-    log.info("params:  " + JSON.stringify(req.params));
-    log.info("query:   " + JSON.stringify(req.query));
+    log.info("headers: " + JSON.stringify(req.headers, undefined, 2));
+    log.info("body:    " + JSON.stringify(req.body, undefined, 2));
+    log.info("params:  " + JSON.stringify(req.params, undefined, 2));
+    log.info("query:   " + JSON.stringify(req.query, undefined, 2));
+    log.info("res.locals.tenantID: " + stringify(res.locals.tenantID));
     next();
   });
 

@@ -17,8 +17,8 @@ export function authorizeJWT(req: Request, res: Response, next: NextFunction) {
       if (authRes.error) {
         res.status(401).send(authRes.error);
       } else {
-        res.locals.tenantID = authRes.locals.tenantID;
-        res.locals.sub = authRes.locals.sub;
+        res.locals.tenantID = authRes.locals.tenantID.slice();
+        res.locals.sub = authRes.locals.sub.slice();
         next();
       }
     });

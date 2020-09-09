@@ -11,8 +11,6 @@ import * as https from "https";
 import * as http from "http";
 import * as WebSocket from "ws";
 
-import * as monitor from "./features/monitor/monitor";
-
 // DB Databases
 import { userDBConnectionString, tenantDBConnectionString } from "./services/config";
 
@@ -51,23 +49,7 @@ const server = config.PRODUCTION ? useHttp(app) : useHttps(app);
 const wsOptions = { server, clientTracking: true, perMessageDeflate: false, path: "/ws" };
 const wss = new WebSocket.Server(wsOptions);
 
-monitor.init(wss);
 initApp(wss, app);
-
-// server.on("upgrade", function upgrade(request, socket, head) {
-//   // This function is not defined on purpose. Implement it with your own logic.
-//   // authenticate(request, (err, client) => {
-//   //   if (err || !client) {
-//   //     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-//   //     socket.destroy();
-//   //     return;
-//   //   }
-
-//     wss.handleUpgrade(request, socket, head, function done(ws) {
-//       wss.emit("connection", ws, request);
-//     });
-//   });
-
 
 server.listen(config.PORT, () => {
   log.info(
