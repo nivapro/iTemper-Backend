@@ -270,7 +270,7 @@ export let postSensorData = (req: Request, res: Response) => {
     //                   },
     //                   { upsert: true } )
     const now = new Date(Date.now());
-    const date = new Date(now.getFullYear(), now.getMonth(), now.getDay());
+    const date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const max = Math.max(...sensorLog.samples.map(sample => sample.date));
     const min = Math.min(...sensorLog.samples.map(sample => sample.date));
 
