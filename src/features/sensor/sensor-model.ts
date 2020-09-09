@@ -64,7 +64,11 @@ export const SensorSchema = new mongoose.Schema({
       _id: false,  // if true, Mongodb creates _id implicitly. We do not want that here
       date: Number,
       value: Number
-    }]
+    }],
+    count: Number,
+    first: Number,
+    last: Number,
+    date: Date
   },
   // usePushEach: Enables push of each sensors value, otherwise the pushed values
   // will be treated as a separate array object in the samples array
@@ -74,7 +78,4 @@ export const SensorSchema = new mongoose.Schema({
 
 
 // export const SensorModel = mongoose.model<SensorDocument>("Sensor", SensorSchema);
-
-
-
 

@@ -8,6 +8,7 @@ import { Model } from "mongoose";
 import { ISensor, SensorInterface, SensorLog, Attributes, Descriptor, SensorSchema } from "./sensor-model";
 
 import * as monitor from "./../monitor/monitor";
+import { sample, sampleSize } from "lodash";
 
 const moduleName = "sensor-controller.";
 function label(name: string): string {
@@ -268,12 +269,19 @@ export let postSensorData = (req: Request, res: Response) => {
     //                           $inc: { nsamples: 1}
     //                   },
     //                   { upsert: true } )
-    Sensor.findOneAndUpdate({ "desc.SN": req.params.sn, "desc.port": req.params.port },
+    const now = new Date(Date.now());
+    const date = new Date(now.getFullYear(), now.getMonth(), now.getDay());
+    const max = Math.max(...sensorLog.samples.map(sample => sample.date));
+    const min = Math.min(...sensorLog.samples.map(sample => sample.date));
+
+    Sensor.update({ deviceID, "desc.SN": req.params.sn, "desc.port": req.params.port, date },
                   {
-                    $set: { "deviceID" : deviceID},
-                    $push: { "samples": { $each: sensorLog.samples } }
+                    $push: { "samples": { $each: sensorLog.samples } },
+                    $min: { first: min},
+                    $max: { last: min},
+                    $inc: { count: sensorLog.samples.length}
                   },
-                  { new: true },
+                  { upsert: true },
       function (err, sensor) {
         if (err) {
           const code = 503;
