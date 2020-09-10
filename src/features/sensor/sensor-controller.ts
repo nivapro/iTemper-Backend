@@ -67,8 +67,9 @@ export let getSensors = (req: Request, res: Response) => {
     if (myFrom) {
 
       const condition = { $gt: [ "$$sample.date", myFrom ] };
-      Sensor.aggregate([{
-        $project: {
+      Sensor.aggregate([
+        { $match: { last: { $gt: myFrom }}},
+        { $project: {
             deviceID: true,
             desc: true,
             attr: true,
@@ -80,7 +81,7 @@ export let getSensors = (req: Request, res: Response) => {
               }
             }
         }
-      }], function(err: any, sensors: SensorInterface[]) {
+        }], function(err: any, sensors: SensorInterface[]) {
           if (err) {
               res.status(503).end();
           } else if (sensors.length === 0) {
@@ -270,15 +271,15 @@ export let postSensorData = (req: Request, res: Response) => {
     //                   },
     //                   { upsert: true } )
     const now = new Date(Date.now());
-    const date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const max = Math.max(...sensorLog.samples.map(sample => sample.date));
-    const min = Math.min(...sensorLog.samples.map(sample => sample.date));
+    const date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours());
+    const lastSampleDate = Math.max(...sensorLog.samples.map(sample => sample.date));
+    const firstSampleDate = Math.min(...sensorLog.samples.map(sample => sample.date));
 
     Sensor.update({ deviceID, "desc.SN": req.params.sn, "desc.port": req.params.port, date },
                   {
                     $push: { "samples": { $each: sensorLog.samples } },
-                    $min: { first: min},
-                    $max: { last: min},
+                    $min: { first: firstSampleDate },
+                    $max: { last: lastSampleDate },
                     $inc: { count: sensorLog.samples.length}
                   },
                   { upsert: true },
