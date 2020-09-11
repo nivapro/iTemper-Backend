@@ -148,6 +148,7 @@ export function initApp(wss: WebSocket.Server, app: Application) {
   // Require Shared API Key //
   // Update device data
   app.post("/device/status", DeviceDataMiddleWare,  deviceController.DeviceDataFieldValidator, deviceController.postDeviceData);
+  app.post("/device/status", DeviceDataMiddleWare,  deviceController.DeviceDataFieldValidator, deviceController.postDeviceData);
 
   // -------------- /sensors ----------------------------------
   // Require Shared API Key //
@@ -155,18 +156,12 @@ export function initApp(wss: WebSocket.Server, app: Application) {
   app.post("/sensors", SensorDeviceMiddleWare, sensorController.postValidator, sensorController.postSensors);
 
   // Post sensor data
-  app.post("/sensors/:sn/:port", SensorDeviceMiddleWare, sensorController.postDataValidator, sensorController.postSensorData);
+  app.post("/sensors/:sn/:port", SensorDeviceMiddleWare, sensorController.postDataValidator, sensorController.postSensorLog);
 
 
   // // Requires JWT Token //
   // Get sensors
-  app.get("/sensors", SensorUserMiddleWare, sensorController.getSensors);
-
-  // Get  sensor on a specific port
-  app.get("/sensors/:sn/:port", SensorUserMiddleWare, sensorController.getValidatorSNPort, sensorController.getSensorsSNPort);
-
-  // Get all sensors on a device
-  app.get("/sensors/:sn", SensorUserMiddleWare, sensorController.getValidatorSN,  sensorController.getSensorsSN);
+  app.get("/sensors", SensorUserMiddleWare, sensorController.getSensorLog);
 
   // delete  sensors
   app.post("/sensors/:sn/delete",  SensorUserMiddleWare, sensorController.deleteValidator, sensorController.postDeleteSensors);

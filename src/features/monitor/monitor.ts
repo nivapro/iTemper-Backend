@@ -1,7 +1,7 @@
 import * as ws from "ws";
 import * as http from "http";
 import log from "../../services/logger";
-import { Descriptor, SensorLog } from "../sensor/sensor-model";
+import { Descriptor, SensorLogInbound } from "../sensor/sensor-model";
 import { isDescriptorArrayValid } from "../sensor/sensor-data-validators";
 import { DeviceData }  from "../device/device-status";
 import { MonitoringClient, ExtWebSocket, MonitoringClients } from "./monitoring-client";
@@ -103,7 +103,7 @@ function sendAuthorizationRequest(ws: ExtWebSocket) {
     ws.send(JSON.stringify(message));
 
 }
-export function sendSensorLog(tenantID: string, deviceID: string, data: SensorLog) {
+export function sendSensorLog(tenantID: string, deviceID: string, data: SensorLogInbound) {
     const message: OutboundMessage = { command: "log", data};
     send(tenantID, deviceID, message);
 }

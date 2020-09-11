@@ -1,52 +1,54 @@
 import log  from "../../services/logger";
-import { Attributes, Category, Descriptor, Sample, SensorData, SensorLog } from "./sensor-model";
+import { Attributes, Category, Descriptor, Sample, SensorInbound, SensorLogInbound } from "./sensor-model";
 
-export function isSensorDataArrayValid(raw: unknown): boolean {
+export function isSensorLogArrayValid(raw: unknown): boolean {
+    const m = "sensor-data-validators.isSensorLogArrayValid: ";
     let valid = Array.isArray(raw);
     if (!valid) {
-        log.error("sensor-data-validators.isSensorLogValid - not an array");
+        log.error(m + " - not an array");
     } else {
-        const data = raw as SensorData[];
-        data.forEach((sensorData) => valid = valid && isSensorDataValid(sensorData));
+        const data = raw as SensorLogInbound[];
+        data.forEach((sensorLog) => valid = valid && isSensorLogValid(sensorLog));
         if (!valid) {
-            log.error("sensor-data-validators.isSensorDataArrayValid - not valid");
+            log.error(m + " - not valid");
         }
     }
     return valid;
 }
 export function isSensorLogValid(raw: unknown): boolean {
+    const m = "sensor-data-validators.isSensorLogValid: ";
     let valid = isObject(raw);
     if (!valid) {
-        log.error("sensor-data-validators.isSensorLogValid - not an object");
+        log.error(m + " - not an object");
     } else {
-        const data = raw as Partial<SensorLog>;
+        const data = raw as Partial<SensorLogInbound>;
         valid = valid
         && "desc" in data && isDescriptorValid(data.desc)
         && "samples" in data && isSamplesValid(data.samples);
         if (!valid) {
-            log.error("sensor-data-validators.isSensorLogValid - not valid");
+            log.error(m + " - not valid");
         }
     }
     return valid;
 }
-export function isSensorDataValid(raw: unknown): boolean {
-    let valid = isObject(raw);
-    if (!valid) {
-        log.error("sensor-data-validators.isSensorDataValid - not an object");
-    } else {
-        const data = raw as Partial<SensorData>;
-        valid = valid
-        && "_id" in data && typeof data._id === "string"
-        && "deviceID" in data && typeof data.deviceID === "string"
-        && "attr" in data && isAttributesValid(data.attr)
-        && "desc" in data && isDescriptorValid(data.desc)
-        && "samples" in data && isSamplesValid(data.samples);
-        if (!valid) {
-            log.error("sensor-data-validators.isSensorDataValid - not valid");
-        }
-    }
-    return valid;
-}
+// export function isSensorInboundValid(raw: unknown): boolean {
+//     let valid = isObject(raw);
+//     if (!valid) {
+//         log.error("sensor-data-validators.isSensorInboundValid - not an object");
+//     } else {
+//         const data = raw as Partial<SensorInbound>;
+//         valid = valid
+//         && "_id" in data && typeof data._id === "string"
+//         && "deviceID" in data && typeof data.deviceID === "string"
+//         && "attr" in data && isAttributesValid(data.attr)
+//         && "desc" in data && isDescriptorValid(data.desc)
+//         && "samples" in data && isSamplesValid(data.samples);
+//         if (!valid) {
+//             log.error("sensor-data-validators.isSensorInboundValid - not valid");
+//         }
+//     }
+//     return valid;
+// }
 function isObject(raw: unknown): boolean {
     return typeof raw === "object" && raw !== null;
 }

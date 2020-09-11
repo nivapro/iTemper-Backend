@@ -5,7 +5,7 @@ import * as util from "../../services/util";
 import { Response, Request } from "express";
 import { body, query, param, validationResult } from "express-validator";
 import { Model } from "mongoose";
-import { ISensor, SensorInterface, SensorLog, Attributes, Descriptor, SensorSchema } from "./sensor-model";
+import { SensorDocument, SensorLog, SensorSchema, SensorLogInbound, Attributes, Descriptor, SensorLogDocument,  } from "./sensor-model";
 
 import * as monitor from "./../monitor/monitor";
 import { sample, sampleSize } from "lodash";
@@ -41,9 +41,9 @@ export const postDataValidator = [
 ];
 
 // Get all sensors
-export let getSensors = (req: Request, res: Response) => {
+export let getSensorLog = (req: Request, res: Response) => {
   const m = "getSensors" + ", tenantID=" + res.locals.tenantID;
-  const Sensor: Model<ISensor> = res.locals.Sensor ;
+  const SensorLog: Model<SensorLogDocument> = res.locals.SensorLog ;
   log.debug(label(m) + "begin");
   try {
 
@@ -67,12 +67,11 @@ export let getSensors = (req: Request, res: Response) => {
     if (myFrom) {
 
       const condition = { $gt: [ "$$sample.date", myFrom ] };
-      Sensor.aggregate([
+      SensorLog.aggregate([
         { $match: { last: { $gt: myFrom }}},
         { $project: {
             deviceID: true,
             desc: true,
-            attr: true,
             samples: {
               $filter: {
                 input: "$samples",
@@ -81,7 +80,7 @@ export let getSensors = (req: Request, res: Response) => {
               }
             }
         }
-        }], function(err: any, sensors: SensorInterface[]) {
+        }], function(err: any, sensors: SensorLog[]) {
           if (err) {
               res.status(503).end();
           } else if (sensors.length === 0) {
@@ -98,7 +97,7 @@ export let getSensors = (req: Request, res: Response) => {
           }
         });
     } else {
-        Sensor.find( {}, {"samples": { $slice: -samples }},
+        SensorLog.find( {}, {"samples": { $slice: -samples }},
           function(err, sensors) {
             if (err) {
               res.status(503).send(JSON.stringify(err));
@@ -116,87 +115,17 @@ export let getSensors = (req: Request, res: Response) => {
   }
 };
 
-export let getSensorsSN = (req: Request, res: Response) => {
-  const Sensor: Model<ISensor> = res.locals.Sensor ;
-  log.debug("getSensorsSN: " + req.query.toString());
-  try {
-
-    res.setHeader("Content-Type", "application/json");
-
-    const onlySN: boolean = true;
-    let samples: number = 1;
-
-    if (req.query.samples) {
-      query("samples").isInt({ min: 1, max: 99 });
-    }
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.mapped() });
-    }
-
-    samples = parseInt(req.query.samples as string);
-
-    Sensor.find({ "desc.SN": req.params.sn}, { "samples": { $slice: -samples }},
-      function(err: any, sensors: SensorInterface[]) {
-        if (err) {
-          res.status(503).send();
-        } else if (sensors.length === 0) {
-          res.status(404).end();
-        } else {
-            res.status(200).send(sensors);
-        }});
-  } catch (e) {
-    res.status(400).end();
-  }
-
-};
-export let getSensorsSNPort = (req: Request, res: Response) => {
-  const Sensor: Model<ISensor> = res.locals.Sensor ;
-  log.debug("getSensorsSNPort: " + req.query.toString());
-  try {
-    res.setHeader("Content-Type", "application/json");
-
-    let samples: number = 1;
-
-    if (req.query.samples) {
-      query("samples").isInt({ min: 1, max: 99 });
-    }
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.mapped() });
-    }
-
-    samples = parseInt(req.query.samples as string);
-
-    Sensor.find({ "desc.SN": req.params.sn, "desc.port": req.params.port })
-        .select( {"samples": { $slice: -samples }})
-        .exec(function(err, sensors) {
-          if (err) {
-            res.status(503).send();
-          } else if (sensors.length === 0) {
-            res.status(404).end();
-          } else {
-              res.status(200).send(sensors);
-          }});
-  } catch (e) {
-    res.status(404).end();
-  }
-
-};
 
 
 // Create a sensor
 export let postSensors = (req: Request, res: Response) => {
   const m = "postSensors" + ", tenantID=" + res.locals.tenantID;
   log.debug(label(m) + "res.locals.Sensor=" + util.stringify(res.locals.Sensor));
-  const Sensor: Model<ISensor> = res.locals.Sensor ;
+  const Sensor: Model<SensorDocument> = res.locals.Sensor ;
   const deviceID = res.locals.deviceID;
   const deviceName = res.locals.deviceName;
   try {
     res.setHeader("Content-Type", "application/json");
-    log.debug(label(m) + "try");
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       log.debug(label(m) + "validation error");
@@ -213,7 +142,7 @@ export let postSensors = (req: Request, res: Response) => {
       log.debug(label(m) + "findOne sensor=" + JSON.stringify(sensor));
       if (sensor === null) {
             // Sensor does not exist, let's create and save it
-        const sensor = new Sensor({ deviceID: deviceID, desc: desc, attr: attr, samples: []});
+        const sensor = new Sensor({ deviceID: deviceID, desc: desc, attr: attr});
 
         sensor.save(function (err) {
           log.debug(label(m) + "saving " + JSON.stringify(desc) );
@@ -227,7 +156,7 @@ export let postSensors = (req: Request, res: Response) => {
         });
       } else {
         log.debug(label(m) + "OK! Sensor " + JSON.stringify(desc) + " registered already");
-        return res.status(200).end();
+        return res.status(200).send(sensor);
       }
     });
   }
@@ -237,10 +166,10 @@ export let postSensors = (req: Request, res: Response) => {
 };
 
 // Called by devices when logging sensor data
-export let postSensorData = (req: Request, res: Response) => {
+export let postSensorLog = (req: Request, res: Response) => {
   const tenantID = res.locals.tenantID;
-  const m = "postSensorData" + "tenantID=" + tenantID;
-  const Sensor: Model<ISensor> = res.locals.Sensor;
+  const m = "postSensorLog" + "tenantID=" + tenantID;
+  const SensorLog: Model<SensorLogDocument> = res.locals.SensorLog;
   const deviceID = res.locals.deviceID;
   const deviceName = res.locals.deviceName;
 
@@ -249,7 +178,7 @@ export let postSensorData = (req: Request, res: Response) => {
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.mapped(), deviceID, name: deviceName });
     }
-    const sensorLog: SensorLog = req.body;
+    const sensorLog: SensorLogInbound = req.body;
 
     if (sensorLog.desc.SN !== deviceName) {
       log.debug(label(m) + "Refused " + JSON.stringify(sensorLog.desc) + ". SN does not match device name.");
@@ -275,7 +204,7 @@ export let postSensorData = (req: Request, res: Response) => {
     const lastSampleDate = Math.max(...sensorLog.samples.map(sample => sample.date));
     const firstSampleDate = Math.min(...sensorLog.samples.map(sample => sample.date));
 
-    Sensor.update({ deviceID, "desc.SN": req.params.sn, "desc.port": req.params.port, date },
+    SensorLog.update({ deviceID, "desc.SN": req.params.sn, "desc.port": req.params.port, date },
                   {
                     $push: { "samples": { $each: sensorLog.samples } },
                     $min: { first: firstSampleDate },
@@ -286,8 +215,8 @@ export let postSensorData = (req: Request, res: Response) => {
       function (err, sensor) {
         if (err) {
           const code = 503;
-          log.error(label(m) + "findOneAndUpdate error responding with %s, err=%s",  code, JSON.stringify(err));
-          return res.status(503).send(err);
+          log.error(label(m) + "update error responding with %s, err=%s",  code, JSON.stringify(err));
+          return res.status(code).send(err);
         }
         if (sensor) {
           log.debug(label(m) + "Sensor data logged for sensor " + JSON.stringify(sensorLog.desc));
@@ -301,13 +230,16 @@ export let postSensorData = (req: Request, res: Response) => {
   catch (e) {
     return res.status(400).end();
   }
-
 };
 
 // Delete a sensor
-export let postDeleteSensors = (req: Request, res: Response) => {
-  const m = "postDeleteSensors" + ", tenantID=" + res.locals.tenantID;
-  const Sensor: Model<ISensor> = res.locals.Sensor ;
+export async function postDeleteSensors (req: Request, res: Response) {
+  const tenantID = res.locals.tenantID;
+  const m = "postDeleteSensors" + "tenantID=" + tenantID;
+  const SensorLog: Model<SensorLogDocument> = res.locals.SensorLog;
+  const Sensor: Model<SensorDocument> = res.locals.Sensor ;
+  const deviceID = res.locals.deviceID;
+  const deviceName = res.locals.deviceName;
 
   log.debug(label(m) + JSON.stringify(req.body));
   try {
@@ -316,22 +248,17 @@ export let postDeleteSensors = (req: Request, res: Response) => {
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.mapped() });
     }
-
     const desc: Descriptor = req.body.desc;
-    Sensor.findOneAndRemove({ "desc.SN": desc.SN, "desc.port": desc.port }, function(err, sensor) {
-      if (err) {
-        log.error(label(m) + "error=" + JSON.stringify(err));
-        res.status(503).end();
-      } else {
-        log.info(label(m) + "Sensor deleted");
-        res.status(200).send(JSON.stringify(sensor));
-      }});
+    const filter = { deviceID,  "desc.SN": desc.SN, "desc.port": desc.port };
+    await Sensor.findOneAndRemove(filter);
+    await SensorLog.remove({filter});
+    log.info(label(m) + "Sensor deleted" + JSON.stringify(filter));
+    res.status(200).end();
   } catch (e) {
-    log.error(label(m) + "error=", e);
+    log.error(label(m) + "cannot delete sensor, error=", e);
     return res.status(409).end();
   }
-
-};
+}
 
 export let notImplemented = (req: Request, res: Response) => {
   log.error("notImplemented: method not implemented");
