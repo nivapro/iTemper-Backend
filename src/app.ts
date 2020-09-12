@@ -161,7 +161,7 @@ export function initApp(wss: WebSocket.Server, app: Application) {
 
   // // Requires JWT Token //
   // Get sensors
-  app.get("/sensors", SensorUserMiddleWare, sensorController.getSensorLog);
+  app.get("/sensors", SensorUserMiddleWare, sensorController.getSensors);
 
   // delete  sensors
   app.post("/sensors/:sn/delete",  SensorUserMiddleWare, sensorController.deleteValidator, sensorController.postDeleteSensors);
