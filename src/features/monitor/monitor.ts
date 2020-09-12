@@ -1,7 +1,7 @@
 import * as ws from "ws";
 import * as http from "http";
 import log from "../../services/logger";
-import { Descriptor, SensorLogInbound } from "../sensor/sensor-model";
+import { Descriptor, SensorLogInbound, SensorOutbound } from "../sensor/sensor-model";
 import { isDescriptorArrayValid } from "../sensor/sensor-data-validators";
 import { DeviceData }  from "../device/device-status";
 import { MonitoringClient, ExtWebSocket, MonitoringClients } from "./monitoring-client";
@@ -15,7 +15,7 @@ export interface InboundMessage {
     data?: any;
 }
 export interface OutboundMessage {
-    command: "status" |  "log" | "ping" | "authorize" | "authorized";
+    command: "status" |  "log" |  "sensor" |"ping" | "authorize" | "authorized";
     data?: any;
 }
 let wss: ws.Server;
@@ -107,7 +107,10 @@ export function sendSensorLog(tenantID: string, deviceID: string, data: SensorLo
     const message: OutboundMessage = { command: "log", data};
     send(tenantID, deviceID, message);
 }
-
+export function sendSensor(tenantID: string, deviceID: string, data: SensorOutbound) {
+    const message: OutboundMessage = { command: "sensor", data};
+    send(tenantID, deviceID, message);
+}
 export function sendDeviceStatus(tenantID: string, deviceID: string, data: DeviceData) {
     const message: OutboundMessage = { command: "status", data};
     send(tenantID, deviceID, message);

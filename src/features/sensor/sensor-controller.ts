@@ -5,7 +5,8 @@ import * as util from "../../services/util";
 import { Response, Request } from "express";
 import { body, query, param, validationResult } from "express-validator";
 import { Model } from "mongoose";
-import { SensorDocument, SensorLog, SensorSchema, SensorLogInbound, Attributes, Descriptor, SensorLogDocument,  } from "./sensor-model";
+import {  SensorDocument, SensorOutbound, SensorLog, SensorLogDocument, SensorLogInbound, Attributes,
+          Descriptor } from "./sensor-model";
 
 import * as monitor from "./../monitor/monitor";
 import { sample, sampleSize } from "lodash";
@@ -41,8 +42,122 @@ export const postDataValidator = [
 ];
 
 // Get all sensors
-export let getSensorLog = (req: Request, res: Response) => {
+export let getSensors = (req: Request, res: Response) => {
   const m = "getSensors" + ", tenantID=" + res.locals.tenantID;
+  const SensorLog: Model<SensorLogDocument> = res.locals.SensorLog;
+  try {
+
+    res.setHeader("Content-Type", "application/json");
+
+    if (req.query.samples) {
+      query("samples").isInt({ min: 1, max: 99 });
+    }
+
+    if (req.query.from) {
+      query("from").isInt({ min: 0 });
+    }
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.mapped() });
+    }
+    const bucketDate = (from: number = Date.now()) => {
+      const date = new Date(from);
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
+    };
+    const createFilter = () => {
+      try {
+        const count: number = parseInt(req.query.samples as string);
+        const from: number = parseInt(req.query.from as string);
+        if (from) {
+          const date = bucketDate(from);
+          return {from, date, samples: {
+            "$filter": {
+              "input": "$samples",
+              "as": "sample",
+              "cond": {
+                "$gte": [
+                  "$$sample.date", from
+                ]
+              }
+            }
+          }};
+        } else if (count) {
+          const date = bucketDate();
+          return { count, date, samples: {$slice: ["$samples", -count] }};
+        }
+        else {
+          const date = bucketDate();
+          return {date, samples: true };
+        }
+      } catch {
+        const date = bucketDate();
+        return { date, samples: true };
+      }
+
+    };
+    const filter = createFilter();
+    log.info(label(m) + "url=" + req.url);
+    SensorLog.aggregate(
+        [
+          {
+            "$match": {
+              "date": {
+                "$gte": filter.date
+              }
+            }
+          }, {
+            "$lookup": {
+              "from": "sensors",
+              "localField": "desc",
+              "foreignField": "desc",
+              "as": "fromdesc"
+            }
+          }, {
+            "$replaceRoot": {
+              "newRoot": {
+                "$mergeObjects": [
+                  {
+                    "$arrayElemAt": [
+                      "$fromdesc", 0
+                    ]
+                  }, "$$ROOT"
+                ]
+              }
+            }
+          }, {
+            "$project": {
+              "tenantID": true,
+              "deviceID": true,
+              "desc": true,
+              "attr": true,
+              "samples": filter.samples
+            }
+          }
+      ], function(err: any, sensors: SensorLogDocument[]) {
+          if (err) {
+              res.status(503).end();
+          } else if (sensors.length === 0) {
+              res.status(200).send(JSON.stringify(sensors));
+              log.debug(label(m) + "No sensor data found for specified period");
+          } else {
+              for (const sensor of sensors) {
+                if (filter.count && sensor.samples.length > filter.count) {
+                  sensor.samples = sensor.samples.slice(0, filter.count);
+                }
+              }
+              log.info(label(m) + "Sensor data found and sent");
+              res.status(200).send(JSON.stringify(sensors));
+          }
+        });
+  } catch (e) {
+    res.status(400).end();
+    log.error(label(m) + "Error=" + e);
+  }
+};
+
+export let getSensorLog = (req: Request, res: Response) => {
+  const m = "getSensorLog" + ", tenantID=" + res.locals.tenantID;
   const SensorLog: Model<SensorLogDocument> = res.locals.SensorLog ;
   log.debug(label(m) + "begin");
   try {
@@ -115,12 +230,10 @@ export let getSensorLog = (req: Request, res: Response) => {
   }
 };
 
-
-
 // Create a sensor
 export let postSensors = (req: Request, res: Response) => {
-  const m = "postSensors" + ", tenantID=" + res.locals.tenantID;
-  log.debug(label(m) + "res.locals.Sensor=" + util.stringify(res.locals.Sensor));
+  const tenantID = res.locals.tenantID;
+  const m = "postSensors" + ", tenantID=" + tenantID;
   const Sensor: Model<SensorDocument> = res.locals.Sensor ;
   const deviceID = res.locals.deviceID;
   const deviceName = res.locals.deviceName;
@@ -141,7 +254,7 @@ export let postSensors = (req: Request, res: Response) => {
     Sensor.findOne({ "desc.SN": desc.SN, "desc.port": desc.port }, "desc", function (err, sensor) {
       log.debug(label(m) + "findOne sensor=" + JSON.stringify(sensor));
       if (sensor === null) {
-            // Sensor does not exist, let's create and save it
+            // Sensor does not exist, let"s create and save it
         const sensor = new Sensor({ deviceID: deviceID, desc: desc, attr: attr});
 
         sensor.save(function (err) {
@@ -153,6 +266,7 @@ export let postSensors = (req: Request, res: Response) => {
           log.info(label(m) + "Sensor " + JSON.stringify(desc) + " registered");
           res.setHeader("Content-Location", req.path + "/" + desc.SN + "/" + desc.port);
           res.status(200).send(sensor);
+          monitor.sendSensor(tenantID, deviceID, sensor);
         });
       } else {
         log.debug(label(m) + "OK! Sensor " + JSON.stringify(desc) + " registered already");
