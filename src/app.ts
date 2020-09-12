@@ -38,7 +38,13 @@ export function initApp(wss: WebSocket.Server, app: Application) {
 
   app.use(errorHandler());
   const corsOptions = {
-    origin: ["https://itemper.io", "https://api.itemper.io", "http://localhost:8080", "https://localhost:8080"],
+    origin: [
+      "https://itemper.io",
+      "https://www.itemper.io",
+      "https://api.itemper.io",
+      "http://localhost:8080",
+      "https://localhost:8080"
+    ],
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "PUT", "POST", "OPTIONS", "DELETE"],
     credentials: true,
