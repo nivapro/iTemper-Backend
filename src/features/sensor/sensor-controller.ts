@@ -15,29 +15,31 @@ const moduleName = "sensor-controller.";
 function label(name: string): string {
   return moduleName + name + ": ";
 }
-
+const MinSNLength = 4;
+const MaxSNLength = 32;
+const MinPort = 0;
+const MaxPort = 65532;
 export const getValidatorSN = [
-  param("sn").exists().isLength({min: 4, max: 12})
+  param("sn").exists().isLength({min: MinSNLength, max: MaxSNLength})
 ];
-
 export const getValidatorSNPort = [
-  param("sn").exists().isLength({min: 4, max: 12}),
-  param("port").exists().isInt({ min: 0, max: 8 })
+  param("sn").exists().isLength({min: MinSNLength, max: MaxSNLength}),
+  param("port").exists().isInt({ min: MinPort, max: MaxPort })
 ];
 export const postValidator = [
   body ("desc", "desc missing").exists(),
-  body ("desc.SN", "serial number missing" ).exists().isLength({min: 4}),
+  body ("desc.SN", "Invalid or missing serial number" ).exists().isLength({min: MinSNLength}),
   body ("desc.port", "port number missing" ).exists(),
   body ("attr.model", "attributes missing" ).exists()
 ];
 
 export const deleteValidator = [
-  param("sn").exists().isLength({min: 4, max: 12})
+  param("sn").exists().isLength({min: MinSNLength, max: MaxSNLength})
 ];
 
 export const postDataValidator = [
-  param("sn").exists().isLength({min: 4, max: 12}),
-  param("port").exists().isInt({ min: 0, max: 7 }),
+  param("sn").exists().isLength({min: MinSNLength, max: MaxSNLength}),
+  param("port").exists().isInt({ min: MinPort, max: MaxPort}),
   body ("samples", "samples missing").exists()
 ];
 

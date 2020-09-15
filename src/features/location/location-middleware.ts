@@ -17,8 +17,6 @@ const moduleName = "location-middleware.";
 function label(name: string): string {
   return moduleName + name + ": ";
 }
-
-
 const limits =  {
     fileSize: 2_000_000,
     files: 1,
