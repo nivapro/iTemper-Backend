@@ -108,7 +108,7 @@ export function isDescriptorValid(raw: unknown): boolean {
             log.error("sensor-data-validators.isDescriptorValid - SN not valid:" + desc.SN);
         }
         valid = valid
-        && "port" in desc && typeof desc.port === "number" && desc.port >= 0 && desc.port < 8;
+        && "port" in desc && typeof desc.port === "number" && desc.port >= 0;
         if (!valid) {
             log.error("sensor-data-validators.isDescriptorValid - port not valid: " + desc.port);
         }
