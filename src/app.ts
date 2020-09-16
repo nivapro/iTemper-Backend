@@ -105,6 +105,7 @@ export function initApp(wss: WebSocket.Server, app: Application) {
   // application/json after this point
 
   app.use((req: Request, res: Response, next: NextFunction) => {
+      res.set("Connection", "close");
       if (req.headers["content-type"] && req.headers["content-type"].toLowerCase() !== "application/json") {
         res.status(415).send("Unsupported media type, wrong content-type");
       } else {
