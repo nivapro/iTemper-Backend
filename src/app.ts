@@ -48,7 +48,7 @@ export function initApp(wss: WebSocket.Server, app: Application) {
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "PUT", "POST", "OPTIONS", "DELETE"],
     credentials: true,
-    optionsSuccessStatus: 204 // some legacy browsers (IE11, various SmartTVs) choke on 204
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
   };
   app.use(cors(corsOptions));
   app.options("*", cors());
