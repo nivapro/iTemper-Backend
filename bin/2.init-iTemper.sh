@@ -28,9 +28,7 @@ chmod +x /usr/local/bin/docker-compose
 echo <Access Token> > ~/.docker-pwd.txt
 cat  ~/.docker-pwd.txt | docker login --username tova --password-stdin
 
-# Might be need to configure a credential helper to 
-
-# Manage Docker as a non-root user
+# Might be need to configure a credential helper to manage Docker as a non-root user
 sudo groupadd docker # Might exist already
 sudo usermod -aG docker $USER
 # Logout AND login again so that your group membership is re-evaluated.
