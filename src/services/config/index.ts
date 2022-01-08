@@ -1,5 +1,5 @@
 import chalk from "chalk";
-
+let configError = false;
 export const JWT_SECRET = getEnv("JWT_SECRET");
 
 export const SALT = getEnv("SALT");
@@ -32,12 +32,15 @@ function getEnv(env: string): string {
     else {
         const error = true;
         log("No " + env + " environment variable.", error);
-        process.exit(0);
+        configError = true;
     }
     return val;
 }
 let userDBConnectionStr: string = MONGODB_URI  + ":" + parseInt(MONGODB_PORT);
-
+if (configError) {
+    log("Configuration errors found, existing application");
+    process.exit(0)
+}
 
 export function setUserDBConnectionString(connectionString: string) {
     log ("config.setUserDBConnectionString: " + connectionString);
