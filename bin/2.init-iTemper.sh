@@ -29,3 +29,13 @@ echo <Access Token> > ~/.docker-pwd.txt
 cat  ~/.docker-pwd.txt | docker login --username tova --password-stdin
 
 # Might be need to configure a credential helper to 
+
+# Manage Docker as a non-root user
+sudo groupadd docker # Might exist already
+sudo usermod -aG docker $USER
+# Logout AND login again so that your group membership is re-evaluated.
+# Verify that you can run docker commands without sudo.
+# docker run hello-world
+
+#Folder for tenants data
+mkdir ~/tenants

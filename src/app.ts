@@ -60,15 +60,15 @@ app.use(lusca.nosniff());
 app.set("trust proxy", "loopback, uniquelocal");
 const locationImageFolder = path.join(process.cwd(), "uploads");
 app.use("/uploads", express.static(locationImageFolder, { maxAge: 31557600000 }));
-log.info("app.ts locationImageFolder=" + locationImageFolder);
+log.info("app: locationImageFolder=" + locationImageFolder);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   log.debug("");
   log.debug("------------------ " +  req.method + " " + req.path + " ------------------------------");
-  log.debug("headers: " + JSON.stringify(req.headers));
-  log.debug("body:    " + JSON.stringify(req.body));
-  log.debug("params:  " + JSON.stringify(req.params));
-  log.debug("query:   " + JSON.stringify(req.query));
+  log.debug("app: headers: " + JSON.stringify(req.headers));
+  log.debug("app: body:    " + JSON.stringify(req.body));
+  log.debug("app: params:  " + JSON.stringify(req.params));
+  log.debug("app: query:   " + JSON.stringify(req.query));
   next();
 });
 
