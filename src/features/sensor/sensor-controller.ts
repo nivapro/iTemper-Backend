@@ -1,4 +1,5 @@
 "use strict";
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import log from "../../services/logger";
 import * as util from "../../services/util";
 
@@ -40,7 +41,7 @@ export const postDataValidator = [
 ];
 
 // Get all sensors
-export let getSensors = (req: Request, res: Response) => {
+export const getSensors = (req: Request, res: Response) => {
   const m = "getSensors" + ", tenantID=" + res.locals.tenantID;
   const Sensor: Model<ISensor> = res.locals.Sensor ;
   log.debug(label(m) + "begin");
@@ -114,15 +115,14 @@ export let getSensors = (req: Request, res: Response) => {
   }
 };
 
-export let getSensorsSN = (req: Request, res: Response) => {
+export const getSensorsSN = (req: Request, res: Response) => {
   const Sensor: Model<ISensor> = res.locals.Sensor ;
   log.debug("getSensorsSN: " + req.query.toString());
   try {
 
     res.setHeader("Content-Type", "application/json");
 
-    const onlySN: boolean = true;
-    let samples: number = 1;
+    let samples = 1;
 
     if (req.query.samples) {
       query("samples").isInt({ min: 1, max: 99 });
@@ -149,13 +149,13 @@ export let getSensorsSN = (req: Request, res: Response) => {
   }
 
 };
-export let getSensorsSNPort = (req: Request, res: Response) => {
+export const getSensorsSNPort = (req: Request, res: Response) => {
   const Sensor: Model<ISensor> = res.locals.Sensor ;
   log.debug("getSensorsSNPort: " + req.query.toString());
   try {
     res.setHeader("Content-Type", "application/json");
 
-    let samples: number = 1;
+    let samples = 1;
 
     if (req.query.samples) {
       query("samples").isInt({ min: 1, max: 99 });
@@ -186,7 +186,7 @@ export let getSensorsSNPort = (req: Request, res: Response) => {
 
 
 // Create a sensor
-export let postSensors = (req: Request, res: Response) => {
+export const postSensors = (req: Request, res: Response) => {
   const m = "postSensors" + ", tenantID=" + res.locals.tenantID;
   log.debug(label(m) + "res.locals.Sensor=" + util.stringify(res.locals.Sensor));
   const Sensor: Model<ISensor> = res.locals.Sensor ;
@@ -236,7 +236,7 @@ export let postSensors = (req: Request, res: Response) => {
 
 
 // Called by devices when logging sensor data
-export let postSensorData = (req: Request, res: Response) => {
+export const postSensorData = (req: Request, res: Response) => {
   const m = "postSensorData" + ", tenantID=" + res.locals.tenantID;
   log.debug(label(m) + "res.locals.sub=" + util.stringify(res.locals.sub));
 
@@ -289,7 +289,7 @@ export let postSensorData = (req: Request, res: Response) => {
 };
 
 // Delete a sensor
-export let postDeleteSensors = (req: Request, res: Response) => {
+export const postDeleteSensors = (req: Request, res: Response) => {
   const m = "postDeleteSensors" + ", tenantID=" + res.locals.tenantID;
   const Sensor: Model<ISensor> = res.locals.Sensor ;
 
@@ -316,7 +316,7 @@ export let postDeleteSensors = (req: Request, res: Response) => {
 
 };
 
-export let notImplemented = (req: Request, res: Response) => {
+export const notImplemented = (req: Request, res: Response) => {
   log.info("notImplemented: method not implemented");
   const method = req.method;
   const headers = req.headers;

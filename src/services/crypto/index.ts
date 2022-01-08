@@ -8,7 +8,6 @@ function label(name: string): string {
 }
 function saltAndHash(no: number, password: string, callback: (err: Error, hash: string) => void): void {
     const m = "saltAndHash ";
-    const cb  = callback;
     log.debug(label(m));
     bcrypt.genSalt(no, (err, salt) => {
         // log.debug(label(m) + "salt");

@@ -19,5 +19,12 @@ module.exports = {
         "@typescript-eslint"
     ],
     "rules": {
+        "@typescript-eslint/no-this-alias": [
+            "error",
+            {
+            "allowDestructuring": true, // Allow `const { props, state } = this`; false by default
+            "allowedNames": ["device", "user"] // Allow `const vm= this`; `[]` by default
+            }
+        ]
     }
 };

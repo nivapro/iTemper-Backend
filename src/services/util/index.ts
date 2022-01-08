@@ -21,6 +21,7 @@ export function stringify(o: object) {
     cache = undefined;
   }
 
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
   export function move(oldPath: string, newFolder: string, newFilename: string, callback: (err?: any) => void) {
     const newPath = newFolder + newFilename;
     const newDir = mkdirp.sync(newFolder);

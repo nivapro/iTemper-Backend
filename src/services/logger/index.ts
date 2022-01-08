@@ -17,7 +17,7 @@ private static applicationName = "iTemper-backend";
 private label: string;
 private _name: string;
 // moduleName: string = __filename.slice(__dirname.length + 1))
-  constructor(name: string = "") {
+  constructor(name = "") {
 
     if (name.length > 0) {
       this.label = Log.applicationName + "-" + name;

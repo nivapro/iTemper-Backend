@@ -7,12 +7,8 @@ const request = supertest(app);
 
 import * as TestDbs from "./dbs";
 
-let token: string = "";
-let tenantID: string = "";
-let name: string = "";
-let deviceID: string = "";
-let key: string = "";
-let locationID: string = "";
+let token = "";
+let locationID = "";
 
 beforeAll(async done => {
   TestDbs.initDatabases();
@@ -27,7 +23,6 @@ beforeAll(async done => {
   expect(res.body.token).toBeDefined();
   expect(res.body.tenantID).toBeDefined();
   token = res.body.token;
-  tenantID = res.body.tenantID;
 
   res = await request
   .post("/devices")
@@ -39,9 +34,6 @@ beforeAll(async done => {
   expect(res.body.name).toBeDefined();
   expect(res.body.deviceID).toBeDefined();
   expect(res.body.key).toBeDefined();
-  name = res.body.name;
-  deviceID = res.body.deviceID;
-  key = res.body.key;
   done();
 });
 
@@ -195,34 +187,6 @@ describe("SET LOCATION COLOR", () => {
       done();
     });
   });
-
-// describe("SET LOCATION FILE", () => {
-//     test("Set a location FILE without a locationID should return 404", async done => {
-//       const res = await request
-//       .put("/locations")
-//       .set("Authorization", "bearer " + token)
-//       .send({});
-//       expect(res.status).toBe(404);
-//       done();
-//     });
-//     test("set a location FILE with location but without a file should return 422", async done => {
-//       const res = await request
-//       .put("/locations/" + locationID + "/file")
-//       .set("Authorization", "bearer " + token)
-//       .send({});
-//       expect(res.status).toBe(422);
-//       done();
-//     });
-
-//     test("Set a valid location file value should return 200", async done => {
-//       const res = await request
-//       .put("/locations/" + locationID + "/file")
-//       .set("Authorization", "bearer " + token)
-//       .send({file: "#000000", });
-//       expect(res.status).toBe(200);
-//       done();
-//     });
-//   });
 
 describe("GET LOCATIONS(S) AFTER UPDATES", () => {
 test("Get all locations after an update should return 200 and updated location values", async done => {

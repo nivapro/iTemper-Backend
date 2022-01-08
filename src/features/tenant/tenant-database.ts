@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 import log from "../../services/logger";
 // import { tenantDBConnectionString } from "../../services/config";
 
-let getConnectionString: (tenantID: String) => Promise<string>;
+let getConnectionString: (tenantID: string) => Promise<string>;
 
 const TenantConnections = new Map();
 
-export function initialize (ConnectionStringFactory: (tenantID: String) => Promise<string>) {
+export function initialize (ConnectionStringFactory: (tenantID: string) => Promise<string>) {
   getConnectionString = ConnectionStringFactory;
 }
 

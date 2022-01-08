@@ -1,6 +1,7 @@
 import bluebird from "bluebird";
 import mongoose from "mongoose";
 import { stringify } from "../../services/util";
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 (<any>mongoose).Promise = bluebird;
 
 import log from "../../services/logger";

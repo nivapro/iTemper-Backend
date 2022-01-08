@@ -1,4 +1,4 @@
-import mongoose, { Connection, Document, Model, Schema } from "mongoose";
+import { Connection, Document, Model, Schema } from "mongoose";
 import log from "../../services/logger";
 
 export function tenantModel<T extends Document>(name: string, schema: Schema, tenantID: string, connection: Connection): Model<T>  {
