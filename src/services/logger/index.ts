@@ -64,7 +64,7 @@ private _name: string;
 
 }
 const log = () => new Log();
-log().info("Logger: New application log created");
+log().info("logger: New application log created");
 export default log();
 
 export function setLevel(level: string): void {
