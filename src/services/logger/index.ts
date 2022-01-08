@@ -64,7 +64,6 @@ private _name: string;
 
 }
 const log = () => new Log();
-
 log().info("logger: New application log created");
 
 export default log();

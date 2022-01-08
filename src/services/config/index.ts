@@ -78,8 +78,11 @@ function getEnv(env: string): string {
 }
 let userDBConnectionStr: string = MONGODB_URI  + ":" + parseInt(MONGODB_PORT);
 
+checkConfiguration();
+
 export function setUserDBConnectionString(connectionString: string) {
-    log ("config.setUserDBConnectionString: " + connectionString);
+    log ("setUserDBConnectionString: " + connectionString);
+
     userDBConnectionStr = connectionString;
 }
 export function userDBConnectionString(): Promise<string> {
