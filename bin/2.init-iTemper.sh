@@ -28,6 +28,7 @@ chmod +x /usr/local/bin/docker-compose
 echo <Access Token> > ~/.docker-pwd.txt
 cat  ~/.docker-pwd.txt | docker login --username tova --password-stdin
 
+Improve-logging
 # Might be need to configure a credential helper to 
 
 # Manage Docker as a non-root user
