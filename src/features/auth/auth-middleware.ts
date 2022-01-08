@@ -29,7 +29,7 @@ export function authorizeJWT(req: Request, res: Response, next: NextFunction) {
               log.info (label(m) + "request authorized for payload=" + JSON.stringify(payload));
               next();
             })
-            .catch (err => {
+            .catch (() => {
                 log.info (label(m) + "invalid token");
                 res.status(401).send("Erroneous token, log in again");
               });
@@ -64,7 +64,7 @@ export function authorizeJWT(req: Request, res: Response, next: NextFunction) {
           const token = headerValues.token.split(SEPARATOR);
           const deviceID = token[0];
           const key = token[1];
-
+          /* eslint-disable  @typescript-eslint/no-explicit-any */
           Device.findOne({ deviceID }, (err: any, device: DeviceDocument) => {
             if (err ) { return next(err); }
             if (device) {

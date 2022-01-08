@@ -28,7 +28,7 @@ export type UserDocument = mongoose.Document & {
   createTenantID: () => void,
 
   isFirstUser: () => boolean,
-
+/* eslint-disable  @typescript-eslint/no-explicit-any */
   comparePassword: (candidatePassword: string, cb: (err: any, isMatch: any) => void) => void,
   gravatar: (size: number) => string
 };
