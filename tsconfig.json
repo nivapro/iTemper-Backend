@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "strict": false,
         "module": "commonjs",
         "esModuleInterop": true,
         "target": "es2021",
@@ -10,6 +11,8 @@
         "outDir": "dist",
         "baseUrl": "./src",
         "lib": ["es2021", "DOM"],
+        "forceConsistentCasingInFileNames": true,
+        "importHelpers": true,
         "paths": {
             "@/*": [
                 "src/*"

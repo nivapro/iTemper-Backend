@@ -10,7 +10,6 @@ function log(message: string, error = false) {
     } else {
         console.log ("info: " +(msg));
     }
-
 }
 // Checks that all configuration is complete
 let configError = false;
@@ -45,7 +44,6 @@ const MONGODB_URI = getEnv("MONGODB_URI");
 const MONGODB_PORT = getEnv("MONGODB_PORT");
 
 let userDBConnectionStr: string = MONGODB_URI  + ":" + parseInt(MONGODB_PORT);
-
 
 checkConfiguration();
 
