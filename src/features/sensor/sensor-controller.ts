@@ -97,7 +97,7 @@ export let getSensors = (req: Request, res: Response) => {
         });
     } else {
         Sensor.find( {}, {"samples": { $slice: -samples }},
-          function(err, sensors) {
+          function(err: any, sensors: any) {
             if (err) {
               res.status(503).send(JSON.stringify(err));
             } else if (sensors.length === 0) {
@@ -207,7 +207,7 @@ export let postSensors = (req: Request, res: Response) => {
         return res.status(308).send({deviceID, name: deviceName});
     }
 
-    Sensor.findOne({ "desc.SN": desc.SN, "desc.port": desc.port }, "desc", function (err, sensor) {
+    Sensor.findOne({ "desc.SN": desc.SN, "desc.port": desc.port }, "desc", function (err: any, sensor: any) {
       log.debug(label(m) + "findOne sensor=" + JSON.stringify(sensor));
       if (sensor === null) {
             // Sensor does not exist, let's create and save it
@@ -302,7 +302,7 @@ export let postDeleteSensors = (req: Request, res: Response) => {
     }
 
     const desc: Descriptor = req.body.desc;
-    Sensor.findOneAndRemove({ "desc.SN": desc.SN, "desc.port": desc.port }, function(err, sensor) {
+    Sensor.findOneAndRemove({ "desc.SN": desc.SN, "desc.port": desc.port }, function(err: any, sensor: any) {
       if (err) {
         log.error(label(m) + "error=" + JSON.stringify(err));
         res.status(503).end();

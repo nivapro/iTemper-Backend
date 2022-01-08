@@ -5,7 +5,7 @@ $(document).ready(function() {
   const bonjourInstance = bonjour({});
   let browser: bonjour.Browser;
   const browserOptions = { protocol: "tcp", type: "http" };
-  browser = bonjourInstance.find(this.browserOptions, (srv: bonjour.Service) => {
+  browser = bonjourInstance.find(this.browserOptions, (srv: bonjour.RemoteService) => {
 
     // You can test here if the found server (srv) name is 'My Website'
 
