@@ -21,7 +21,7 @@ const httpServer: http.Server = http.createServer(app);
 
 app.set("port", process.env.PORT || 3000);
 
-const iTemperServer = httpServer.listen(app.get("port"), () => {
+httpServer.listen(app.get("port"), () => {
   log.info(
     "iTemper back-end app is running at port " + app.get("port") +
     " in " + app.get("env") + " mode");

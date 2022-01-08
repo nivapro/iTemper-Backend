@@ -20,7 +20,6 @@ beforeAll(async done => {
   expect(res.body.token).toBeDefined();
   expect(res.body.tenantID).toBeDefined();
   token = res.body.token;
-  tenantID = res.body.tenantID;
 
   res = await request
   .post("/devices")
@@ -32,8 +31,6 @@ beforeAll(async done => {
   expect(res.body.name).toBeDefined();
   expect(res.body.deviceID).toBeDefined();
   expect(res.body.key).toBeDefined();
-  name = res.body.name;
-  deviceID = res.body.deviceID;
   key = res.body.key;
   done();
 });
@@ -43,11 +40,8 @@ afterAll(async done => {
   done();
 });
 
-let token: string = "";
-let tenantID: string = "";
-let name: string = "";
-let deviceID: string = "";
-let key: string = "";
+let token = "";
+let key = "";
 
 describe("AUTHENTICATION - authorizeJWT", () => {
   test("No Authorization header should return 401", async done => {

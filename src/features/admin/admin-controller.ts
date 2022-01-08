@@ -1,12 +1,7 @@
 "use strict";
 import log from "../../services/logger";
-import { move } from "../../services/util";
 import { Response, Request } from "express";
-import { body, param, validationResult, ValidationChain, checkSchema, Schema } from "express-validator";
-import path from "path";
-
-
-import { json } from "body-parser";
+import {validationResult, ValidationChain, checkSchema, Schema } from "express-validator";
 
 const moduleName = "admin-controller.";
 function label(name: string): string {
@@ -25,7 +20,7 @@ const LogLevelSchema: Schema = {
 export const logLevelFieldValidator: ValidationChain[] = checkSchema(LogLevelSchema);
 
 
-export let putLogLevel = (req: Request, res: Response): void => {
+export const putLogLevel = (req: Request, res: Response): void => {
     const m = "putLogLevel, " + res.locals.tenantID;
     log.debug(label(m) + JSON.stringify(req.body));
     const errors = validationResult(req);

@@ -1,13 +1,6 @@
 import mongoose from "mongoose";
 
-import log from "../../services/logger";
-
 import { Descriptor } from "../sensor/sensor-model";
-
-const moduleName = "location-model.";
-function label(name: string): string {
-  return moduleName + name + ": ";
-}
 
 export interface LocationInterface {
   name: string;
@@ -15,8 +8,7 @@ export interface LocationInterface {
   path: string;
   sensorDesc: Descriptor[];
 }
-export interface LocationData extends LocationInterface {
-}
+export type LocationData = LocationInterface
 export interface LocationResponse {
   _id: string;
   data: LocationData;

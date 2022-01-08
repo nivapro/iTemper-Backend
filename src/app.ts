@@ -14,7 +14,6 @@ dotenv.config({ path: ".env" });
 import path from "path";
 
 // Controllers (route handlers)
-import * as homeController from "./features/home/home-controller";
 import * as userController from "./features/user/user-controller";
 import * as sensorController from "./features/sensor/sensor-controller";
 import * as deviceController from "./features/device/device-controller";

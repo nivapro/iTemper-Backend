@@ -1,6 +1,7 @@
 import bluebird from "bluebird";
 import mongoose from "mongoose";
-import { stringify } from "services/util";
+import { stringify } from "../../services/util";
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 (<any>mongoose).Promise = bluebird;
 
 import log from "../../services/logger";
@@ -9,13 +10,10 @@ import log from "../../services/logger";
 
 export function initialize (getConnectionString: () => Promise<string>) {
 
-  // Mongoose: `findOneAndUpdate()` and `findOneAndDelete()` without the `useFindAndModify` option set to false are deprecated
-  mongoose.set("useFindAndModify", false);
-
   // Connect to MongoDB
 
   getConnectionString().then(connectionURI => {
-    mongoose.connect(connectionURI, {   useNewUrlParser: true,  useUnifiedTopology: true, useCreateIndex: true }, (err: mongoose.Error) => {
+    mongoose.connect(connectionURI, (err: mongoose.Error) => {
       if (err)
         log.error ("user-database: connection error, check that the db is running - " + connectionURI + ", Error=[" + stringify(err) + "]");
       else
