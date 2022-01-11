@@ -1,0 +1,153 @@
+openapi: '3.0.2'
+info:
+  title: itemper API
+  description: |
+    This API allows managing iTemper users, sensor devices and their locations
+  version: '1.0'
+servers:
+  - url: https://api.itemper.io/v1
+    description: production servers
+  - url: https://staging.itemper.io/v1
+    description: Staging server
+security:
+  - BearerAuth: []
+paths:
+  /devices:
+    post:
+      responses:
+        '200':
+          description: Device created successfully
+    get:
+      responses:
+        '200':
+          description: OK
+
+  /devices{ deviceID }:
+    put:
+      responses:
+        '200':
+          description: Device updated successfully
+    get:
+      responses:
+        '200':
+          description: OK
+    delete:
+      responses:
+        '200':
+          description: Device deleted successfully
+  /locations:
+    post:
+      responses:
+        '200':
+          description: Location updated successfully
+    get:
+      responses:
+        '200':
+          description: OK
+  /locations/{ locationID }:
+    put: 
+      responses:
+        '200':
+          description: Location uploaded successful    
+    delete: 
+      responses:
+        '200':
+          description: Location deleted successful    
+  /locations/{ locationID }/file:
+    put:
+      responses:
+        '200':
+          description: Location picture uploaded successful  
+  /locations/{ locationID }/name:
+    put:
+      responses:
+        '200':
+          description: Location name changed successful 
+  /locations/{ locationID }/color:
+    put:
+      responses:
+        '200':
+          description: Location color updated successful 
+  /locations/{ locationID }/sensors:
+    put:
+      responses:
+        '200':
+          description: Location sensors updated successful 
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT  
+  schemas:
+    Credentials:
+      type: object
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 4
+    LoggedInUser:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        token:
+          type: string
+          format: JWT
+        tenantID:
+          type: string
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+  requestBodies:
+    SetupLogin:
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Credentials'
+  responses:
+    LoggedInUser:
+      description: New user signed up and logged in
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/LoggedInUser'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: NotFound
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnsupportedMediaType:
+      description: Unsupported media type, wrong content-type
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Forbidden
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Error'
+
+
+
