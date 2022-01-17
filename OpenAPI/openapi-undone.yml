@@ -2,7 +2,7 @@ openapi: '3.0.2'
 info:
   title: itemper API
   description: |
-    This API allows managing iTemper users, sensor devices and their locations
+    This API allows managing iTemper users, sensor devices and their locations.
   version: '1.0'
 servers:
   - url: https://api.itemper.io/v1
