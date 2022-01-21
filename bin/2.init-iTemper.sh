@@ -22,11 +22,6 @@ apt-get install docker-ce
 curl -L "https://github.com/docker/compose/releases/download/1.25.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
-# New Access Token might be needed to pull iTemper from dockerhub
-# Login to tova/torbjorn.vading@gmail.com at Dockerhub Create access token at docker hub: https://hub.docker.com/settings/security
-# See Docker Access Token in enpass
-echo <Access Token> > ~/.docker-pwd.txt
-cat  ~/.docker-pwd.txt | docker login --username tova --password-stdin
 
 # Might be need to configure a credential helper to manage Docker as a non-root user
 sudo groupadd docker # Might exist already
@@ -34,6 +29,12 @@ sudo usermod -aG docker $USER
 # Logout AND login again so that your group membership is re-evaluated.
 # Verify that you can run docker commands without sudo.
 # docker run hello-world
+
+# New Access Token might be needed to pull iTemper from dockerhub
+# Login to tova/torbjorn.vading@gmail.com at Dockerhub Create access token at docker hub: https://hub.docker.com/settings/security
+# See Docker Access Token in enpass
+echo <Access Token> > ~/.docker-pwd.txt
+cat  ~/.docker-pwd.txt | docker login --username tova --password-stdin
 
 #Folder for tenants data
 mkdir ~/tenants

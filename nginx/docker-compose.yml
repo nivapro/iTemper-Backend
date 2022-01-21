@@ -3,7 +3,7 @@ version: '3'
 services:
   webserver:
     image: itemper-nginx
-    container_name: my-nginx
+    container_name: itemper-nginx
     restart: unless-stopped
     ports:
       - "80:80"
