@@ -54,7 +54,7 @@ private _name: string;
     }
     public debug (report: string) {
       // Log.logger.debug(this.appendTenant(report));
-      console.debug("debug " + this.message(report));
+      console.info("debug " + this.message(report));
     }
 
     public error (report: string) {
