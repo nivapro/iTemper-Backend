@@ -49,17 +49,17 @@ private _name: string;
     }
     public info (report: string) {
       // Log.logger.info(this.appendTenant(report));
-      console.info(this.message(report));
+      console.info("info " + this.message(report));
 
     }
     public debug (report: string) {
       // Log.logger.debug(this.appendTenant(report));
-      console.debug(this.message(report));
+      console.debug("debug " + this.message(report));
     }
 
     public error (report: string) {
       // Log.logger.error(this.appendTenant(report));
-      console.error(this.message(report));
+      console.error("error " + this.message(report));
     }
 
     public setLevel(level: string): void {
@@ -69,7 +69,7 @@ private _name: string;
     private message(message: string): string {
       // return `${level}: ${timestamp} [${label}]: ${message}`;
       const time = new Date().toISOString();
-      const msg = time + " [itemper-backend]: config: " + message;
+      const msg = time + " [itemper-backend]: " + message;
       return msg;
   }
 
