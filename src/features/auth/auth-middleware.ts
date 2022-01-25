@@ -73,7 +73,7 @@ export function authorizeJWT(req: Request, res: Response, next: NextFunction) {
             if (device) {
               device.comparePassword(key, (err: Error, isMatch: boolean) => {
                 if (err) {
-                  log.error(label(m) + "Cannot compare API Key, DeviceID=" + deviceID);
+                  log.error(label(m) + "Cannot compare and match API Key, DeviceID=" + deviceID);
                   return next(err); 
                 }
                 if (isMatch) {
