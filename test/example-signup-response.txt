@@ -1,0 +1,1 @@
+{"email":"torbjorn.vading@nivapro.com","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0b3Jiam9ybi52YWRpbmdAbml2YXByby5jb20iLCJ0ZW5hbnRJRCI6IjYxZWU2MTlmNTFjNjZlZTA0NjkxZTM4NSIsImlhdCI6MTY0MzAxMjUxMSwiZXhwIjoxNjQzODc2NTExLCJpc3MiOiJpVGVtcGVyIn0.xbfEQFE4dNKKjRKxYW172FjzeqWEmSxmC0yj6cvwPFM","tenantID":"61ee619f51c66ee04691e385"}

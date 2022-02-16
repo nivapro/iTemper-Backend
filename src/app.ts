@@ -39,14 +39,14 @@ export const app = expressWs(express()).app;
 app.use(errorHandler());
 
 const corsOptions = {
-  origin: ["https://itemper.io", "https://api.itemper.io", "http://localhost:8080"],
+  origin: ["https://itemper.io", "https://www.itemper.io", "http://localhost:8080", "https://localhost:8080"],
   allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "PUT", "POST", "OPTIONS", "DELETE"],
   credentials: true,
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 app.use(cors(corsOptions));
-app.options("*", cors());
+// app.options("*", cors());
 // app.options("*", cors()); // include before other routes
 
 // Common configuration
