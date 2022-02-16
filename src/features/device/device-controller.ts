@@ -5,13 +5,12 @@ import * as crypto from "../../services/crypto";
 import { Response, Request } from "express";
 import { body, param, validationResult, ValidationChain } from "express-validator";
 import { DeviceModel } from "./device-model";
-import { DeviceData, formatDeviceData } from "./device-status";
+import { formatDeviceData } from "./device-status";
 
 const moduleName = "device-controller.";
 function label(name: string): string {
   return moduleName + name + ": ";
 }
-
 
 const DeviceIDValidator: ValidationChain = param ("deviceID").exists().isUUID(4);
 const DataValidator: ValidationChain = body ("data", "Device data not found").exists();
@@ -27,7 +26,7 @@ export const NameFieldValidator = [ NameValidator ];
 export const NoNameFieldValidator = [NoNameValidator];
 export const RenameFieldValidator = [DeviceIDValidator, NameValidator];
 
-export let postRegisterDevice = (req: Request, res: Response): void => {
+export const postRegisterDevice = (req: Request, res: Response): void => {
     const m = "postRegisterDevice, tenantID=" + res.locals.tenantID;
     const Device: DeviceModel = res.locals.Device;
     const errors = validationResult(req);
@@ -44,7 +43,6 @@ export let postRegisterDevice = (req: Request, res: Response): void => {
         // Device does not exist, let's create one
         const deviceID = crypto.uuid();
         const secrete = crypto.uuid();
-
         const newDevice = new Device();
         newDevice.set("name", name);
         newDevice.set("key", secrete); // will be hashed when the device is saved below.
@@ -69,7 +67,7 @@ export let postRegisterDevice = (req: Request, res: Response): void => {
     });
   };
 
-export let putDeviceName = (req: Request, res: Response): void => {
+export const putDeviceName = (req: Request, res: Response): void => {
   const m = "putDeviceName, tenantID=" + res.locals.tenantID;
   const Device: DeviceModel = res.locals.Device;
   const tenantID = res.locals.tenantID;
@@ -87,7 +85,6 @@ export let putDeviceName = (req: Request, res: Response): void => {
   Device.findOneAndUpdate(filter, update, option).then(device => {
       if (device) {
         const body = {name, deviceID, key: device.deviceID + ":" + device.key};
-        const bodyStr = JSON.stringify(body);
         log.info(label(m) + "Renamed device with deviceID=" + deviceID + " to " + name + "for tenantID=" + res.locals.tenantID);
         res.status(200).send(body);
       }
@@ -95,12 +92,13 @@ export let putDeviceName = (req: Request, res: Response): void => {
         log.error(label(m) + "Error renaming deviceID=" + deviceID + " for tenantID=" + res.locals.tenantID);
         res.status(404).send("Cannot rename device=" + name);
       }
-    }).catch(err => {
+    }).catch(() => {
       log.info(label(m) + "The device does not exist for tenantID=" + res.locals.tenantID);
       res.status(400).send("Cannot rename device");
   });
 };
-export let postDeviceData = (req: Request, res: Response): void => {
+
+export const postDeviceData = (req: Request, res: Response): void => {
   const m = "postDeviceData, tenantID=" + res.locals.tenantID;
   const Device: DeviceModel = res.locals.Device;
   const tenantID = res.locals.tenantID;
@@ -111,7 +109,6 @@ export let postDeviceData = (req: Request, res: Response): void => {
      res.status(422).json({ errors: errors.mapped() });
      return;
   }
-
   const statusTime: number = req.body.data.timestamp;
   const uptime: number = req.body.data.uptime;
   const filter = { deviceID: deviceID, tenantID: tenantID };
@@ -134,9 +131,7 @@ export let postDeviceData = (req: Request, res: Response): void => {
   });
 };
 
-type GetDeviceTokenBody = {deviceID: string, shared_access_key: string};
-
-export let getAllDevices = (req: Request, res: Response): void => {
+export const getAllDevices = (req: Request, res: Response): void => {
   const m = "getAllDevices, tenantID=" + res.locals.tenantID;
   const Device: DeviceModel = res.locals.Device;
   const tenantID = res.locals.tenantID;
@@ -147,6 +142,7 @@ export let getAllDevices = (req: Request, res: Response): void => {
      return;
   }
   const filter = { tenantID: tenantID };
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
   Device.find(filter)
   .then(devices => {
     const body: any = [];
@@ -155,10 +151,10 @@ export let getAllDevices = (req: Request, res: Response): void => {
     });
     log.info(label(m) + "get #devices" + devices.length);
     res.status(200).send(body); })
-  .catch((err) => res.status(404).end());
+  .catch(() => res.status(404).end());
 };
 
-export let getDevice = (req: Request, res: Response): void => {
+export const getDevice = (req: Request, res: Response): void => {
   const m = "getDevice, tenantID=" + res.locals.tenantID;
   const Device: DeviceModel = res.locals.Device;
   const tenantID = res.locals.tenantID;
@@ -178,7 +174,7 @@ export let getDevice = (req: Request, res: Response): void => {
   .catch((err) => res.status(404).send(err));
 };
 
-export let deleteDevice = (req: Request, res: Response): void => {
+export const deleteDevice = (req: Request, res: Response): void => {
   const m = "deleteDevice";
   const Device: DeviceModel = res.locals.Device;
   const tenantID = res.locals.tenantID;

@@ -1,7 +1,7 @@
 
 import * as jwt from "../../services/jwt/jwt-handler";
 import { default as User } from "./user-model";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import express from "express";
 
 import { body, check, validationResult } from "express-validator";
@@ -25,7 +25,7 @@ export const DeleteValidator = [
   check("email").normalizeEmail({ gmail_remove_dots: false }),
   body ("email", "Email is not valid").exists().isEmail(),
 ];
-export let postLogin = (req: Request, res: Response, next: NextFunction) => {
+export const postLogin = (req: Request, res: Response) => {
   const m = "postLogin";
 
   const errors = validationResult(req);
@@ -37,7 +37,7 @@ export let postLogin = (req: Request, res: Response, next: NextFunction) => {
 
   const email = req.body.email;
   const password = req.body.password;
-
+/* eslint-disable  @typescript-eslint/no-explicit-any */
   User.findOne({ email }, (err: any, user: UserDocument) => {
     const errorMsg = "Invalid username or password";
     if (err) {
@@ -63,7 +63,7 @@ export let postLogin = (req: Request, res: Response, next: NextFunction) => {
             res.status(200).send({email, token, tenantID: user.get("tenantID")});
             log.info(label(m) + "Signed JWT for user id=" + user.id + ", tenantID=" + user.tenantID);
           })
-          .catch(err => {
+          .catch(() => {
             res.status(401).send(errorMsg);
             log.error(label(m) + "Cannot sign JWT for user id=" + user.id + ", tenantID=" + user.tenantID);
           });
@@ -76,13 +76,13 @@ export let postLogin = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-export let postLogout = (req: Request, res: Response) => {
+export const postLogout = (req: Request, res: Response) => {
   const m = "logout";
   log.info(label(m) + "user");
   res.status(200).end();
 };
 
-export let postSignup = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+export const postSignup = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const m = "postSignup";
   log.info(label(m) + "New user sign-up request");
 
@@ -142,7 +142,7 @@ export let postSignup = (req: express.Request, res: express.Response, next: expr
   });
 };
 
-export let deleteUser = (req: express.Request, res: express.Response) => {
+export const deleteUser = (req: express.Request, res: express.Response) => {
   const m = "deleteUser, tenantID=" + res.locals.tenantID;
   log.info(label(m));
 

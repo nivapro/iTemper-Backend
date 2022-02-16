@@ -29,7 +29,7 @@ export function authorizeJWT(req: Request, res: Response, next: NextFunction) {
               log.info (label(m) + "request authorized for payload=" + JSON.stringify(payload));
               next();
             })
-            .catch (err => {
+            .catch (() => {
                 log.info (label(m) + "invalid token");
                 res.status(401).send("Erroneous token, log in again");
               });
@@ -64,13 +64,17 @@ export function authorizeJWT(req: Request, res: Response, next: NextFunction) {
           const token = headerValues.token.split(SEPARATOR);
           const deviceID = token[0];
           const key = token[1];
-
+          /* eslint-disable  @typescript-eslint/no-explicit-any */
           Device.findOne({ deviceID }, (err: any, device: DeviceDocument) => {
-            if (err ) { return next(err); }
+            if (err ) { 
+              log.error(label(m) + "Cannot find API Key, DeviceID=" + deviceID);
+              return next(err); 
+            }
             if (device) {
               device.comparePassword(key, (err: Error, isMatch: boolean) => {
                 if (err) {
-                  log.error(label(m) + "error=" + err);
+                  log.error(label(m) + "Cannot compare and match API Key, DeviceID=" + deviceID);
+                  return next(err); 
                 }
                 if (isMatch) {
                   log.info(label(m) + "Access authorized for DeviceID=" + device.deviceID + ", tenantID=" + device.tenantID);

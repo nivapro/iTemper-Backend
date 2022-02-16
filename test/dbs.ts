@@ -3,9 +3,6 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import * as UserDatabase from "../src/features/user/user-database";
 import * as TenantDatabase from "../src/features/tenant/tenant-database";
 
-import log from "../src/services/logger";
-
-
 const dbs: MongoMemoryServer [] = [];
 
 function DBConnectionString(): Promise<string> {

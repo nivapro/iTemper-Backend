@@ -30,13 +30,14 @@ const serverOptions: https.ServerOptions = {
 const server = https.createServer(serverOptions, app);
 
 const iTemperServer = server.listen(config.PORT, () => {
+
   log.info(
     "iTemper back-end app is running at port " + config.PORT +
     " in " + app.get("env") + " mode");
   log.info("Press CTRL-C to stop\n");
 });
-perMessageDeflate: false;
-export const wss = new WebSocket.Server({server: iTemperServer, clientTracking: true, perMessageDeflate: false} );
+
+export const wss = new WebSocket.Server({server: httpServer, clientTracking: true, perMessageDeflate: false, path: "/ws"} );
 
 monitor.init(wss);
 

@@ -14,7 +14,6 @@ dotenv.config({ path: ".env" });
 import path from "path";
 
 // Controllers (route handlers)
-import * as homeController from "./features/home/home-controller";
 import * as userController from "./features/user/user-controller";
 import * as sensorController from "./features/sensor/sensor-controller";
 import * as deviceController from "./features/device/device-controller";
@@ -40,14 +39,14 @@ export const app = expressWs(express()).app;
 app.use(errorHandler());
 
 const corsOptions = {
-  origin: ["https://itemper.io", "https://api.itemper.io", "http://localhost:8080", "https://localhost:8080"],
+  origin: ["https://itemper.io", "https://www.itemper.io", "http://localhost:8080", "https://localhost:8080"],
   allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "PUT", "POST", "OPTIONS", "DELETE"],
   credentials: true,
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 app.use(cors(corsOptions));
-app.options("*", cors());
+// app.options("*", cors());
 // app.options("*", cors()); // include before other routes
 
 // Common configuration
@@ -61,26 +60,22 @@ app.use(lusca.nosniff());
 app.set("trust proxy", "loopback, uniquelocal");
 const locationImageFolder = path.join(process.cwd(), "uploads");
 app.use("/uploads", express.static(locationImageFolder, { maxAge: 31557600000 }));
-log.info("app.ts locationImageFolder=" + locationImageFolder);
+log.info("app: locationImageFolder=" + locationImageFolder);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   log.debug("");
   log.debug("------------------ " +  req.method + " " + req.path + " ------------------------------");
-  log.debug("headers: " + JSON.stringify(req.headers));
-  log.debug("body:    " + JSON.stringify(req.body));
-  log.debug("params:  " + JSON.stringify(req.params));
-  log.debug("query:   " + JSON.stringify(req.query));
+  log.debug("app: headers: " + JSON.stringify(req.headers));
+  log.debug("app: body:    " + JSON.stringify(req.body));
+  log.debug("app: params:  " + JSON.stringify(req.params));
+  log.debug("app: query:   " + JSON.stringify(req.query));
   next();
 });
 
 // -------------- / & /public ----------------------------------
 app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
 
-
-
-// --------------------------------------------------------------
-// Routes with file uploads or forms
-// --------------------------------------------------------------
+// Routes with file upload or forms
 
 // -------------- /Wooecommerce webhooks ------------------------
 app.get("/sales", sensorController.notImplemented);

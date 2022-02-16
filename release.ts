@@ -1,12 +1,11 @@
 "use strict";
 import * as shell from "shelljs";
-const version = require("./package").version;
-const name = require("./package").name;
+import { version, name } from './package.json';
 
 console.log("release.ts: releasing " + name + " version: ", version);
 
 const archiveName = name + "_" + version + ".tar";
-const compressedArchiveName = archiveName + ".gz";
+
 const releaseFolder = "./release/";
 const archivePath = releaseFolder + archiveName;
 const releasePath = archivePath + ".gz";
