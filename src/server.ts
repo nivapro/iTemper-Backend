@@ -29,7 +29,7 @@ const serverOptions: https.ServerOptions = {
 };
 const server = https.createServer(serverOptions, app);
 
-const iTemperServer = server.listen(config.PORT, () => {
+const httpServer = server.listen(config.PORT, () => {
 
   log.info(
     "iTemper back-end app is running at port " + config.PORT +
