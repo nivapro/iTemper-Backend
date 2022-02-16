@@ -29,7 +29,7 @@ export function authorizeJWT(req: Request, res: Response, next: NextFunction) {
               log.info (label(m) + "request authorized for payload=" + JSON.stringify(payload));
               next();
             })
-            .catch (err => {
+            .catch (() => {
                 log.info (label(m) + "invalid token");
                 res.status(401).send("Erroneous token, log in again");
               });
@@ -64,13 +64,17 @@ export function authorizeJWT(req: Request, res: Response, next: NextFunction) {
           const token = headerValues.token.split(SEPARATOR);
           const deviceID = token[0];
           const key = token[1];
-
+          /* eslint-disable  @typescript-eslint/no-explicit-any */
           Device.findOne({ deviceID }, (err: any, device: DeviceDocument) => {
-            if (err ) { return next(err); }
+            if (err ) { 
+              log.error(label(m) + "Cannot find API Key, DeviceID=" + deviceID);
+              return next(err); 
+            }
             if (device) {
               device.comparePassword(key, (err: Error, isMatch: boolean) => {
                 if (err) {
-                  log.error(label(m) + "error=" + err);
+                  log.error(label(m) + "Cannot compare and match API Key, DeviceID=" + deviceID);
+                  return next(err); 
                 }
                 if (isMatch) {
                   log.info(label(m) + "Access authorized for DeviceID=" + device.deviceID + ", tenantID=" + device.tenantID);
@@ -80,24 +84,24 @@ export function authorizeJWT(req: Request, res: Response, next: NextFunction) {
                   next();
                 } else {
                   log.info (label(m) + "Access DENIED for deviceID=" + deviceID + ", tenantID=" + device.tenantID);
-                  res.status(404).send("Invalid shared access key");
+                  res.status(401).send("Invalid shared access key");
                 }
               });
             } else {
               log.debug (label(m) + "Device not found, deviceID=" + deviceID);
-              res.status(404).send("Device not found");
+              res.status(401).send("Device not found");
             }
           });
         } else {
           log.debug (label(m) + "header Authorization bearer expected");
-          res.status(401).send("Erroneous authorization header value, expected Authorization bearer <token> but got " + reqHeader);
+          res.status(400).send("Erroneous authorization header value, expected Authorization bearer <token> but got " + reqHeader);
         }
       } else {
         log.debug (label(m) + "header Authorization bearer expected");
-        res.status(401).send("Invalid authorization header, expected Authorization bearer <token> but got " + reqHeader);
+        res.status(400).send("Invalid authorization header, expected Authorization bearer <token> but got " + reqHeader);
       }
     } else {
       log.debug (label(m) + "Authentication header missing, req.headers=" + JSON.stringify(req.headers));
-      res.status(401).send("No authentication information provided");
+      res.status(400).send("No authentication information provided");
     }
   }

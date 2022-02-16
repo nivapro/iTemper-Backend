@@ -67,7 +67,7 @@ export const SensorSchema = new mongoose.Schema({
   // usePushEach: Enables push of each sensors value, otherwise the pushed values
   // will be treated as a separate array object in the samples array
   {
-    usePushEach: true
+    // usePushEach: true
   });
 
 

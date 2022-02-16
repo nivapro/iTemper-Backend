@@ -1,15 +1,16 @@
 
 
 import * as WebSocket from "ws";
-import * as http from "http";
 import log from "../../services/logger";
 import { Descriptor, SensorLog } from "./../sensor/sensor-model";
 
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 export interface InboundMessage {
     command: "startMonitor" | "stopMonitor";
     data: any;
 }
 
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 export interface OutboundMessage {
     command: "sensors" | "settings"| "setting" |  "log" | "ping";
     data: any;

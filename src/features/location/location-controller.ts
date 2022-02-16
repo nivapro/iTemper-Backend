@@ -5,12 +5,7 @@ import { Response, Request } from "express";
 import { body, param, validationResult, ValidationChain } from "express-validator";
 import { Model } from "mongoose";
 import { LocationDocument } from "./location-model";
-import { ISensor, Descriptor } from "../sensor/sensor-model";
 import path from "path";
-
-
-import multer from "multer";
-import { json } from "body-parser";
 
 const moduleName = "location-controller.";
 function label(name: string): string {
@@ -42,7 +37,7 @@ export const updateNameFieldValidator = [LocationIDValidator, NameValidator];
 export const updateColorFieldValidator = [LocationIDValidator, ColorValidator];
 export const updateSensorsFieldValidator = [LocationIDValidator, SensorDescValidator];
 
-export let postCreateLocation = (req: Request, res: Response): void => {
+export const postCreateLocation = (req: Request, res: Response): void => {
     const m = "postCreateLocation, " + res.locals.tenantID;
     const Location: Model<LocationDocument> = res.locals.Location ;
 
@@ -69,7 +64,7 @@ export let postCreateLocation = (req: Request, res: Response): void => {
           const filename = file.filename + path.extname(file.originalname);
           const finalPath = locationImageFolder + filename;
           newLocation.set("path", finalPath);
-          move(file.path, finalPath, (err) => {
+          move(file.path, locationImageFolder, filename, (err) => {
             if (err) {
               log.error(label(m) +  "Cannot move " + file.path +
                                     " to destination " + finalPath + ", err=" + JSON.stringify(err));
@@ -95,10 +90,9 @@ export let postCreateLocation = (req: Request, res: Response): void => {
     });
   };
 
-export let getAllLocations = (req: Request, res: Response): void => {
+export const getAllLocations = (req: Request, res: Response): void => {
   const m = "getAllLocations, " + res.locals.tenantID;
   const Location: Model<LocationDocument> = res.locals.Location ;
-  const Sensor: Model<ISensor> = res.locals.Sensor;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -118,10 +112,9 @@ export let getAllLocations = (req: Request, res: Response): void => {
   });
 };
 
-export let putName = (req: Request, res: Response): void => {
+export const putName = (req: Request, res: Response): void => {
   const m = "putName, " + res.locals.tenantID;
   const Location: Model<LocationDocument> = res.locals.Location ;
-  const Sensor: Model<ISensor> = res.locals.Sensor;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -137,7 +130,6 @@ export let putName = (req: Request, res: Response): void => {
   Location.findOneAndUpdate(filter, update, option).then(location => {
       if (location) {
         const body = location;
-        const bodyStr = JSON.stringify(body);
         log.info(label(m) + "Renamed location name with locationID=" + locationID + " to " + name);
         res.status(200).send(body);
       }
@@ -145,16 +137,15 @@ export let putName = (req: Request, res: Response): void => {
         log.error(label(m) + "Error renaming locationID=" + locationID );
         res.status(404).send("Cannot rename location to" + name);
       }
-    }).catch(err => {
+    }).catch(() => {
       log.info; (label(m) + "The device does not exist");
       res.status(404).send("Cannot rename location");
     });
   };
 
-export let putColor = (req: Request, res: Response): void => {
+export const putColor = (req: Request, res: Response): void => {
   const m = "putColor, " + res.locals.tenantID;
   const Location: Model<LocationDocument> = res.locals.Location ;
-  const Sensor: Model<ISensor> = res.locals.Sensor;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -169,8 +160,7 @@ export let putColor = (req: Request, res: Response): void => {
 
   Location.findOneAndUpdate(filter, update, option).then(location => {
       if (location) {
-        const body = location;
-        const bodyStr = JSON.stringify(body);
+        const body =  location;
         log.info(label(m) + "Updated location color with locationID=" + locationID + " to " + color);
         res.status(200).send(body);
       }
@@ -178,15 +168,15 @@ export let putColor = (req: Request, res: Response): void => {
         log.error(label(m) + "Error updating location color, locationID=" + locationID );
         res.status(404).send("Cannot update location color to " + color);
       }
-    }).catch(err => {
+    }).catch(() => {
       log.info; (label(m) + "The location does not exist");
       res.status(404).send("Cannot update location color");
     });
   };
-export let putFile = (req: Request, res: Response): void => {
+export const putFile = (req: Request, res: Response): void => {
   const m = "putFile, " + res.locals.tenantID;
-  const Location: Model<LocationDocument> = res.locals.Location ;
-  const Sensor: Model<ISensor> = res.locals.Sensor;
+  const Location: Model<LocationDocument> = res.locals.Location;
+
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -198,7 +188,7 @@ export let putFile = (req: Request, res: Response): void => {
   const locationImageFolder = file.destination + res.locals.tenantID + "/locations/";
   const filename = file.filename + path.extname(file.originalname);
   const finalPath = locationImageFolder + filename;
-  move(file.path, finalPath, (err) => {
+  move(file.path, locationImageFolder, filename, (err) => {
     if (err) {
       log.error(label(m) +  "Cannot move image " + file.path +
                             " to destination " + finalPath + ", err=" + JSON.stringify(err));
@@ -212,7 +202,7 @@ export let putFile = (req: Request, res: Response): void => {
 
       Location.findOneAndUpdate(filter, update, option).then(location => {
           if (location) {
-            const body = location;
+            const body  =  location;
             log.info(label(m) + "Updated background image of locationID=" + locationID);
             res.status(200).send(body);
           }
@@ -220,7 +210,7 @@ export let putFile = (req: Request, res: Response): void => {
             log.error(label(m) + "Error updating location image, locationID=" + locationID );
             res.status(404).send("Cannot update location background image: " + file.originalname);
           }
-        }).catch(err => {
+        }).catch(() => {
           log.error(label(m) + "The location does not exist");
           res.status(404).send("Cannot update location background");
         });
@@ -228,10 +218,9 @@ export let putFile = (req: Request, res: Response): void => {
   });
 
   };
-export let putSensors = (req: Request, res: Response): void => {
+export const putSensors = (req: Request, res: Response): void => {
   const m = "putSensors, " + res.locals.tenantID;
   const Location: Model<LocationDocument> = res.locals.Location ;
-  const Sensor: Model<ISensor> = res.locals.Sensor;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -254,15 +243,14 @@ export let putSensors = (req: Request, res: Response): void => {
         log.error(label(m) + "Error updating sensors, locationID=" + locationID );
         res.status(404).send("Cannot update location sensors to " + JSON.stringify(sensorDesc));
       }
-    }).catch(err => {
+    }).catch(() => {
       log.info; (label(m) + "The location does not exist");
       res.status(404).send("Cannot update location sensors");
     });
   };
-export let deleteLocation = (req: Request, res: Response): void => {
+export const deleteLocation = (req: Request, res: Response): void => {
   const m = "deleteLocation, " + res.locals.tenantID;
   const Location: Model<LocationDocument> = res.locals.Location ;
-  const Sensor: Model<ISensor> = res.locals.Sensor;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -275,7 +263,7 @@ export let deleteLocation = (req: Request, res: Response): void => {
   Location.findOneAndRemove(filter).then(location => {
     if (location) {
       log.info(label(m) + "Deleted locationID=" + location._id);
-      const body = location;
+      const body =  location;
       res.status(200).send(body);
     } else {
       log.debug(label(m) + "The location does not exist");

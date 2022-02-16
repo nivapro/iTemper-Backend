@@ -7,11 +7,9 @@ const request = supertest(app);
 
 import * as TestDbs from "./dbs";
 
-let token: string = "";
-let tenantID: string = "";
-let name: string = "";
-let deviceID: string = "";
-let key: string = "";
+let token = "";
+let deviceID = "";
+let key = "";
 
 beforeAll(async done => {
   TestDbs.initDatabases();
@@ -26,7 +24,6 @@ beforeAll(async done => {
   expect(res.body.token).toBeDefined();
   expect(res.body.tenantID).toBeDefined();
   token = res.body.token;
-  tenantID = res.body.tenantID;
 
   res = await request
   .post("/devices")
@@ -38,7 +35,6 @@ beforeAll(async done => {
   expect(res.body.name).toBeDefined();
   expect(res.body.deviceID).toBeDefined();
   expect(res.body.key).toBeDefined();
-  name = res.body.name;
   deviceID = res.body.deviceID;
   key = res.body.key;
   log.debug("deviceID.test.beforeAll: deviceID=" + deviceID);

@@ -21,14 +21,14 @@ const httpServer: http.Server = http.createServer(app);
 
 app.set("port", process.env.PORT || 3000);
 
-const iTemperServer = httpServer.listen(app.get("port"), () => {
+httpServer.listen(app.get("port"), () => {
   log.info(
     "iTemper back-end app is running at port " + app.get("port") +
     " in " + app.get("env") + " mode");
   log.info("Press CTRL-C to stop\n");
 });
 
-export const wss = new WebSocket.Server({server: httpServer, clientTracking: true} );
+export const wss = new WebSocket.Server({server: httpServer, clientTracking: true, perMessageDeflate: false, path: "/ws"} );
 
 monitor.init(wss);
 
@@ -43,13 +43,13 @@ wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
   });
 
   ws.on("message", (data: Buffer): void => {
-    log.debug("server.wss.on (message):  message=" + data.toString());
+    log.info("server.wss.on (message):  message=" + data.toString());
 
     monitor.parseInboundMessage(ws, data);
 
   });
 
   ws.on("error", (err): void => {
-      log.debug("ws.on: Error: " + err);
+      log.error("ws.on: Error: " + err);
     });
 } );

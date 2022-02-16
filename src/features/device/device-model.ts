@@ -1,14 +1,8 @@
 import mongoose from "mongoose";
 
-import log from "../../services/logger";
-
 import * as crypto from "../../services/crypto";
 
-const moduleName = "device-model.";
-function label(name: string): string {
-  return moduleName + name + ": ";
-}
-
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 export interface DeviceInterface {
     name: string;
     deviceID: string;
@@ -48,7 +42,6 @@ DeviceSchema.pre<DeviceDocument>("save", function save(next) {
   });
 
 DeviceSchema.methods.comparePassword = function (candidateKey: string, cb: (err: any, isMatch: boolean) => void) {
-    const m = "DeviceSchema.methods.comparePassword ";
     const device = this;
     crypto.compare(candidateKey, device.hash, cb);
   };

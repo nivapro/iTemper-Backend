@@ -16,15 +16,15 @@ afterAll((done) => {
   TestDbs.closeDatabases();
   done();
 });
-let token: string = "";
-let tenantID: string = "";
+let token = "";
+let tenantID = "";
 
 describe("POST /", () => {
-  test("should return 404", async done => {
+  test("should return 200", async done => {
     const res = await request
     .post("/")
     .send({});
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(200);
     done();
   });
 });

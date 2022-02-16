@@ -1,4 +1,5 @@
 "use strict";
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import log from "../../services/logger";
 import * as util from "../../services/util";
 
@@ -40,7 +41,7 @@ export const postDataValidator = [
 ];
 
 // Get all sensors
-export let getSensors = (req: Request, res: Response) => {
+export const getSensors = (req: Request, res: Response) => {
   const m = "getSensors" + ", tenantID=" + res.locals.tenantID;
   const Sensor: Model<ISensor> = res.locals.Sensor ;
   log.debug(label(m) + "begin");
@@ -97,7 +98,7 @@ export let getSensors = (req: Request, res: Response) => {
         });
     } else {
         Sensor.find( {}, {"samples": { $slice: -samples }},
-          function(err, sensors) {
+          function(err: any, sensors: any) {
             if (err) {
               res.status(503).send(JSON.stringify(err));
             } else if (sensors.length === 0) {
@@ -105,7 +106,7 @@ export let getSensors = (req: Request, res: Response) => {
               res.status(200).end();
             } else {
                 log.info(label(m) + "Sensor samples found and sent");
-                res.status(200).send(JSON.stringify(sensors));
+                res.status(200).send(sensors);
             }});
     }
   } catch (e) {
@@ -114,15 +115,14 @@ export let getSensors = (req: Request, res: Response) => {
   }
 };
 
-export let getSensorsSN = (req: Request, res: Response) => {
+export const getSensorsSN = (req: Request, res: Response) => {
   const Sensor: Model<ISensor> = res.locals.Sensor ;
   log.debug("getSensorsSN: " + req.query.toString());
   try {
 
     res.setHeader("Content-Type", "application/json");
 
-    const onlySN: boolean = true;
-    let samples: number = 1;
+    let samples = 1;
 
     if (req.query.samples) {
       query("samples").isInt({ min: 1, max: 99 });
@@ -138,24 +138,24 @@ export let getSensorsSN = (req: Request, res: Response) => {
     Sensor.find({ "desc.SN": req.params.sn}, { "samples": { $slice: -samples }},
       function(err: any, sensors: SensorInterface[]) {
         if (err) {
-          res.status(400).send(JSON.stringify(err));
+          res.status(503).send();
         } else if (sensors.length === 0) {
           res.status(404).end();
         } else {
-            res.status(200).send(JSON.stringify(sensors));
+            res.status(200).send(sensors);
         }});
   } catch (e) {
-    res.status(404).end();
+    res.status(400).end();
   }
 
 };
-export let getSensorsSNPort = (req: Request, res: Response) => {
+export const getSensorsSNPort = (req: Request, res: Response) => {
   const Sensor: Model<ISensor> = res.locals.Sensor ;
   log.debug("getSensorsSNPort: " + req.query.toString());
   try {
     res.setHeader("Content-Type", "application/json");
 
-    let samples: number = 1;
+    let samples = 1;
 
     if (req.query.samples) {
       query("samples").isInt({ min: 1, max: 99 });
@@ -172,11 +172,11 @@ export let getSensorsSNPort = (req: Request, res: Response) => {
         .select( {"samples": { $slice: -samples }})
         .exec(function(err, sensors) {
           if (err) {
-            res.status(400).send(JSON.stringify(err));
+            res.status(503).send();
           } else if (sensors.length === 0) {
             res.status(404).end();
           } else {
-              res.status(200).send(JSON.stringify(sensors));
+              res.status(200).send(sensors);
           }});
   } catch (e) {
     res.status(404).end();
@@ -186,7 +186,7 @@ export let getSensorsSNPort = (req: Request, res: Response) => {
 
 
 // Create a sensor
-export let postSensors = (req: Request, res: Response) => {
+export const postSensors = (req: Request, res: Response) => {
   const m = "postSensors" + ", tenantID=" + res.locals.tenantID;
   log.debug(label(m) + "res.locals.Sensor=" + util.stringify(res.locals.Sensor));
   const Sensor: Model<ISensor> = res.locals.Sensor ;
@@ -207,7 +207,7 @@ export let postSensors = (req: Request, res: Response) => {
         return res.status(308).send({deviceID, name: deviceName});
     }
 
-    Sensor.findOne({ "desc.SN": desc.SN, "desc.port": desc.port }, "desc", function (err, sensor) {
+    Sensor.findOne({ "desc.SN": desc.SN, "desc.port": desc.port }, "desc", function (err: any, sensor: any) {
       log.debug(label(m) + "findOne sensor=" + JSON.stringify(sensor));
       if (sensor === null) {
             // Sensor does not exist, let's create and save it
@@ -236,7 +236,7 @@ export let postSensors = (req: Request, res: Response) => {
 
 
 // Called by devices when logging sensor data
-export let postSensorData = (req: Request, res: Response) => {
+export const postSensorData = (req: Request, res: Response) => {
   const m = "postSensorData" + ", tenantID=" + res.locals.tenantID;
   log.debug(label(m) + "res.locals.sub=" + util.stringify(res.locals.sub));
 
@@ -289,7 +289,7 @@ export let postSensorData = (req: Request, res: Response) => {
 };
 
 // Delete a sensor
-export let postDeleteSensors = (req: Request, res: Response) => {
+export const postDeleteSensors = (req: Request, res: Response) => {
   const m = "postDeleteSensors" + ", tenantID=" + res.locals.tenantID;
   const Sensor: Model<ISensor> = res.locals.Sensor ;
 
@@ -302,7 +302,7 @@ export let postDeleteSensors = (req: Request, res: Response) => {
     }
 
     const desc: Descriptor = req.body.desc;
-    Sensor.findOneAndRemove({ "desc.SN": desc.SN, "desc.port": desc.port }, function(err, sensor) {
+    Sensor.findOneAndRemove({ "desc.SN": desc.SN, "desc.port": desc.port }, function(err: any, sensor: any) {
       if (err) {
         log.error(label(m) + "error=" + JSON.stringify(err));
         res.status(503).end();
@@ -316,8 +316,15 @@ export let postDeleteSensors = (req: Request, res: Response) => {
 
 };
 
-export let notImplemented = (req: Request, res: Response) => {
-  log.error("notImplemented: method not implemented");
-  res.setHeader("Content-Type", "application/json");
-  res.status(400).end();
+export const notImplemented = (req: Request, res: Response) => {
+  log.info("notImplemented: method not implemented");
+  const method = req.method;
+  const headers = req.headers;
+  const url = req.url;
+  const body = req.body;
+  log.info("- Method: " + JSON.stringify(method));
+  log.info("- Headers: " + JSON.stringify(headers));
+  log.info("- url: " + JSON.stringify(url));
+  log.info("- body: " + JSON.stringify(body));
+  res.status(200).end();
 };
