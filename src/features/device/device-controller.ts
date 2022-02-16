@@ -5,7 +5,7 @@ import * as crypto from "../../services/crypto";
 import { Response, Request } from "express";
 import { body, param, validationResult, ValidationChain } from "express-validator";
 import { DeviceModel } from "./device-model";
-import { DeviceData, formatDeviceData } from "./device-status";
+import { formatDeviceData } from "./device-status";
 
 const moduleName = "device-controller.";
 function label(name: string): string {
