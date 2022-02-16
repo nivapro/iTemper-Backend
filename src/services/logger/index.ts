@@ -69,7 +69,7 @@ private _name: string;
     private message(message: string): string {
       // return `${level}: ${timestamp} [${label}]: ${message}`;
       const time = new Date().toISOString();
-      const msg = time + " [itemper-backend]: config: " + message;
+      const msg = time + " [itemper-backend]: " + message;
       return msg;
   }
 
