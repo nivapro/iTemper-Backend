@@ -9,7 +9,7 @@ export interface UserInfo {
     username: string;
     uid: number;
     gid: number;
-    shell: string;
+    shell: any;
     homedir: string;
 }
 export interface NetworkInterfaceInfo {
@@ -39,11 +39,10 @@ export interface DeviceData {
 }
 
 export function formatDeviceData (data: DeviceData): string {
-    let report = "";
+    let report: string = "";
     report += "time: " + data.timestamp.toLocaleString();
     report += ", hostname" + data.hostname;
     report += ", uptime" + data.uptime;
     report += ", networkInterfaces" + JSON.stringify(data.networkInterfaces);
     return report;
-
 }

@@ -75,11 +75,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // -------------- / & /public ----------------------------------
 app.use(express.static(path.join(__dirname, "public"), { maxAge: 31557600000 }));
 
+app.get("/", homeController.getHome);
 
 
-// --------------------------------------------------------------
-// Routes with file uploads or forms
-// --------------------------------------------------------------
+// Routes with file upload or forms
 
 // -------------- /Wooecommerce webhooks ------------------------
 app.get("/sales", sensorController.notImplemented);

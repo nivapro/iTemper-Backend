@@ -5,13 +5,12 @@ import * as crypto from "../../services/crypto";
 import { Response, Request } from "express";
 import { body, param, validationResult, ValidationChain } from "express-validator";
 import { DeviceModel } from "./device-model";
-import { formatDeviceData } from "./device-status";
+import { DeviceData, formatDeviceData } from "./device-status";
 
 const moduleName = "device-controller.";
 function label(name: string): string {
   return moduleName + name + ": ";
 }
-
 
 const DeviceIDValidator: ValidationChain = param ("deviceID").exists().isUUID(4);
 const DataValidator: ValidationChain = body ("data", "Device data not found").exists();
@@ -43,7 +42,6 @@ export const postRegisterDevice = (req: Request, res: Response): void => {
         // Device does not exist, let's create one
         const deviceID = crypto.uuid();
         const secrete = crypto.uuid();
-
         const newDevice = new Device();
         newDevice.set("name", name);
         newDevice.set("key", secrete); // will be hashed when the device is saved below.
@@ -98,6 +96,7 @@ export const putDeviceName = (req: Request, res: Response): void => {
       res.status(400).send("Cannot rename device");
   });
 };
+
 export const postDeviceData = (req: Request, res: Response): void => {
   const m = "postDeviceData, tenantID=" + res.locals.tenantID;
   const Device: DeviceModel = res.locals.Device;
@@ -109,7 +108,6 @@ export const postDeviceData = (req: Request, res: Response): void => {
      res.status(422).json({ errors: errors.mapped() });
      return;
   }
-
   const statusTime: number = req.body.data.timestamp;
   const uptime: number = req.body.data.uptime;
   const filter = { deviceID: deviceID, tenantID: tenantID };

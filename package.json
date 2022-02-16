@@ -1,6 +1,6 @@
 {
     "name": "itemper-backend",
-    "version": "0.0.43",
+    "version": "0.0.44",
     "description": "iTemper.io server implementation",
     "repository": {
         "type": "git",
@@ -92,7 +92,7 @@
         "snyk": "^1.323.1",
         "supertest": "^4.0.2",
         "ts-jest": "^24.3.0",
-        "ts-node": "^5.0.1",
+        "ts-node": "^10.4.0",
         "tsutil": "^6.1.1",
         "typescript": "^4.5.4"
     }
