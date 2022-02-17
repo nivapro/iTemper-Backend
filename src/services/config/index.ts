@@ -20,10 +20,12 @@ function checkConfiguration () {
     }
 }
 // Verifies a environment variable
-function getEnv(env: string): string {
-    const val = process.env[env];
+
+function getEnv(env: string, redact = false): string {
+    let val = process.env[env];
     if (val) {
-        log(env + " environment variable found, [" + val + "]");
+        val = redact ? "********* (redacted)" : val;
+        log(env + " environment variable found, value=[" + val + "]");
     } 
     else {
         configError = true;
@@ -33,11 +35,15 @@ function getEnv(env: string): string {
 }
 
 // Get all environment variables
-export const JWT_SECRET = getEnv("JWT_SECRET");
+export const JWT_SECRET = getEnv("JWT_SECRET", true);
 
-export const SALT = getEnv("SALT");
+export const SALT = getEnv("SALT", true);
 
 export const LOG_LEVEL = getEnv("LOG_LEVEL");
+
+export const PORT = getEnv("PORT");
+
+export const WEBSOCKET=getEnv("WEBSOCKET");
 
 const MONGODB_URI = getEnv("MONGODB_URI");
 
@@ -48,21 +54,24 @@ let userDBConnectionStr: string = MONGODB_URI  + ":" + parseInt(MONGODB_PORT);
 checkConfiguration();
 
 export function setUserDBConnectionString(connectionString: string) {
-    log ("setUserDBConnectionString: " + connectionString);
+    const msg = "console.info: [itemper-backend]: config.setUserDBConnectionString: " + connectionString;
+    console.info(chalk.green(msg));
 
     userDBConnectionStr = connectionString;
 }
 export function userDBConnectionString(): Promise<string> {
     return new Promise (resolve => {
         const connectionString = userDBConnectionStr + "/Directory";
-        log("userDBConnectionString: " + connectionString);
+        const msg = "console.info: [itemper-backend]: config.userDBConnectionString: " + connectionString;
+        console.info(chalk.green(msg));
         resolve(connectionString);
     });
 }
 export function tenantDBConnectionString(tenantID: string): Promise<string> {
     return new Promise (resolve => {
         const connectionString = userDBConnectionStr + "/" + tenantID;
-        log("tenantDBConnectionString: " + connectionString);
+        const msg = "console.info: config.tenantDBConnectionString: " + connectionString;
+        console.info(chalk.green(msg));
         resolve( connectionString);
     });
 }

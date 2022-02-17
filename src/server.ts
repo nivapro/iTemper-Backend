@@ -1,7 +1,12 @@
+import * as config from "./services/config";
 import log from "./services/logger";
 
+import * as https from "https";
 import * as http from "http";
+
 import { app } from "./app";
+
+import * as fs from "fs";
 
 import * as monitor from "./features/monitor/monitor";
 
@@ -17,39 +22,51 @@ TenantDatabase.initialize(tenantDBConnectionString);
 
 import * as WebSocket from "ws";
 
-const httpServer: http.Server = http.createServer(app);
 
-app.set("port", process.env.PORT || 3000);
+const serverOptions: https.ServerOptions = {
+  key: fs.readFileSync("./certs/server-cert.key"),
+  cert: fs.readFileSync("./certs/server-cert.pem"),
+};
+const server = https.createServer(serverOptions, app);
 
-httpServer.listen(app.get("port"), () => {
+export let wss: WebSocket.Server;
+
+if (config.WEBSOCKET === 'true') {
+  log.debug('server: Configuring WebSockets')
+   wss = new WebSocket.Server({noServer: true, clientTracking: true, perMessageDeflate: false, path: "/ws"} );
+
+  monitor.init(wss);
+  
+  wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
+  
+    log.info("server.wss.on(connection): new connection from client, url/headers: " + ws.url + "/" + JSON.stringify(request.headers));
+    const message = {command: "ping", data: "Hello world from server"};
+    ws.send(JSON.stringify(message));
+  
+    ws.on("close", (ws: WebSocket, code: number, reason: string): void => {
+      log.info("server.wss.on(close): Websocket: " + ws.url + " + code: " + code +  "reason: " + reason);
+    });
+  
+    ws.on("message", (data: Buffer): void => {
+      log.info("server.wss.on (message):  message=" + data.toString());
+  
+      monitor.parseInboundMessage(ws, data);
+  
+    });
+  
+    ws.on("error", (err): void => {
+        log.error("ws.on: Error: " + err);
+    });
+  } );
+  log.info('server: WebSockets configured')
+} else {
+  log.info('server: No WebSockets')
+}
+
+const httpServer = server.listen(config.PORT, () => {
+
   log.info(
-    "iTemper back-end app is running at port " + app.get("port") +
+    "iTemper back-end app is running at port " + config.PORT +
     " in " + app.get("env") + " mode");
   log.info("Press CTRL-C to stop\n");
 });
-
-export const wss = new WebSocket.Server({server: httpServer, clientTracking: true, perMessageDeflate: false, path: "/ws"} );
-
-monitor.init(wss);
-
-wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
-
-  log.info("server.wss.on(connection): new connection from client, url/headers: " + ws.url + "/" + JSON.stringify(request.headers));
-  const message = {command: "ping", data: "Hello world from server"};
-  ws.send(JSON.stringify(message));
-
-  ws.on("close", (ws: WebSocket, code: number, reason: string): void => {
-    log.info("server.wss.on(close): Websocket: " + ws.url + " + code: " + code +  "reason: " + reason);
-  });
-
-  ws.on("message", (data: Buffer): void => {
-    log.info("server.wss.on (message):  message=" + data.toString());
-
-    monitor.parseInboundMessage(ws, data);
-
-  });
-
-  ws.on("error", (err): void => {
-      log.error("ws.on: Error: " + err);
-    });
-} );

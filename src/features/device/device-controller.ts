@@ -12,12 +12,12 @@ function label(name: string): string {
   return moduleName + name + ": ";
 }
 
-
 const DeviceIDValidator: ValidationChain = param ("deviceID").exists().isUUID(4);
 const DataValidator: ValidationChain = body ("data", "Device data not found").exists();
 const DataTimestampValidator: ValidationChain = body ("data.timestamp", "Device data timestamp not found").exists().isNumeric();
 const DataUptimeValidator: ValidationChain = body ("data.uptime", "Device data timestamp not found").exists().isNumeric();
-const NameValidator: ValidationChain = body ("name", "Device name is not valid, must be alphanumeric 4-32 characters").exists().trim().isAlphanumeric().isLength({min: 4, max: 32});
+const NameValidator: ValidationChain = body ("name", "Device name is not valid, must be alphanumeric 4-32 characters")
+  .exists().trim().isLength({min: 4, max: 32}).matches("/^[0-9A-Z-]+$/i");
 const NoNameValidator: ValidationChain = param ("name").not().exists();
 
 export const DeviceIDFieldValidator = [DeviceIDValidator];
@@ -43,7 +43,6 @@ export const postRegisterDevice = (req: Request, res: Response): void => {
         // Device does not exist, let's create one
         const deviceID = crypto.uuid();
         const secrete = crypto.uuid();
-
         const newDevice = new Device();
         newDevice.set("name", name);
         newDevice.set("key", secrete); // will be hashed when the device is saved below.
@@ -98,6 +97,7 @@ export const putDeviceName = (req: Request, res: Response): void => {
       res.status(400).send("Cannot rename device");
   });
 };
+
 export const postDeviceData = (req: Request, res: Response): void => {
   const m = "postDeviceData, tenantID=" + res.locals.tenantID;
   const Device: DeviceModel = res.locals.Device;
@@ -109,7 +109,6 @@ export const postDeviceData = (req: Request, res: Response): void => {
      res.status(422).json({ errors: errors.mapped() });
      return;
   }
-
   const statusTime: number = req.body.data.timestamp;
   const uptime: number = req.body.data.uptime;
   const filter = { deviceID: deviceID, tenantID: tenantID };

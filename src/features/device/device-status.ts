@@ -45,5 +45,4 @@ export function formatDeviceData (data: DeviceData): string {
     report += ", uptime" + data.uptime;
     report += ", networkInterfaces" + JSON.stringify(data.networkInterfaces);
     return report;
-
 }
