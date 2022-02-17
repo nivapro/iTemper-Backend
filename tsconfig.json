@@ -24,6 +24,7 @@
         "outDir": "dist",
         "baseUrl": "./src",
         "lib": ["es2021", "DOM"],
+        "resolveJsonModule" : true,
         "forceConsistentCasingInFileNames": true,
         "importHelpers": true,
         "paths": {
@@ -38,6 +39,6 @@
         }
     },
     "include": [
-        "src/**/*"
+        "./**/*"
     ]
 }

@@ -1,5 +1,4 @@
 version: '3'
-
 services:
   webserver:
     image: itemper-nginx
@@ -11,26 +10,50 @@ services:
     volumes:
       - web-logs:/var/log/nginx
       - web-root:/usr/share/nginx/html
-      - web-conf:/etc/nginx
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
-      - dhparam:/etc/ssl/certs
-
-  # certbot:
-  #   image: certbot/certbot
-  #   container_name: certbot
-  #   volumes:
-  #     - certbot-etc:/etc/letsencrypt
-  #     - certbot-var:/var/lib/letsencrypt
-  #     - web-root:/usr/share/nginx/html
-  #   depends_on:
-  #     - webserver
-  #   command: certonly --webroot --webroot-path=/usr/share/nginx/html --email torbjorn.vading@nivapro.com --agree-tos --no-eff-email --force-renewal  -d itemper.io -d www.itemper.io -d userapi.itemper.io
-
+#  certbot:
+#    image: certbot/certbot
+#    container_name: certbot
+#    volumes:
+#      - certbot-etc:/etc/letsencrypt
+#      - certbot-var:/var/lib/letsencrypt
+#      - web-root:/usr/share/nginx/html
+#    depends_on:
+#      - webserver
+#    command: certonly --webroot --webroot-path=/usr/share/nginx/html --email torbjorn.vading@nivapro.com --agree-tos --no-eff-email --force-renewal  -d itemper.io -d www.itemper.io -d userapi.itemper.io
+  itemper-web:
+    image: tova/itemper-web
+    container_name: itemper-web
+    volumes:
+      - web-root:/usr/share/nginx/html
+    depends_on:
+     - webserver
+    command: cp -r -u /itemper /usr/share/nginx/html
+  itemper:
+    container_name: itemper-backend
+    restart: always
+    image: tova/itemper
+    ports:
+      - "3000:3000"
+    depends_on:
+      - webserver
+      - mongo
+    env_file:
+      - ./.env
+    volumes:
+      - uploads:/usr/src/app/uploads
+  mongo:
+    container_name: mongo
+    image: mongo
+    volumes:
+      - mongodb:/data/db
+    ports:
+      - "27017:27017"
 volumes:
+  mongodb:
+  uploads:
   web-logs:
   web-root:
-  web-conf:
   certbot-etc:
   certbot-var:
-  dhparam:
