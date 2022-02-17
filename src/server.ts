@@ -29,6 +29,40 @@ const serverOptions: https.ServerOptions = {
 };
 const server = https.createServer(serverOptions, app);
 
+export let wss: WebSocket.Server;
+
+if (config.WEBSOCKET === 'true') {
+  log.debug('server: Configuring WebSockets')
+   wss = new WebSocket.Server({noServer: true, clientTracking: true, perMessageDeflate: false, path: "/ws"} );
+
+  monitor.init(wss);
+  
+  wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
+  
+    log.info("server.wss.on(connection): new connection from client, url/headers: " + ws.url + "/" + JSON.stringify(request.headers));
+    const message = {command: "ping", data: "Hello world from server"};
+    ws.send(JSON.stringify(message));
+  
+    ws.on("close", (ws: WebSocket, code: number, reason: string): void => {
+      log.info("server.wss.on(close): Websocket: " + ws.url + " + code: " + code +  "reason: " + reason);
+    });
+  
+    ws.on("message", (data: Buffer): void => {
+      log.info("server.wss.on (message):  message=" + data.toString());
+  
+      monitor.parseInboundMessage(ws, data);
+  
+    });
+  
+    ws.on("error", (err): void => {
+        log.error("ws.on: Error: " + err);
+    });
+  } );
+  log.info('server: WebSockets configured')
+} else {
+  log.info('server: No WebSockets')
+}
+
 const httpServer = server.listen(config.PORT, () => {
 
   log.info(
@@ -36,29 +70,3 @@ const httpServer = server.listen(config.PORT, () => {
     " in " + app.get("env") + " mode");
   log.info("Press CTRL-C to stop\n");
 });
-
-export const wss = new WebSocket.Server({server: httpServer, clientTracking: true, perMessageDeflate: false, path: "/ws"} );
-
-monitor.init(wss);
-
-wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
-
-  log.info("server.wss.on(connection): new connection from client, url/headers: " + ws.url + "/" + JSON.stringify(request.headers));
-  const message = {command: "ping", data: "Hello world from server"};
-  ws.send(JSON.stringify(message));
-
-  ws.on("close", (ws: WebSocket, code: number, reason: string): void => {
-    log.info("server.wss.on(close): Websocket: " + ws.url + " + code: " + code +  "reason: " + reason);
-  });
-
-  ws.on("message", (data: Buffer): void => {
-    log.info("server.wss.on (message):  message=" + data.toString());
-
-    monitor.parseInboundMessage(ws, data);
-
-  });
-
-  ws.on("error", (err): void => {
-      log.error("ws.on: Error: " + err);
-    });
-} );

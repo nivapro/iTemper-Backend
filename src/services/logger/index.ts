@@ -43,18 +43,20 @@ private _name: string;
     private appendTenant(report: string ): string {
       return report;
     }
-
     public name(): string {
       return this._name;
     }
     public info (report: string) {
       // Log.logger.info(this.appendTenant(report));
-      console.info("info " + this.message(report));
-
+      if (LOG_LEVEL !=='error') {
+        console.info("info " + this.message(report));
+      }
     }
     public debug (report: string) {
       // Log.logger.debug(this.appendTenant(report));
-      console.info("debug " + this.message(report));
+      if (LOG_LEVEL==='debug') {
+        console.debug("debug " + this.message(report));
+      }
     }
 
     public error (report: string) {

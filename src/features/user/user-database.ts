@@ -13,12 +13,8 @@ export function initialize (getConnectionString: () => Promise<string>) {
   // Connect to MongoDB
 
   getConnectionString().then(connectionURI => {
-    mongoose.connect(connectionURI, (err: mongoose.Error) => {
-      if (err)
-        log.error ("user-database: connection error, check that the db is running - " + connectionURI + ", Error=[" + stringify(err) + "]");
-      else
-        log.info("user-database: Connected to Mongo DB at  " + connectionURI);
-    });
+      mongoose.connect(connectionURI)
+      .then (() => log.info("user-database: Connected to Mongo DB at " + connectionURI))
+      .catch(e =>  log.error ("user-database: connection error, check that the db is running - " + connectionURI + ", Error=[" + e + "]"));
   });
 }
-
