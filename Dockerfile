@@ -13,6 +13,8 @@ WORKDIR /usr/src/app
 # Copies the package.json first for better cache on later pushes
 COPY package.json package.json
 COPY README.md README.md
+COPY certs/server-cert.key certs/
+COPY certs/server-cert.pem certs/
 
 RUN npm install --production
 
