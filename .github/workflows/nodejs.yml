@@ -35,6 +35,10 @@ jobs:
         SALT: ${{ secrets.SALT }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         LOG_LEVEL: info
+        PORT: 3000
+        WEBSOCKET: true
+        MONGODB_URI: mongodb://itemper.vading.lan
+        MONGODB_PORT: 27017
     - name: Login to Docker hub
       run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build docker image
