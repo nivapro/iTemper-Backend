@@ -17,6 +17,9 @@ COPY README.md README.md
 COPY certs/server-cert.key certs/
 COPY certs/server-cert.pem certs/
 
+COPY certs/server-cert.key certs/
+COPY certs/server-cert.pem certs/
+
 RUN npm install --production
 
 # This will copy all files in our root to the working  directory in the container
