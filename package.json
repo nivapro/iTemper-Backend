@@ -9,7 +9,7 @@
     "author": "Torbjörn Vading",
     "license": "MIT",
     "scripts": {
-        "start": "node -r dotenv/config dist/server.js",
+        "start": "node -r dotenv/config dist/src/server.js",
         "build": "npm run --if-present rm -r dist && npm run build-ts && npm run lint && npm run copy-static-assets",
         "serve": "ts-node -r dotenv/config  src/server.ts",
         "watch-node": "nodemon dist/server.js",

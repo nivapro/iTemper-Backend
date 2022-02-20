@@ -11,18 +11,15 @@ RUN apt-get update && apt-get install -yq \
 WORKDIR /usr/src/app
 
 # Copies the package.json first for better cache on later pushes
-COPY package.json package.json
-COPY README.md README.md
-
-COPY certs/server-cert.key certs/
-COPY certs/server-cert.pem certs/
+COPY package*.json ./
+COPY README.md ./
 
 COPY certs/server-cert.key certs/
 COPY certs/server-cert.pem certs/
 
 RUN npm install --production
 
-# This will copy all files in our root to the working  directory in the container
+# This will copy all files in our root to the working directory in the container
 COPY ./dist ./dist
 
 RUN mkdir ./uploads \
