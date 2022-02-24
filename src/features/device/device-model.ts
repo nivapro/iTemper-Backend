@@ -5,6 +5,7 @@ import * as crypto from "../../services/crypto";
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 export interface DeviceInterface {
     name: string;
+    color: string;
     deviceID: string;
     key: string;
     hash: string;
@@ -20,6 +21,7 @@ export const DeviceSchema = new mongoose.Schema({
     name: {type: String },
     deviceID: {type: String, unique: true, timestamps: true },
     key: {type: String},
+    color: {type: String},
     hash: {type: String},
     tenantID: {type: String},
     statusTime: {type: Number},

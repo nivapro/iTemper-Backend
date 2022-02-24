@@ -19,12 +19,15 @@ const DataUptimeValidator: ValidationChain = body ("data.uptime", "Device data t
 const NameValidator: ValidationChain = body ("name", "Device name is not valid, must be alphanumeric 4-32 characters")
   .exists().trim().isLength({min: 4, max: 32}).matches(/^[-_.#0-9A-Z]+$/i); // !$@%^&*()_+|~=`{}\[\]:";'<>?,\/ 
 const NoNameValidator: ValidationChain = param ("name").not().exists();
+const ColorValidator: ValidationChain = body ("color", "no color provided").exists().isHexColor();
 
 export const DeviceIDFieldValidator = [DeviceIDValidator];
 export const DeviceDataFieldValidator = [DataValidator, DataTimestampValidator, DataUptimeValidator];
 export const NameFieldValidator = [ NameValidator ];
 export const NoNameFieldValidator = [NoNameValidator];
 export const RenameFieldValidator = [DeviceIDValidator, NameValidator];
+export const RegisterDeviceFieldValidator = [ NameValidator, ColorValidator ];
+export const ChangeColorFieldValidator = [ ColorValidator ];
 
 export const postRegisterDevice = (req: Request, res: Response): void => {
     const m = "postRegisterDevice, tenantID=" + res.locals.tenantID;
@@ -36,6 +39,7 @@ export const postRegisterDevice = (req: Request, res: Response): void => {
     }
 
     const name = req.body.name;
+    const color = req.body.color;
 
     Device.findOne({name: name}).then(device => {
       if (device === null) {
@@ -45,11 +49,12 @@ export const postRegisterDevice = (req: Request, res: Response): void => {
         const secrete = crypto.uuid();
         const newDevice = new Device();
         newDevice.set("name", name);
+        newDevice.set("color", color);
         newDevice.set("key", secrete); // will be hashed when the device is saved below.
         newDevice.set("deviceID", deviceID);
         newDevice.set("tenantID", res.locals.tenantID);
 
-        const body = {name: newDevice.name, deviceID: newDevice.deviceID, key: newDevice.deviceID + ":" + secrete};
+        const body = {name: newDevice.name, color: newDevice.color, deviceID: newDevice.deviceID, key: newDevice.deviceID + ":" + secrete};
         newDevice.save()
         .then(() => {
           log.info(label(m) + "Registered device=" + JSON.stringify(body));
@@ -98,6 +103,36 @@ export const putDeviceName = (req: Request, res: Response): void => {
   });
 };
 
+export const putDeviceColor = (req: Request, res: Response): void => {
+  const m = "putDeviceColor, tenantID=" + res.locals.tenantID;
+  const Device: DeviceModel = res.locals.Device;
+  const tenantID = res.locals.tenantID;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+     res.status(422).json({ errors: errors.mapped() });
+     return;
+  }
+  const deviceID = req.params.deviceID;
+  const color = req.body.color;
+  const filter = { deviceID: deviceID, tenantID: tenantID };
+  const update = { color: color };
+  const option = { new: true };
+  Device.findOneAndUpdate(filter, update, option).then(device => {
+      if (device) {
+        const body = {color, deviceID, key: device.deviceID + ":" + device.key};
+        log.info(label(m) + "Color changed for device with deviceID=" + deviceID + " to " + color + "for tenantID=" + res.locals.tenantID);
+        res.status(200).send(body);
+      }
+      else {
+        log.error(label(m) + "Error changing color, deviceID=" + deviceID + " for tenantID=" + res.locals.tenantID);
+        res.status(404).send("Cannot change device color to " + color);
+      }
+    }).catch(() => {
+      log.info(label(m) + "The device does not exist for tenantID=" + res.locals.tenantID);
+      res.status(400).send("Cannot change device color");
+  });
+};
 export const postDeviceData = (req: Request, res: Response): void => {
   const m = "postDeviceData, tenantID=" + res.locals.tenantID;
   const Device: DeviceModel = res.locals.Device;
