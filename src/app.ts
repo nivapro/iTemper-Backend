@@ -39,7 +39,7 @@ export const app = expressWs(express()).app;
 app.use(errorHandler());
 
 const corsOptions = {
-  origin: ["https://itemper.io", "https://www.itemper.io", "http://localhost:8080", "https://localhost:8080"],
+  origin: ["https://itemper.io", "https://www.itemper.io", "https://userapi.itemper.io", "http://localhost:8080", "https://localhost:8080"],
   allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "PUT", "POST", "OPTIONS", "DELETE"],
   credentials: true,
@@ -124,13 +124,16 @@ app.delete("/users/delete", authorizeJWT, userController.DeleteValidator, userCo
 // -------------- /devices ----------------------------------
 // // Requires JWT Token //
 // Create a device, returns a shared API key (the key is not saved, so remember)
-app.post("/devices/", DeviceMiddleWare, deviceController.NameFieldValidator, deviceController.postRegisterDevice);
+app.post("/devices/", DeviceMiddleWare, deviceController.RegisterDeviceFieldValidator, deviceController.postRegisterDevice);
 
 // Get all devices
 app.get("/devices", DeviceMiddleWare, deviceController.NoNameFieldValidator, deviceController.getAllDevices);
 
 // Update device name
-app.put("/devices/:deviceID", DeviceMiddleWare,  deviceController.RenameFieldValidator, deviceController.putDeviceName);
+app.put("/devices/:deviceID/name", DeviceMiddleWare,  deviceController.RenameFieldValidator, deviceController.putDeviceName);
+
+// Update device color
+app.put("/devices/:deviceID/color", DeviceMiddleWare,  deviceController.ChangeColorFieldValidator, deviceController.putDeviceColor);
 
 // Get device with deviceID
 app.get("/devices/:deviceID", DeviceMiddleWare, deviceController.DeviceIDFieldValidator, deviceController.getDevice);

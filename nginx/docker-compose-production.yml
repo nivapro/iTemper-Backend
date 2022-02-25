@@ -11,7 +11,9 @@ services:
       - web-logs:/var/log/nginx
       - web-root:/usr/share/nginx/html
       - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/letsencrypt
+      - certbot-var:/var/lib/letsencrypt'
+    depends_on:
+     - itemper
 #  certbot:
 #    image: certbot/certbot
 #    container_name: certbot
@@ -29,7 +31,7 @@ services:
       - web-root:/usr/share/nginx/html
     depends_on:
      - webserver
-    command: cp -r -u /itemper-web/dist /usr/share/nginx/html/
+
   itemper:
     container_name: itemper-backend
     restart: always
@@ -37,7 +39,6 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - webserver
       - mongo
     env_file:
       - ./.env
