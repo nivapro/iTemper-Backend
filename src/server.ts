@@ -27,13 +27,13 @@ const serverOptions: https.ServerOptions = {
   key: fs.readFileSync("./certs/server-cert.key"),
   cert: fs.readFileSync("./certs/server-cert.pem"),
 };
-const server = https.createServer(serverOptions, app);
+const httpsServer = https.createServer(serverOptions, app);
 
 export let wss: WebSocket.Server;
 
 if (config.WEBSOCKET === 'true') {
   log.debug('server: Configuring WebSockets')
-   wss = new WebSocket.Server({noServer: true, clientTracking: true, perMessageDeflate: false, path: "/ws"} );
+   wss = new WebSocket.Server({server: httpsServer, clientTracking: true, perMessageDeflate: false, path: "/ws"} );
 
   monitor.init(wss);
   
@@ -63,8 +63,7 @@ if (config.WEBSOCKET === 'true') {
   log.info('server: No WebSockets')
 }
 
-const httpServer = server.listen(config.PORT, () => {
-
+httpsServer.listen(config.PORT, () => {
   log.info(
     "iTemper back-end app is running at port " + config.PORT +
     " in " + app.get("env") + " mode");

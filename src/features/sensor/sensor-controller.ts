@@ -173,8 +173,6 @@ export const getSensorsSNPort = (req: Request, res: Response) => {
         .exec(function(err, sensors) {
           if (err) {
             res.status(503).send();
-          } else if (sensors.length === 0) {
-            res.status(404).end();
           } else {
               res.status(200).send(sensors);
           }});

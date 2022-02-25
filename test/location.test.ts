@@ -29,6 +29,7 @@ beforeAll(async done => {
   .set("Authorization", "bearer " + token)
   .send({
     name: "Hejhoppilingonskogen",
+    color: "#00AA00FF"
   });
   expect(res.status).toBe(200);
   expect(res.body.name).toBeDefined();

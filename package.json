@@ -1,6 +1,6 @@
 {
     "name": "itemper-backend",
-    "version": "0.0.45",
+    "version": "0.0.49",
     "description": "iTemper.io server implementation",
     "repository": {
         "type": "git",
@@ -9,7 +9,7 @@
     "author": "Torbjörn Vading",
     "license": "MIT",
     "scripts": {
-        "start": "node -r dotenv/config dist/server.js",
+        "start": "node -r dotenv/config dist/src/server.js",
         "build": "npm run --if-present rm -r dist && npm run build-ts && npm run lint && npm run copy-static-assets",
         "serve": "ts-node -r dotenv/config  src/server.ts",
         "watch-node": "nodemon dist/server.js",
@@ -29,7 +29,6 @@
     },
     "dependencies": {
         "bcrypt": "^4.0.1",
-        "bluebird": "^3.7.2",
         "body-parser": "^1.19.0",
         "chalk": "^4.1.0",
         "compression": "^1.7.4",
