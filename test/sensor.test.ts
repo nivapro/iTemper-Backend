@@ -48,7 +48,7 @@ afterAll(async done => {
 });
 
 describe("REGISTER SENSOR", () => {
-  test.only("Register a sensor should return 200", async done => {
+  test("Register a sensor should return 200", async done => {
     const sensor = { desc: {SN: "Hejhopp", port: 0}, attr: { model: "Gold", category: "Temperature", accuracy: 2, resolution: 3, maxSampleRate: 1}};
     const res = await request
     .post("/sensors")
