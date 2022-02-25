@@ -29,7 +29,7 @@ services:
       - web-root:/usr/share/nginx/html
     depends_on:
      - webserver
-    command: cp -r -u /itemper-web/dist/* /usr/share/nginx/html/itemper-web/
+    command: cp -r -u /itemper-web/dist /usr/share/nginx/html/
   itemper:
     container_name: itemper-backend
     restart: always
