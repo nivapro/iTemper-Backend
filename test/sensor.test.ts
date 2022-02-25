@@ -30,6 +30,7 @@ beforeAll(async done => {
   .set("Authorization", "bearer " + token)
   .send({
     name: "Hejhopp",
+    color: "#00AA00FF"
   });
   expect(res.status).toBe(200);
   expect(res.body.name).toBeDefined();
@@ -47,7 +48,7 @@ afterAll(async done => {
 });
 
 describe("REGISTER SENSOR", () => {
-  test("Register a sensor should return 200", async done => {
+  test.only("Register a sensor should return 200", async done => {
     const sensor = { desc: {SN: "Hejhopp", port: 0}, attr: { model: "Gold", category: "Temperature", accuracy: 2, resolution: 3, maxSampleRate: 1}};
     const res = await request
     .post("/sensors")
