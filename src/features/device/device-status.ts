@@ -38,11 +38,15 @@ export interface DeviceData {
     pid: number;
 }
 
-export function formatDeviceData (data: DeviceData): string {
-    let report = "";
-    report += "time: " + data.timestamp.toLocaleString();
-    report += ", hostname" + data.hostname;
-    report += ", uptime" + data.uptime;
-    report += ", networkInterfaces" + JSON.stringify(data.networkInterfaces);
-    return report;
+export function formatDeviceData (data: Partial<DeviceData>): string {
+    
+    return JSON.stringify(data, null, 2);
+}
+export function deviceDataReport (data: Partial<DeviceData>): Partial<DeviceData> {
+    const report: Partial<DeviceData> = {}; 
+    report.timestamp = data.timestamp;
+    report.hostname = data.hostname;
+    report.uptime = data.uptime;
+    report.networkInterfaces = data.networkInterfaces;
+    return 
 }

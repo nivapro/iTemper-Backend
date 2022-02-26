@@ -5,13 +5,14 @@ import * as crypto from "../../services/crypto";
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 export interface DeviceInterface {
     name: string;
+    color: string;
     deviceID: string;
     key: string;
     hash: string;
     tenantID: string;
     comparePassword: (candidatePassword: string, cb: (err: any, isMatch: any) => void) => void;
     statusTime?: number;
-    uptime?: number;
+    deviceData?: string;
 }
 
 export interface DeviceDocument extends DeviceInterface, mongoose.Document {}
@@ -20,10 +21,11 @@ export const DeviceSchema = new mongoose.Schema({
     name: {type: String },
     deviceID: {type: String, unique: true, timestamps: true },
     key: {type: String},
+    color: {type: String},
     hash: {type: String},
     tenantID: {type: String},
     statusTime: {type: Number},
-    uptime: {type: Number},
+    deviceData: {type: String},
 });
 
 /**
