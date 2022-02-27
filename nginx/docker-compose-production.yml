@@ -31,7 +31,6 @@ services:
       - web-root:/usr/share/nginx/html
     depends_on:
      - webserver
-
   itemper:
     container_name: itemper-backend
     restart: always
