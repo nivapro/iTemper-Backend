@@ -22,7 +22,6 @@ const DataNetworksValidator: ValidationChain = body ("data.networkInterfaces", "
 const NameValidator: ValidationChain = body ("name", "Device name is not valid, must be alphanumeric 4-32 characters")
   .exists().trim().isLength({min: 4, max: 32}).matches(/^[-_.#0-9A-Z]+$/i); // !$@%^&*()_+|~=`{}\[\]:";'<>?,\/ 
 const NoNameValidator: ValidationChain = param ("name").not().exists();
-
 const ColorValidator: ValidationChain = body ("color", "no color provided").exists().isHexColor();
 
 export const DeviceIDFieldValidator = [DeviceIDValidator];
