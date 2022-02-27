@@ -30,7 +30,9 @@ services:
     volumes:
       - web-root:/usr/share/nginx/html
     depends_on:
-     - webserver
+      - webserver
+    command:
+      - cp -r /itemper/dist /usr/share/nginx/html/ 
   itemper:
     container_name: itemper-backend
     restart: always
