@@ -24,8 +24,6 @@ const NameValidator: ValidationChain = body ("name", "Device name is not valid, 
 const NoNameValidator: ValidationChain = param ("name").not().exists();
 const ColorValidator: ValidationChain = body ("color", "no color provided").exists().isHexColor();
 
-const ColorValidator: ValidationChain = body ("color", "no color provided").exists().isHexColor();
-
 export const DeviceIDFieldValidator = [DeviceIDValidator];
 export const DeviceDataFieldValidator = [
       DataValidator, DataUptimeValidator, DataTimestampValidator,
