@@ -15,13 +15,14 @@ function label(name: string): string {
   return moduleName + name + ": ";
 }
 
-export const getValidatorSN = [
-  param("sn").exists().isLength({min: 4, max: 12})
-];
+const SNParamValidator = param("sn").exists().isLength({min: 4, max: 32});
+const PortParamValidator = param("port").exists().isInt({ min: 0 });
+
+export const getValidatorSN = [SNParamValidator ];
 
 export const getValidatorSNPort = [
-  param("sn").exists().isLength({min: 4, max: 12}),
-  param("port").exists().isInt({ min: 0, max: 8 })
+  SNParamValidator,
+  PortParamValidator
 ];
 export const postValidator = [
   body ("desc", "desc missing").exists(),
@@ -30,13 +31,11 @@ export const postValidator = [
   body ("attr.model", "attributes missing" ).exists()
 ];
 
-export const deleteValidator = [
-  param("sn").exists().isLength({min: 4, max: 12})
-];
+export const deleteValidator = [ SNParamValidator ];
 
 export const postDataValidator = [
-  param("sn").exists().isLength({min: 4, max: 12}),
-  param("port").exists().isInt({ min: 0, max: 7 }),
+  SNParamValidator,
+  PortParamValidator,
   body ("samples", "samples missing").exists()
 ];
 
