@@ -18,7 +18,7 @@ export interface DeviceInterface {
 export interface DeviceDocument extends DeviceInterface, mongoose.Document {}
 
 export const DeviceSchema = new mongoose.Schema({
-    name: {type: String },
+    name: {type: String, unique: true},
     deviceID: {type: String, unique: true, timestamps: true },
     key: {type: String},
     color: {type: String},
