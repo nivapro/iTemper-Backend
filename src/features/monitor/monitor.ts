@@ -20,64 +20,54 @@ let wss: WebSocket.Server;
 export function init (webSocketServer: WebSocket.Server) {
     wss = webSocketServer;
 }
-
-
+export function broadcast(message: OutboundMessage) {
+    const msgString = JSON.stringify(message);
+    wss.clients.forEach((client) => {
+        client.send(msgString);
+    })
+}
+const MonitoringClients = new Set<WebSocket>()
 export function send(data: SensorLog) {
     const message: OutboundMessage = { command: "log", data};
     const messageStr = JSON.stringify(message);
-    log.debug("monitor.broadcast: sending message=" + messageStr);
-
-    wss.clients.forEach(function each(client) {
+    MonitoringClients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-          client.send(messageStr);
-          log.debug("monitor.broadcast: message sent");
+            client.send(messageStr);
+            log.debug("monitor.broadcast: message sent url=" + client.url);
+          }
+    })
+}
+
+export function parseInboundMessage(ws: WebSocket, data: string): void  {
+    try {
+        const message = JSON.parse(data) as Partial<InboundMessage>;
+        if ('command' in message ) {
+            log.debug("monitor.parseInboundMessage: received message=" + message);
+            switch (message.command) {
+                case "startMonitor":
+                    startMonitor(ws);
+                    break;
+                case "stopMonitor":
+                    stopMonitor(ws);
+                    break;
+              }
         }
-      });
-
+    } catch (e) {
+        log.debug("monitor.parseInboundMessage: error=" + e);
+    }
 }
 
-export function parseInboundMessage(ws: WebSocket, data: Buffer): void  {
-    const message = <InboundMessage> JSON.parse(data.toString());
-    log.debug("monitor.parseInboundMessage: received message=" + message);
-    switch (message.command) {
-        case "startMonitor":
-            message.data = <Descriptor[]> <any> message.data;
-            startMonitor(ws, message.data);
-            break;
-        case "stopMonitor":
-            message.data = <Descriptor[]> <any> message.data;
-            stopMonitor(ws, message.data);
-            break;
-      }
-
-}
-// export interface SensorSample {
-//     value: number;
-//     date: number;
-// }
-// export interface SensorLog {
-//     desc: Descriptor;
-//     samples: SensorSample[];
-// }
-
-
-const MonitoringClients = new Set();
-
-export function startMonitor(ws: WebSocket, desc: Descriptor[]) {
-    log.info("monitor.startMonitor: has not implemented filter on Desc yet: " + JSON.stringify(desc));
+export function startMonitor(ws: WebSocket) {
     if (!MonitoringClients.has(ws)) {
         MonitoringClients.add(ws);
     }
     log.info ("monitor.startMonitor: " + MonitoringClients.size + " clients");
 }
 
-export function stopMonitor(ws: WebSocket, desc: Descriptor[]) {
-    log.info("monitor.stopMonitor: has not implemented filter on Desc yet: " + JSON.stringify(desc));
-
+export function stopMonitor(ws: WebSocket) {
     if (MonitoringClients.has(ws)) {
         MonitoringClients.delete(ws);
     }
-
     log.info ("monitor.stopMonitor: " + MonitoringClients.size + " clients");
 }
 
