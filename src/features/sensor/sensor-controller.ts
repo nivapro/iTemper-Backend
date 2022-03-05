@@ -199,7 +199,8 @@ export const postSensors = (req: Request, res: Response) => {
     }
     const desc: Descriptor = req.body.desc;
     const attr: Attributes = req.body.attr;
-    if (desc.SN !== deviceName) {
+  
+    if (desc.SN.split('--')[0] !== deviceName) {
         log.info(label(m) + "Cannot create sensor: " + JSON.stringify(desc) + ". Sensor SN does not match device name");
         return res.status(308).send({deviceID, name: deviceName});
     }
@@ -250,7 +251,7 @@ export const postSensorData = (req: Request, res: Response) => {
     }
     const desc: Descriptor =  req.body.desc;
 
-    if (desc.SN !== deviceName) {
+    if (desc.SN.split('--')[0] !== deviceName) {
       log.info(label(m) + "Logging sensor data refused for " + JSON.stringify(desc) + ". Sensor SN does not match device name");
       return res.status(308).send({deviceID, name: deviceName});
     }
