@@ -1,15 +1,12 @@
-
-
 import * as WebSocket from "ws";
 import log from "../../services/logger";
-import { Descriptor, SensorLog } from "./../sensor/sensor-model";
+import { SensorLog } from "./../sensor/sensor-model";
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 export interface InboundMessage {
     command: "startMonitor" | "stopMonitor";
     data: any;
 }
-
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 export interface OutboundMessage {
     command: "sensors" | "settings"| "setting" |  "log" | "ping";
@@ -37,7 +34,6 @@ export function send(data: SensorLog) {
           }
     })
 }
-
 export function parseInboundMessage(ws: WebSocket, data: string): void  {
     try {
         const message = JSON.parse(data) as Partial<InboundMessage>;
@@ -56,21 +52,15 @@ export function parseInboundMessage(ws: WebSocket, data: string): void  {
         log.debug("monitor.parseInboundMessage: error=" + e);
     }
 }
-
 export function startMonitor(ws: WebSocket) {
     if (!MonitoringClients.has(ws)) {
         MonitoringClients.add(ws);
     }
     log.info ("monitor.startMonitor: " + MonitoringClients.size + " clients");
 }
-
 export function stopMonitor(ws: WebSocket) {
     if (MonitoringClients.has(ws)) {
         MonitoringClients.delete(ws);
     }
     log.info ("monitor.stopMonitor: " + MonitoringClients.size + " clients");
 }
-
-
-
-
