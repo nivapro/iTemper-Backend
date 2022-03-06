@@ -47,21 +47,21 @@ private _name: string;
       return this._name;
     }
     public info (report: string) {
-      // Log.logger.info(this.appendTenant(report));
-      if (LOG_LEVEL !=='error') {
-        console.info("info " + this.message(report));
-      }
+      Log.logger.info(this.appendTenant(report));
+      // if (LOG_LEVEL !=='error') {
+      //   console.info("info " + this.message(report));
+      // }
     }
     public debug (report: string) {
-      // Log.logger.debug(this.appendTenant(report));
-      if (LOG_LEVEL==='debug') {
-        console.debug("debug " + this.message(report));
-      }
+      Log.logger.debug(this.appendTenant(report));
+      // if (LOG_LEVEL==='debug') {
+      //   console.debug("debug " + this.message(report));
+      // }
     }
 
     public error (report: string) {
-      // Log.logger.error(this.appendTenant(report));
-      console.error("error " + this.message(report));
+      Log.logger.error(this.appendTenant(report));
+      // console.error("error " + this.message(report));
     }
 
     public setLevel(level: string): void {
@@ -77,7 +77,7 @@ private _name: string;
 
 }
 const log = () => new Log();
-log().info("logger: New application log created");
+log().info("logger: Application log created");
 
 export default log();
 
