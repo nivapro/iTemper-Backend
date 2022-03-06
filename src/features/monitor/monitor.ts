@@ -25,10 +25,14 @@ export function broadcast(message: OutboundMessage) {
 }
 const MonitoringClients = new Set<WebSocket>()
 function sendMessage(message: string) {
+    log.debug("monitor.sendMessage: #MonitoringClients=" + MonitoringClients.size);
     MonitoringClients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send(message);
             log.debug("monitor.sendMessage: url=" + client.url);
+        } else {
+            log.error("monitor.sendMessage: WebSocket not OPEN, deletes client " + client.url);
+            MonitoringClients.delete(client);
         }
     });
 }
@@ -41,7 +45,6 @@ export function parseInboundMessage(ws: WebSocket, data: string): void  {
     try {
         const message = JSON.parse(data) as Partial<InboundMessage>;
         if ('command' in message ) {
-            log.debug("monitor.parseInboundMessage: received message=" + message);
             switch (message.command) {
                 case "startMonitor":
                     startMonitor(ws);
@@ -53,7 +56,7 @@ export function parseInboundMessage(ws: WebSocket, data: string): void  {
                     break;
                 case "log":
                     sendMessage(data);
-                    log.debug("monitor.parseInboundMessage: sendMessage " + message);
+                    log.debug("monitor.parseInboundMessage: sendMessage");
                     break;
               }
         }
