@@ -258,7 +258,7 @@ export const postSensorData = (req: Request, res: Response) => {
     const samples: Data[] = req.body.samples;
 
     const sensorLog: SensorLog = {desc, samples};
-    monitor.send(sensorLog);
+    monitor.sendSensorLog(sensorLog);
 
     // find sensor and push each sample to the end of the sensor.samples array
     // return the sensor object with the newly pushed samples

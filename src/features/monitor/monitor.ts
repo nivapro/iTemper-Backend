@@ -1,10 +1,12 @@
+import { serializeWithBufferAndIndex } from "bson";
+import { serialize } from "v8";
 import * as WebSocket from "ws";
 import log from "../../services/logger";
 import { SensorLog } from "./../sensor/sensor-model";
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 export interface InboundMessage {
-    command: "startMonitor" | "stopMonitor";
+    command: "startMonitor" | "stopMonitor" | "log";
     data: any;
 }
 /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -24,27 +26,33 @@ export function broadcast(message: OutboundMessage) {
     })
 }
 const MonitoringClients = new Set<WebSocket>()
-export function send(data: SensorLog) {
-    const message: OutboundMessage = { command: "log", data};
-    const messageStr = JSON.stringify(message);
+function sendMessage(message: string) {
     MonitoringClients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(messageStr);
-            log.debug("monitor.broadcast: message sent url=" + client.url);
-          }
-    })
+            client.send(message);
+            log.debug("monitor.sendMessage: url=" + client.url +", message="+ message);
+        }
+    });
+}
+export function sendSensorLog(data: SensorLog) {
+    const message: OutboundMessage = { command: "log", data};
+    const messageStr = JSON.stringify(message);
+    sendMessage(messageStr);
 }
 export function parseInboundMessage(ws: WebSocket, data: string): void  {
     try {
         const message = JSON.parse(data) as Partial<InboundMessage>;
         if ('command' in message ) {
-            log.debug("monitor.parseInboundMessage: received message=" + message);
+            log.info("monitor.parseInboundMessage: received message=" + message);
             switch (message.command) {
                 case "startMonitor":
                     startMonitor(ws);
                     break;
                 case "stopMonitor":
                     stopMonitor(ws);
+                    break;
+                case "log":
+                    sendMessage(data);
                     break;
               }
         }
