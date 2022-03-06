@@ -228,6 +228,8 @@ export const postSensors = (req: Request, res: Response) => {
     });
   }
   catch (e) {
+    log.error(label(m) + "catch error=" + e);
+    log.error(label(m) + "body=" + JSON.stringify(req.body));
     return res.status(400).end();
   }
 };
