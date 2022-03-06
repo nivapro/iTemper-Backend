@@ -1,10 +1,18 @@
 import mongoose from "mongoose";
 
 export enum Category {
-  Temperature,
-  AbsoluteHumidity,
-  RelativeHumidity,
-  WindSpeed,
+  Temperature = 'Temperature',
+  AbsoluteHumidity = 'AbsoluteHumidity',
+  RelativeHumidity = 'RelativeHumidity',
+  WindSpeed = 'WindSpeed',
+  rssi = 'rssi',
+  Humidity = 'Humidity',
+  AirPressure = 'AirPressure',
+  AccelerationX = 'AccelerationX',
+  AccelerationY = 'AccelerationY',
+  AccelerationZ = 'AccelerationZ',
+  Battery = 'Battery',
+  TxPower = 'TxPower',
 }
 
 export interface Data {
