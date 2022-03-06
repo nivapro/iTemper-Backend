@@ -1,5 +1,3 @@
-import { serializeWithBufferAndIndex } from "bson";
-import { serialize } from "v8";
 import * as WebSocket from "ws";
 import log from "../../services/logger";
 import { SensorLog } from "./../sensor/sensor-model";

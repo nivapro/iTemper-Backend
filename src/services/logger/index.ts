@@ -10,7 +10,6 @@ export class Log {
   private static logger: Logger;
 
   private static transports = {
-    file: new transports.File({ filename: "itemper-error.log", level: "error" }),
     console: new (transports.Console)(),
 };
 private static applicationName = "iTemper-backend";
@@ -31,10 +30,8 @@ private _name: string;
       format: combine (timestamp(), label ({ label: this.label}), myFormat),
       exitOnError: false,
       level: LOG_LEVEL,
-      transports: [
-        Log.transports.file,
-        Log.transports.console,
-      ],
+      defaultMeta: { service: 'user-service' },
+      transports: [new transports.Console() ],
     });
   }
     private time(): string {
@@ -65,7 +62,7 @@ private _name: string;
     }
 
     public setLevel(level: string): void {
-      Log.logger.transports[1].level = level;
+      Log.logger.transports[0].level = level;
   }
 
     private message(message: string): string {
@@ -84,14 +81,3 @@ export default log();
 export function setLevel(level: string): void {
     log().setLevel(level);
 }
-  // let v: winston.LoggerOptions;
-// if we're not in production then log to the `console` with the format:
-// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-//
-// if (process.env.NODE_ENV !== 'production') {
-// logger.add(new winston.transports.Console({
-//     format: winston.configure({
-
-//     })
-// }));
-// }
