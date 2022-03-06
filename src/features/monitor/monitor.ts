@@ -30,7 +30,7 @@ function sendMessage(message: string) {
     MonitoringClients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send(message);
-            log.debug("monitor.sendMessage: url=" + client.url +", message="+ message);
+            log.debug("monitor.sendMessage: url=" + client.url);
         }
     });
 }
@@ -43,16 +43,19 @@ export function parseInboundMessage(ws: WebSocket, data: string): void  {
     try {
         const message = JSON.parse(data) as Partial<InboundMessage>;
         if ('command' in message ) {
-            log.info("monitor.parseInboundMessage: received message=" + message);
+            log.debug("monitor.parseInboundMessage: received message=" + message);
             switch (message.command) {
                 case "startMonitor":
                     startMonitor(ws);
+                    log.info("monitor.parseInboundMessage: startMonitor");
                     break;
                 case "stopMonitor":
                     stopMonitor(ws);
+                    log.info("monitor.parseInboundMessage: stopMonitor");
                     break;
                 case "log":
                     sendMessage(data);
+                    log.debug("monitor.parseInboundMessage: sendMessage " + message);
                     break;
               }
         }

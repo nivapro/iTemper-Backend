@@ -181,7 +181,6 @@ export const getSensorsSNPort = (req: Request, res: Response) => {
 
 };
 
-
 // Create a sensor
 export const postSensors = (req: Request, res: Response) => {
   const m = "postSensors" + ", tenantID=" + res.locals.tenantID;
