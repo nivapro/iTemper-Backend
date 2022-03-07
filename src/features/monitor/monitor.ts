@@ -23,6 +23,11 @@ export function broadcast(message: OutboundMessage) {
         client.send(msgString);
     })
 }
+export function sendSensorLog(data: SensorLog) {
+    const message: OutboundMessage = {command: "log", data};
+    const msgStr = JSON.stringify(message);
+    forwardLog(msgStr);
+}
 const MonitoringClients = new Set<WebSocket>()
 function forwardLog(message: string) {
     log.debug("monitor.forwardLog: #MonitoringClients=" + MonitoringClients.size);
