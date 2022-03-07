@@ -1,3 +1,4 @@
+import { authorizeJWT } from "./features/auth/auth-middleware";
 import * as config from "./services/config";
 import log from "./services/logger";
 
@@ -37,6 +38,7 @@ if (config.WEBSOCKET === 'true') {
 
   monitor.init(wss);
   
+
   wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
   
     log.info("server.wss.on(connection): new connection from client, url/headers: " + ws.url + "/" + JSON.stringify(request.headers));

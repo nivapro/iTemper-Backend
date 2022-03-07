@@ -4,12 +4,12 @@ import { SensorLog } from "./../sensor/sensor-model";
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 export interface InboundMessage {
-    command: "startMonitor" | "stopMonitor" | "log";
+    command: "authorization" | "startMonitor" | "stopMonitor" | "log";
     data: any;
 }
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 export interface OutboundMessage {
-    command: "sensors" | "settings"| "setting" |  "log" | "ping";
+    command: "authorized" |"sensors" | "settings"| "setting" |  "log" | "ping";
     data: any;
 }
 let wss: WebSocket.Server;
@@ -24,28 +24,35 @@ export function broadcast(message: OutboundMessage) {
     })
 }
 const MonitoringClients = new Set<WebSocket>()
-function sendMessage(message: string) {
-    log.debug("monitor.sendMessage: #MonitoringClients=" + MonitoringClients.size);
+function forwardLog(message: string) {
+    log.debug("monitor.forwardLog: #MonitoringClients=" + MonitoringClients.size);
     MonitoringClients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send(message);
-            log.debug("monitor.sendMessage: url=" + client.url);
+            log.debug("monitor.forwardLog: url=" + client.url);
         } else {
-            log.error("monitor.sendMessage: WebSocket not OPEN, deletes client " + client.url);
+            log.error("monitor.forwardLog: WebSocket not OPEN, deletes client " + client.url);
             MonitoringClients.delete(client);
         }
     });
 }
-export function sendSensorLog(data: SensorLog) {
-    const message: OutboundMessage = { command: "log", data};
-    const messageStr = JSON.stringify(message);
-    sendMessage(messageStr);
+function sendMessage(ws: WebSocket, message: OutboundMessage) {
+    const msgStr = JSON.stringify(message);
+    ws.send(msgStr); 
+}
+function authorize(ws: WebSocket, data: any) {
+    const message: OutboundMessage = {command: "authorized", data};
+    // TODO: handle upgrade before connection
+    sendMessage(ws, message);
 }
 export function parseInboundMessage(ws: WebSocket, data: string): void  {
     try {
         const message = JSON.parse(data) as Partial<InboundMessage>;
         if ('command' in message ) {
             switch (message.command) {
+                case "authorization":
+                    authorize(ws, message.data);
+                    break;
                 case "startMonitor":
                     startMonitor(ws);
                     log.info("monitor.parseInboundMessage: startMonitor");
@@ -55,7 +62,7 @@ export function parseInboundMessage(ws: WebSocket, data: string): void  {
                     log.info("monitor.parseInboundMessage: stopMonitor");
                     break;
                 case "log":
-                    sendMessage(data);
+                    forwardLog(data);
                     log.debug("monitor.parseInboundMessage: sendMessage");
                     break;
               }
