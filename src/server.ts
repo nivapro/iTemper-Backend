@@ -1,4 +1,3 @@
-import { authorizeJWT } from "./features/auth/auth-middleware";
 import * as config from "./services/config";
 import log from "./services/logger";
 
