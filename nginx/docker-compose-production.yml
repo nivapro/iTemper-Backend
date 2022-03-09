@@ -14,7 +14,7 @@ services:
       - certbot-var:/var/lib/letsencrypt'
     depends_on:
      - itemper
- certbot:
+  certbot:
    image: certbot/certbot
    container_name: certbot
    volumes:
