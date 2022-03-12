@@ -2,9 +2,9 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.222.0/containers/javascript-node-mongo
 // Update the VARIANT arg in docker-compose.yml to pick a Node.js version
 {
-	"name": "Node.js & Mongo DB",
+	"name": "Node.js, Typescript & Mongo DB",
 	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
+	"service": "itemper",
 	"workspaceFolder": "/workspace",
 
 	// Set *default* container specific settings.json values on container create.
@@ -17,10 +17,10 @@
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [3000, 27017],
+	"forwardPorts": [3000, 8080],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "yarn install",
+	"postCreateCommand": "/workspaces/iTemper-Backend/.devcontainer/setup-web.sh",
 
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "node",
