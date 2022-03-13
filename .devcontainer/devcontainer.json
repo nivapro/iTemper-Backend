@@ -20,7 +20,7 @@
 	"forwardPorts": [3000, 8080],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "/workspaces/iTemper-Backend/.devcontainer/setup-web.sh",
+	"postCreateCommand": "bash .devcontainer/clone-repos.sh",
 
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "node",
