@@ -37,6 +37,7 @@ if (config.WEBSOCKET === 'true') {
 
   monitor.init(wss);
   
+
   wss.on("connection", (ws: WebSocket, request: http.IncomingMessage): void  => {
   
     log.info("server.wss.on(connection): new connection from client, url/headers: " + ws.url + "/" + JSON.stringify(request.headers));
@@ -47,7 +48,7 @@ if (config.WEBSOCKET === 'true') {
       log.info("server.wss.on(close): Websocket: " + ws.url + " + code: " + code +  "reason: " + reason);
     });
   
-    ws.on("message", (data: Buffer): void => {
+    ws.on("message", (data: string): void => {
       log.info("server.wss.on (message):  message=" + data.toString());
   
       monitor.parseInboundMessage(ws, data);

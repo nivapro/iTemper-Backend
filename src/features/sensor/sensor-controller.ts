@@ -15,13 +15,14 @@ function label(name: string): string {
   return moduleName + name + ": ";
 }
 
-export const getValidatorSN = [
-  param("sn").exists().isLength({min: 4, max: 12})
-];
+const SNParamValidator = param("sn").exists().isLength({min: 4, max: 32});
+const PortParamValidator = param("port").exists().isInt({ min: 0 });
+
+export const getValidatorSN = [SNParamValidator ];
 
 export const getValidatorSNPort = [
-  param("sn").exists().isLength({min: 4, max: 12}),
-  param("port").exists().isInt({ min: 0, max: 8 })
+  SNParamValidator,
+  PortParamValidator
 ];
 export const postValidator = [
   body ("desc", "desc missing").exists(),
@@ -30,13 +31,11 @@ export const postValidator = [
   body ("attr.model", "attributes missing" ).exists()
 ];
 
-export const deleteValidator = [
-  param("sn").exists().isLength({min: 4, max: 12})
-];
+export const deleteValidator = [ SNParamValidator ];
 
 export const postDataValidator = [
-  param("sn").exists().isLength({min: 4, max: 12}),
-  param("port").exists().isInt({ min: 0, max: 7 }),
+  SNParamValidator,
+  PortParamValidator,
   body ("samples", "samples missing").exists()
 ];
 
@@ -182,7 +181,6 @@ export const getSensorsSNPort = (req: Request, res: Response) => {
 
 };
 
-
 // Create a sensor
 export const postSensors = (req: Request, res: Response) => {
   const m = "postSensors" + ", tenantID=" + res.locals.tenantID;
@@ -200,7 +198,8 @@ export const postSensors = (req: Request, res: Response) => {
     }
     const desc: Descriptor = req.body.desc;
     const attr: Attributes = req.body.attr;
-    if (desc.SN !== deviceName) {
+  
+    if (desc.SN.split('--')[0] !== deviceName) {
         log.info(label(m) + "Cannot create sensor: " + JSON.stringify(desc) + ". Sensor SN does not match device name");
         return res.status(308).send({deviceID, name: deviceName});
     }
@@ -228,6 +227,8 @@ export const postSensors = (req: Request, res: Response) => {
     });
   }
   catch (e) {
+    log.error(label(m) + "catch error=" + e);
+    log.error(label(m) + "body=" + JSON.stringify(req.body));
     return res.status(400).end();
   }
 };
@@ -251,14 +252,14 @@ export const postSensorData = (req: Request, res: Response) => {
     }
     const desc: Descriptor =  req.body.desc;
 
-    if (desc.SN !== deviceName) {
+    if (desc.SN.split('--')[0] !== deviceName) {
       log.info(label(m) + "Logging sensor data refused for " + JSON.stringify(desc) + ". Sensor SN does not match device name");
       return res.status(308).send({deviceID, name: deviceName});
     }
     const samples: Data[] = req.body.samples;
 
     const sensorLog: SensorLog = {desc, samples};
-    monitor.send(sensorLog);
+    monitor.sendSensorLog(sensorLog);
 
     // find sensor and push each sample to the end of the sensor.samples array
     // return the sensor object with the newly pushed samples

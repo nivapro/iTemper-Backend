@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../itemper-web"
+		}
+	],
+	"settings": {
+		"typescript.referencesCodeLens.enabled": true
+	}
+}

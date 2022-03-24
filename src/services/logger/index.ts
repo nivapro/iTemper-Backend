@@ -10,7 +10,6 @@ export class Log {
   private static logger: Logger;
 
   private static transports = {
-    file: new transports.File({ filename: "itemper-error.log", level: "error" }),
     console: new (transports.Console)(),
 };
 private static applicationName = "iTemper-backend";
@@ -31,10 +30,8 @@ private _name: string;
       format: combine (timestamp(), label ({ label: this.label}), myFormat),
       exitOnError: false,
       level: LOG_LEVEL,
-      transports: [
-        Log.transports.file,
-        Log.transports.console,
-      ],
+      defaultMeta: { service: 'user-service' },
+      transports: [new transports.Console() ],
     });
   }
     private time(): string {
@@ -47,25 +44,25 @@ private _name: string;
       return this._name;
     }
     public info (report: string) {
-      // Log.logger.info(this.appendTenant(report));
-      if (LOG_LEVEL !=='error') {
-        console.info("info " + this.message(report));
-      }
+      Log.logger.info(this.appendTenant(report));
+      // if (LOG_LEVEL !=='error') {
+      //   console.info("info " + this.message(report));
+      // }
     }
     public debug (report: string) {
-      // Log.logger.debug(this.appendTenant(report));
-      if (LOG_LEVEL==='debug') {
-        console.debug("debug " + this.message(report));
-      }
+      Log.logger.debug(this.appendTenant(report));
+      // if (LOG_LEVEL==='debug') {
+      //   console.debug("debug " + this.message(report));
+      // }
     }
 
     public error (report: string) {
-      // Log.logger.error(this.appendTenant(report));
-      console.error("error " + this.message(report));
+      Log.logger.error(this.appendTenant(report));
+      // console.error("error " + this.message(report));
     }
 
     public setLevel(level: string): void {
-      Log.logger.transports[1].level = level;
+      Log.logger.transports[0].level = level;
   }
 
     private message(message: string): string {
@@ -77,21 +74,10 @@ private _name: string;
 
 }
 const log = () => new Log();
-log().info("logger: New application log created");
+log().info("logger: Application log created");
 
 export default log();
 
 export function setLevel(level: string): void {
     log().setLevel(level);
 }
-  // let v: winston.LoggerOptions;
-// if we're not in production then log to the `console` with the format:
-// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-//
-// if (process.env.NODE_ENV !== 'production') {
-// logger.add(new winston.transports.Console({
-//     format: winston.configure({
-
-//     })
-// }));
-// }
