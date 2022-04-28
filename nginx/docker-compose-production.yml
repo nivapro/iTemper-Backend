@@ -35,7 +35,7 @@ services:
       - cp -r /itemper/dist /usr/share/nginx/html/ 
   itemper:
     container_name: itemper-backend
-    restart: always
+    restart: unless-stopped
     image: tova/itemper
     ports:
       - "3000:3000"
@@ -48,6 +48,7 @@ services:
   mongo:
     container_name: mongo
     image: mongo
+    restart: unless-stopped
     volumes:
       - mongodb:/data/db
     ports:

@@ -7,7 +7,7 @@ const myFormat = printf(({ level, message, label, timestamp }) => {
 
 
 export class Log {
-  private static logger: Logger;
+  public static logger: Logger;
 
   private static transports = {
     console: new (transports.Console)(),

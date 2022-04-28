@@ -23,7 +23,7 @@
         "sourceMap": true,
         "skipLibCheck": true,
         "outDir": "dist",
-        "baseUrl": "./src",
+        "baseUrl": ".",
         "lib": ["es2021", "DOM"],
         "resolveJsonModule" : true,
         "forceConsistentCasingInFileNames": true,
