@@ -88,7 +88,7 @@
         "mongodb-memory-server": "^6.6.0",
         "nodemon": "^1.19.4",
         "shelljs": "^0.8.4",
-        "snyk": "^1.323.1",
+        "snyk": "^1.996.0",
         "supertest": "^4.0.2",
         "ts-jest": "^24.3.0",
         "ts-node": "^10.4.0",
